@@ -22,7 +22,9 @@ function init(){
 var bodies;
 var meshes;
 var world;
-var playerPhysic
+var playerPhysic;
+
+
 function initCannon(){
 			let N =1;
 			bodies=[];
@@ -37,7 +39,7 @@ function initCannon(){
 
             // Create boxes
             let mass = 5, radius = 1.3;
-            let boxShape = new CANNON.Box(new CANNON.Vec3(10,10,20));
+            let boxShape = new CANNON.Box(new CANNON.Vec3(5,5,10));
             for(let i=0; i<N; i++){
                 let boxBody = new CANNON.Body({ mass: mass });
                 boxBody.addShape(boxShape);
@@ -52,7 +54,7 @@ function initCannon(){
             let groundShape = new CANNON.Plane();
             let groundBody = new CANNON.Body({ mass: 0 });
             groundBody.addShape(groundShape);
-            groundBody.position.set(0,0,15)
+            groundBody.position.set(0,0,25)
            // groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
             world.addBody(groundBody);
 
@@ -67,7 +69,7 @@ function initCannon(){
 
 function make(){
 	let size={x:10,y:10,z:10}
-	let boxShape = new CANNON.Box(new CANNON.Vec3(size.x,size.y,size.z));
+	let boxShape = new CANNON.Box(new CANNON.Vec3(size.x/2,size.y/2,size.z/2));
 	let boxBody = new CANNON.Body({ mass: 5 });
     boxBody.addShape(boxShape);
     boxBody.position.set(Math.random()*50,Math.random()*50,40)
