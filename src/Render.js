@@ -101,7 +101,8 @@ function init() {
     let wood= new THREE.MeshBasicMaterial( {color: 0x20E89F, side: THREE.FrontSide} );
     let ground= new THREE.MeshBasicMaterial( {color: 0x5471A5, side: THREE.FrontSide} );
     let guyMat= new THREE.MeshBasicMaterial( {color: 0xEAF722, side: THREE.FrontSide} );
-    defaultMat=guyMat
+    defaultMat= new THREE.MeshBasicMaterial( {color: 0xCF2ADE, side: THREE.FrontSide} );
+
     //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("white")} );
     /*geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
     cube = new THREE.Mesh( geometry, material );

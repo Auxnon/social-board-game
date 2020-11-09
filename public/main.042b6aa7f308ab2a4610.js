@@ -17,7 +17,7 @@
 /*! runtime requirements:  */
 /***/ (() => {
 
-eval("throw new Error(\"Module parse failed: Identifier 'Render' has already been declared (2:12)\\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\\n| import * as Render from \\\"./Render.js\\\";\\n> import * as Render from \\\"./Render.js\\\";\\n| \\n| function init(){\");\n\n//# sourceURL=webpack://buup/./src/Main.js?");
+eval("throw new Error(\"Module parse failed: Unexpected token (77:54)\\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\\n| \\n|             \\t\\tcase 38: case 87:  playerBody.velocity.y+=0.1;break;//up\\n>             \\t\\tcase 40: case 83: playerBody.velocity.y+-=0.1;break;//down\\n| \\n| \");\n\n//# sourceURL=webpack://buup/./src/Main.js?");
 
 /***/ })
 
