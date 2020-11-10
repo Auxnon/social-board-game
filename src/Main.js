@@ -48,7 +48,7 @@ function initCannon(){
             for(let i=0; i<N; i++){
                 let boxBody = new CANNON.Body({ mass: mass });
                 boxBody.addShape(boxShape);
-                boxBody.position.set(0,0,100);
+                boxBody.position.set(0,0,60);
                 world.addBody(boxBody);
                 //boxBody.angularDamping=0.8 //really high
                 playerBody=boxBody
@@ -60,14 +60,13 @@ function initCannon(){
 
             // Create a plane
             let groundShape = new CANNON.Plane();
+            let c=40
             let points=[
-            new CANNON.Vec3(-20,-20,0),new CANNON.Vec3(-20,20,0),new CANNON.Vec3(20,20,0),new CANNON.Vec3(20,-20,0),
-            new CANNON.Vec3(-20,-20,20),new CANNON.Vec3(-20,20,20),new CANNON.Vec3(20,20,20),new CANNON.Vec3(20,-20,20)
+            new CANNON.Vec3(-c,-c,0),new CANNON.Vec3(-c,c,0),new CANNON.Vec3(c,c,0),new CANNON.Vec3(c,-c,0),
+            new CANNON.Vec3(-c,-c,80),new CANNON.Vec3(-c,c,80),new CANNON.Vec3(c,c,80),new CANNON.Vec3(c,-c,80)
             ]
-            let faces=[[0,1,2,3,  0,1,5,4,  2,3,6,7]] //
+            let faces=[[3,2,1,0],[4,5,1,0]]//,  ,  [2,3,6,7]] //
             let box = new CANNON.ConvexPolyhedron(points,faces);
-
-
 
 
             let groundBody = new CANNON.Body({ mass: 0 });
@@ -181,7 +180,9 @@ function applyQuaternion(v,q){ //ripped from threejs because i didnt feel like c
                 meshes[i].position.copy(bodies[i].position);
                 meshes[i].quaternion.copy(bodies[i].quaternion);
                 if(bodies[i].position.z<-100){
-                	bodies[i].position.set(0,0,100)
+                	bodies[i].position.set(Math.random()*80 -40,Math.random()*80 -40,100)
+
+                	bodies[i].velocity.set(0,0,0)
                 }
 
             }
