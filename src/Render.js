@@ -41,7 +41,10 @@ var scene
 var group
 
 var player;
-
+var wood;
+var ground;
+var blood;
+var yellow;
 
 
 
@@ -98,10 +101,13 @@ function init() {
 
     let material= new THREE.MeshBasicMaterial( {color:0x75D5CE});
 
-    let wood= new THREE.MeshBasicMaterial( {color: 0x20E89F, side: THREE.FrontSide} );
-    let ground= new THREE.MeshBasicMaterial( {color: 0x5471A5, side: THREE.FrontSide} );
+    wood= new THREE.MeshBasicMaterial( {color: 0x20E89F, side: THREE.FrontSide} );
+    ground= new THREE.MeshBasicMaterial( {color: 0x5471A5, side: THREE.FrontSide} );
     let guyMat= new THREE.MeshBasicMaterial( {color: 0xEAF722, side: THREE.FrontSide} );
     defaultMat= new THREE.MeshBasicMaterial( {color: 0xCF2ADE, side: THREE.FrontSide} );
+    blood= new THREE.MeshBasicMaterial( {color: 0xB60B0B, side: THREE.FrontSide} );
+    yellow= new THREE.MeshBasicMaterial( {color: 0xEAF722, side: THREE.FrontSide} );
+
 
     //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("white")} );
     /*geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
@@ -110,12 +116,25 @@ function init() {
     scene.add( cube );*/
     group = new THREE.Group();
 
+/*
     group.add(cubic(10,100,50,-50,0,50,wood));
     group.add(cubic(10,100,50,50,0,50,wood));
     group.add(cubic(100,10,50,0,50,50,wood));
-    group.add(cubic(100,100,10,0,0,20,ground));
+    group.add(cubic(100,100,10,0,0,20,ground));*/
 
-    player=cubic(10,10,20,0,0,30,guyMat);
+    player=new THREE.Group();
+    let whiteMat= new THREE.MeshBasicMaterial( {color: 0xFFFFFF, side: THREE.FrontSide} );
+
+    let blackMat= new THREE.MeshBasicMaterial( {color: 0x321818, side: THREE.FrontSide} );
+
+
+    let p1=cubic(10,10,20,0,0,10,guyMat);
+    let p2=cubic(10,2,10,0,5,15,whiteMat)
+    let p3=cubic(3,2,3,0,6,15,blackMat)
+
+    player.add(p1)
+    player.add(p2)
+    player.add(p3)
     group.add(player)
 
     scene.add(group)
@@ -227,9 +246,9 @@ var dir=1;
 function animate(time) {
 	Main.updatePhysics();
     group.rotation.z+=0.002*dir;
-    if(group.rotation.z>Math.PI/8)
+    if(group.rotation.z>Math.PI/16)
     	dir=-1;
-    else if(group.rotation.z<-Math.PI/8)
+    else if(group.rotation.z<-Math.PI/16)
     	dir=1;
     renderer.render(scene, camera);
     composer.render();
@@ -661,4 +680,4 @@ function getScene() {
 
 
 
-export { init, addModel,cubic, getAlphaCanvas, bufferPrint, loadModel, resize,player }
+export { init, addModel,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
