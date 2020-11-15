@@ -162,9 +162,7 @@ function make(){
     }
     if(orientation==3){
         v.x+=15;speed.x+=fireSpeed;
-        //playerBody.angularDamping=1
-                v.add({x:0,y:rand(2),z:rand(2)})
-
+        v.add({x:0,y:rand(2),z:rand(2)})
     }
 
     if(orientation==0){
@@ -230,10 +228,14 @@ function makeMan() {
     let boxBody = new CANNON.Body({ mass: 8 });
     boxBody.addShape(boxShape);
     bodies.push(boxBody);
+    boxBody.angularDamping=1
+
 
     boxBody.addEventListener("collide",ev=>{
         if(ev.body.bullet){
            if(ev.body.velocity.length()>50){
+            boxBody.angularDamping=0.01
+
             makeBlood(boxBody)
            }
         }

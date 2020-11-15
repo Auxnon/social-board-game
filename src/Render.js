@@ -128,9 +128,9 @@ function init() {
     let blackMat= new THREE.MeshBasicMaterial( {color: 0x321818, side: THREE.FrontSide} );
 
 
-    let p1=cubic(10,10,20,0,0,10,guyMat);
-    let p2=cubic(10,2,10,0,5,15,whiteMat)
-    let p3=cubic(3,2,3,0,6,15,blackMat)
+    let p1=cubic(10,10,20,0,0,0,guyMat);
+    let p2=cubic(10,2,10,0,5,5,whiteMat)
+    let p3=cubic(3,2,3,0,6,5,blackMat)
 
     player.add(p1)
     player.add(p2)
