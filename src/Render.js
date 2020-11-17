@@ -339,6 +339,9 @@ function createModel(index) {
 function addModel(model){
 	group.add(model)
 }
+function addModel2(model){
+	scene.add(model)
+}
 function cubic(i,j,k,x,y,z,c){
      let geometry = new THREE.BoxBufferGeometry( i,j,k );
      if(!c)
@@ -680,4 +683,4 @@ function getScene() {
 
 
 
-export { init, addModel,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
+export { init, addModel,addModel2,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
