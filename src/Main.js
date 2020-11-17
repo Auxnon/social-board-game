@@ -37,7 +37,8 @@ var playerBody;
 var controls
 var orientation=0;
 
-var physicsMaterial;
+var gooProperty;
+var wallProperty;
 
 
 function initCannon(){
@@ -123,14 +124,20 @@ function initCannon(){
             		case 40: case 83: controls.down=false;break;//down
             	}
              })
-            physicsMaterial = new CANNON.Material("bouncyMaterial");
-             var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
-                                                                     physicsMaterial,
-                                                                     -1, // friction coefficient
-                                                                     1.0  // restitution
-                                                                     );
+            gooProperty = new CANNON.Material({name: "gooProperty",friction: 10.0,restitution:-1.0});
+            gooProperty.name="gooProperty"
+            //gooProperty.friction=1
+
+            wallProperty = new CANNON.Material({name: "wallProperty",friction: 0.1,restitution:1});
+            wallProperty.name="wallProperty"
+            //debugger
+             /*var gooWallPhysics = new CANNON.ContactMaterial(gooProperty,
+                                                                     wallProperty,
+                                                                     1, // friction coefficient
+                                                                     0  // restitution
+                                                                     );*/
              // We must add the contact materials to the world
-             world.addContactMaterial(physicsContactMaterial);
+             //world.addContactMaterial(gooWallPhysics);
 
 
             
@@ -144,6 +151,11 @@ function make(){
     if(bullets.length>30){
         boxBody=bullets.shift();
         bullets.push(boxBody)
+        //boxBody.arrayIndex=
+                            boxBody.collisionResponse=true;
+                    boxBody.wakeUp();
+
+
     }else{
 
 
@@ -155,7 +167,7 @@ function make(){
 
     boxBody.bullet=true;
 
-    particles.push(boxBody)
+    bullets.push(boxBody)
 
 
     let cube=Render.cubic(size.x,size.y,size.z,0,0,0,Render.yellow);
@@ -212,28 +224,43 @@ function make(){
     count++;
 
 }
-function makeBlood(p) {
+function makeBlood(p,v) {
 let boxBody;
-    if(count>40){
+    if(count>100){
         boxBody=particles.shift();
         particles.push(boxBody)
+        boxBody.collisionResponse=true;
     }else{
 
     let size={x:4,y:4,z:4}
     let boxShape = new CANNON.Box(new CANNON.Vec3(size.x/2,size.y/2,size.z/2));
-    boxBody = new CANNON.Body({ mass: 0.01 ,material: physicsMaterial});
+    boxBody = new CANNON.Body({ mass: 0.01 ,material: gooProperty});
     boxBody.addShape(boxShape);
     bodies.push(boxBody);
 
     particles.push(boxBody)
 
-    let cube=Render.cubic(size.x,size.y,size.z,0,0,0,Render.blood);
-    meshes.push(cube)
+    //let cube=Render.cubic(size.x,size.y,size.z,0,0,0,Render.blood);
+    let sphere=new THREE.SphereGeometry(3.5,5,3)
+    let orb = new THREE.Mesh( sphere, Render.blood );
+    meshes.push(orb)
 
-    Render.addModel(cube)
+    Render.addModel(orb)
     world.addBody(boxBody);
     }
     boxBody.position.copy(p.position)
+    if(v)
+        boxBody.velocity.copy(v)
+
+    boxBody.addEventListener("collide",ev=>{
+        if(ev.body.material){
+            if(ev.body.material.name=='wallProperty'){
+           boxBody.collisionResponse=false;
+           boxBody.sleep();
+         }
+        }
+    })
+
 }
 
 
@@ -251,7 +278,7 @@ function makeMan() {
            if(ev.body.velocity.length()>50){
             boxBody.angularDamping=0.01
             console.log('sht')
-            makeBlood(boxBody)
+            makeBlood(boxBody,ev.body.velocity)
            }
         }
     })
@@ -303,6 +330,8 @@ function updatePhysics(){
                 	bodies[i].position.set(Math.random()*80 -40,Math.random()*80 -40,100)
 
                 	bodies[i].velocity.set(0,0,0)
+                    bodies[i].collisionResponse=false;
+                    bodies[i].sleep();
                 }
 
             }
@@ -335,7 +364,7 @@ function updatePhysics(){
         }
 
 function makeRoom(w,d,h,t){
-    let body = new CANNON.Body({ mass: 0 });
+    let body = new CANNON.Body({ mass: 0 ,material: wallProperty});
 
     let xWall = new CANNON.Box(new CANNON.Vec3(t/2,d,h));
     let yWall = new CANNON.Box(new CANNON.Vec3(w,t/2,h));

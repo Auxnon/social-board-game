@@ -166,7 +166,7 @@ function loadModel(model, callback, texture, color) {
                         if(color)
                             child.material = new THREE.MeshStandardMaterial({ color: color, metalness: 0, roughness: 1.0 }); // 
                         else
-                            child.material = specterMaterial; //new THREE.MeshStandardMaterial({ vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0}); // 
+                            child.material = new THREE.MeshStandardMaterial({ vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0}); // 
 
                         child.material.needsUpdate = true;
                         //child.material.skinning=true;
