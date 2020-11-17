@@ -5,6 +5,8 @@ import * as CANNON from "./lib/cannon.min.js";
 
 var dt = 1 / 20;
 
+
+
 function init(){
 	initCannon();
 	let canvas=Render.init();
@@ -34,6 +36,8 @@ var world;
 var playerBody;
 var controls
 var orientation=0;
+
+var physicsMaterial;
 
 
 function initCannon(){
@@ -119,6 +123,14 @@ function initCannon(){
             		case 40: case 83: controls.down=false;break;//down
             	}
              })
+            physicsMaterial = new CANNON.Material("bouncyMaterial");
+             var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
+                                                                     physicsMaterial,
+                                                                     -1, // friction coefficient
+                                                                     1.0  // restitution
+                                                                     );
+             // We must add the contact materials to the world
+             world.addContactMaterial(physicsContactMaterial);
 
 
             
@@ -129,7 +141,7 @@ function make(){
     let fireSpeed=160;
 
     let boxBody;
-    if(bullets.length>60){
+    if(bullets.length>30){
         boxBody=bullets.shift();
         bullets.push(boxBody)
     }else{
@@ -209,7 +221,7 @@ let boxBody;
 
     let size={x:4,y:4,z:4}
     let boxShape = new CANNON.Box(new CANNON.Vec3(size.x/2,size.y/2,size.z/2));
-    boxBody = new CANNON.Body({ mass: 0.1 });
+    boxBody = new CANNON.Body({ mass: 0.01 ,material: physicsMaterial});
     boxBody.addShape(boxShape);
     bodies.push(boxBody);
 
@@ -238,7 +250,7 @@ function makeMan() {
         if(ev.body.bullet){
            if(ev.body.velocity.length()>50){
             boxBody.angularDamping=0.01
-
+            console.log('sht')
             makeBlood(boxBody)
            }
         }
