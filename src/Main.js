@@ -152,8 +152,8 @@ function make(){
         boxBody=bullets.shift();
         bullets.push(boxBody)
         //boxBody.arrayIndex=
-                            boxBody.collisionResponse=true;
-                    boxBody.wakeUp();
+        boxBody.collisionResponse=true;
+        boxBody.wakeUp();
 
 
     }else{
