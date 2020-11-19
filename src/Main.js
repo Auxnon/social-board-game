@@ -20,7 +20,7 @@ function init(){
 	})
 
 
-    makeRoom(40,120,80,10)
+    makeRoom(200,220,80,10)
 
     HexManager.init();
 

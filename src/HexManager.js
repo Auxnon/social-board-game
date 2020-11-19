@@ -30,6 +30,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 
 		window.hex=hex;
 		window.place=place
+		window.land=land
 		window.clearLand=clearLand
 	 	
 
@@ -65,7 +66,16 @@ function processLand(){
 				let bl=(j>0 && grid[i+1][j-1]>1)
 				let br=(j>0 && i<4 && grid[i+2][j-1]>1)  
 
-				let total=l?1:0 + r?1:0 tl?1:0 + tr?1:0 + bl?1:0 + br?1:0
+				let total=l?1:0 + r?1:0 + tl?1:0 + tr?1:0 + bl?1:0 + br?1:0;
+
+
+				//rotation 0 tl
+				//1 l
+				//2 bl
+				//3 br
+				//4 r
+				//5 tr
+				
 				switch(total){
 					case 1: land('P2',i,j); break;
 					case 2: land('P1',i,j); break;
