@@ -66,7 +66,99 @@ function processLand(){
 				let bl=(j>0 && grid[i+1][j-1]>1)
 				let br=(j>0 && i<4 && grid[i+2][j-1]>1)  
 
-				let total=l?1:0 + r?1:0 + tl?1:0 + tr?1:0 + bl?1:0 + br?1:0;
+				//let total=l?1:0 + r?1:0 + tl?1:0 + tr?1:0 + bl?1:0 + br?1:0;
+				let start=-1;
+				let index=0;
+				let circle=[tl,tr,r,br,bl,l]
+				let branches=[];
+				circle.forEach((b,i)=>{
+					
+					if(b){
+						branches.push(i)
+						if(start==-1)
+							start=i;
+
+						index=i;
+					}
+
+				})
+
+				let letter='P'
+				let type=''
+				if(branches.length>0){
+					distances=[];
+					
+					var last=branches[0]
+					for(let i=1;i<branches.length;i++){
+						distances.push((branches[i]-last)-1)
+						last=branches[i]
+					}
+
+					let r=start==-1?0:start;
+					
+					switch(branches.length){
+						case 3:letter='T'; //3 paths
+
+						if(distances[0]==0){
+							if(distances[1]==0){
+								type=1;r+=5;
+							}else if(distances[1]==3){
+								type=1;r+=2;
+							}else if(distances[1]==1){
+								type=3;r+=4;
+							}else if(distances[1]==2){
+								type=2;r+=3;
+							}
+						}else if(distances[0]==1){
+							if(distances[1]==0){
+								type=2;//r+=0;
+							}else if(distances[1]==1){
+								type=4;//r+=0;
+							}else if(distances[1]==2){
+								type=3;r+=4;
+							}
+						}else if(distances[0]==2){
+							if(distances[1]==0){
+								type=3;r+=1;
+							}else if(distances[1]==1){
+								type=2;r+=3;
+							}
+						}else{
+							type=1;r+=3;
+						}
+						r=r%6;
+	
+						break;
+
+						case 4:letter='Q'; //4 path
+
+						if(distances[0]==0){
+							if(distances[1]==0){
+								if(distances[2]==0){
+									type=1;//r+=0
+								}else if(distances[2]==2){
+									type=3;r+=2;
+								}else if(distances[2]==3){
+									type=1; r+=1;
+								}
+							}else if(distances[1]==0){
+
+						}
+
+
+
+						break;
+						case 5:letter='F';break;
+						case 6:letter='H';break;
+						default: 
+							let f=index-start;
+							if(f>2)
+								f=(3-(f-3))
+							type+=f;
+					}
+					land(letter+type,i,j,r)
+				}
+
 
 
 				//rotation 0 tl
@@ -75,7 +167,7 @@ function processLand(){
 				//3 br
 				//4 r
 				//5 tr
-				
+/*
 				switch(total){
 					case 1: land('P2',i,j); break;
 					case 2: land('P1',i,j); break;
@@ -84,7 +176,7 @@ function processLand(){
 					case 5: land('F1',i,j); break;
 					case 6: land('H',i,j); break;
 					default: land('O1',i,j);
-				}
+				}*/
 
 				//land('Q1',i,j,1)
 
