@@ -1,5 +1,6 @@
 import * as THREE from "./lib/three.module.js";
 import * as Main from "./Main.js";
+import * as Control from "./Control.js";
 import { GLTFLoader } from "./lib/GLTFLoader.js";
 
 
@@ -46,7 +47,9 @@ var ground;
 var blood;
 var yellow;
 
-
+var pointer;
+var pointerMat;
+var pointerMatOn;
 
 
 function init() {
@@ -138,12 +141,22 @@ function init() {
     group.add(player)
 
     scene.add(group)
-
+    pointerInit();
 
     animate();
     return alphaCanvas
 
 
+}
+
+function pointerInit(){
+    let pointerGeom = new THREE.CircleGeometry( 6, 16 );
+    //pointerGeom.rotateX(-Math.PI/2.0);
+    pointerMat = new THREE.MeshBasicMaterial( { color:0x4AE13A } );
+    pointerMatOn = new THREE.MeshBasicMaterial( { color:0xEBEE00 } );
+    pointer = new THREE.Mesh(pointerGeom,pointerMat);
+    pointer.position.z=0.05;
+    scene.add(pointer);
 }
 
 function getAlphaCanvas() {
@@ -250,6 +263,9 @@ function animate(time) {
     	dir=-1;
     else if(group.rotation.z<-Math.PI/16)
     	dir=1;
+
+    applyCursor()
+
     renderer.render(scene, camera);
     composer.render();
     requestAnimationFrame(animate);
@@ -366,10 +382,11 @@ function getRandomColor() {
 }
 
 function applyCursor() {
-    if(Control.down()) {
+    /*if(Control.down()) {
         pointer.material = pointerMatOn;
     } else
-        pointer.material = pointerMat;
+        pointer.material = pointerMat;*/
+
     var vector = new THREE.Vector3();
     vector.set((Control.screenX() / window.innerWidth) * 2 - 1, -(Control.screenY() / window.innerHeight) * 2 + 1, 0.5);
     vector.unproject(camera)
@@ -379,6 +396,8 @@ function applyCursor() {
 
     pointer.position.x = pos.x;
     pointer.position.y = pos.y
+    pointer.position.z=8;
+   // console.log(pointer.position)
     Control.setVector(pointer.position);
 
 }

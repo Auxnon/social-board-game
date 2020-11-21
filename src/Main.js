@@ -1,6 +1,7 @@
 import * as THREE from "./lib/three.module.js";
 import * as Render from "./Render.js";
 import * as HexManager from "./HexManager.js";
+import * as Control from "./Control.js";
 import * as CANNON from "./lib/cannon.min.js";
 
 var dt = 1 / 20;
@@ -23,6 +24,7 @@ function init(){
     makeRoom(200,220,80,10)
 
     HexManager.init();
+    Control.init();
 
 
 
