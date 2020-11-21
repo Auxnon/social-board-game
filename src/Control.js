@@ -2,7 +2,7 @@
 import * as Render from "./Render.js";
 import * as HexManager from "./HexManager.js";
 //import * as AssetManager from "./AssetManager.js";
-//import * as Environment from "./Environment.js";
+import * as Environment from "./Environment.js";
 //import * as World from "./World.js";
 import {OrbitControls} from "./lib/OrbitControls.js";
 import * as THREE from "./lib/three.module.js";
@@ -40,7 +40,7 @@ function defineOrbital(renderDom,camera){
     orbital.mouseButtons = {
         LEFT: THREE.MOUSE.PAN,
         MIDDLE: THREE.MOUSE.ROTATE,
-        RIGHT: THREE.MOUSE.DOLLY
+        RIGHT: THREE.MOUSE.PAN //THREE.MOUSE.DOLLY
     }
 
     orbital.touches = {
@@ -123,7 +123,7 @@ function mousedown(ev){
 		return false;
 	}
 	mdown=true;
-	HexManager.hexCheck(px,py)
+	HexManager.hexPick(px,py)
 	return true;
 }
 function mouseup(ev){
@@ -193,6 +193,7 @@ function setVector(pos){
 	px=pos.x;
 	py=pos.y;
 	pz=pos.z;
+	HexManager.hexCheck(px,py)
 }
 var callback
 function onClick(f){
@@ -248,13 +249,12 @@ var bubbleMenu;
 var tempToggleCamera
 function contextmenu(ev){
 	ev.preventDefault();
-	/*if(!isMenuLocked())
-		openBubbleMenu();*/
-	if(orbital.enabled){
+
+	/*if(orbital.enabled){
 		orbital.enabled=false;
 	}else{
 		orbital.enabled=true;
-	}
+	}*/
 
 
 	return false;
@@ -300,6 +300,10 @@ function animate(){
 		
 		//console.log(controllers[0].source.gamepad.buttons)
 			//mdown=
+	
+}
+function getAngle(){
+	return orbital.object.rotation.z;
 	
 }
 
@@ -623,5 +627,5 @@ function moveLock(){
 }
 
 
-export {init,x,y,z,pos,down,animate,onClick,setVector,screenX,screenY,initRadial,menu1,defineOrbital,isMenuLocked,lockMenu,
+export {init,x,y,z,pos,down,animate,onClick,setVector,screenX,screenY,initRadial,menu1,defineOrbital,isMenuLocked,lockMenu,getAngle,
 	addConfetti,setRenderer,enterVR,isVR,getVRPointer}

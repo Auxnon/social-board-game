@@ -15,14 +15,9 @@ function init(){
 	document.querySelector('#main').appendChild(canvas)
 
 
-	window.addEventListener('click',function(ev){
-		 //for(let i=0; i<100; i++){
-	            make()
-	       // }
-	})
 
-
-    makeRoom(200,220,80,10)
+    //makeRoom(200,220,80,10)
+    makeFloor();
 
     HexManager.init();
     Control.init();
@@ -76,9 +71,9 @@ function initCannon(){
             }
 
 
-
+			/*
             // Create a plane
-            /*let groundShape = new CANNON.Plane();
+            let groundShape = new CANNON.Plane();
             let c=40
             let h=150
             let points=[
@@ -108,12 +103,13 @@ function initCannon(){
             window.addEventListener('keydown',ev=>{
             	console.log(ev.keyCode)
             	switch(ev.keyCode){
-            		case 37: case 65: controls.left=true;orientation=1;break;//left
-            		case 39: case 68: controls.right=true;orientation=3;break;//right
-            		case 38: case 87:  controls.up=true;orientation=0;break;//up
-            		case 40: case 83: controls.down=true;orientation=2;break;//down
+            		case 37: case 65: controls.left=true;break;//left
+            		case 39: case 68: controls.right=true;break;//right
+            		case 38: case 87:  controls.up=true;break;//up
+            		case 40: case 83: controls.down=true;break;//down
             		case 32: make(); break;
                     case 66: for(let ii=0;ii<12;ii++){make();} break;
+                    case 69: HexManager.toggleType();break;
                     case 71: makeMan();break;
             	}
 
@@ -149,7 +145,7 @@ function initCannon(){
         let count=0;
 
 function make(){
-    let fireSpeed=160;
+    let fireSpeed=120;
 
     let boxBody;
     if(bullets.length>30){
@@ -187,26 +183,17 @@ function make(){
     let v=new THREE.Vector3(0,0,0)
     let speed=new THREE.Vector3(0,0,0)
 
-    if(orientation==1){
-        v.x-=15;speed.x-=fireSpeed;
-        v.add({x:0,y:rand(2),z:rand(2)})
-    }
-    if(orientation==3){
-        v.x+=15;speed.x+=fireSpeed;
-        v.add({x:0,y:rand(2),z:rand(2)})
-    }
 
-    if(orientation==0){
-        v.y+=15;speed.y+=fireSpeed;
-        v.add({x:rand(2),y:0,z:rand(2)})
+    let xx=-Math.sin(orientation)
+    let yy=Math.cos(orientation)
 
+    v.x=xx*15
+    v.y=yy*15
+    speed.x=fireSpeed*xx;
+    speed.y=fireSpeed*yy;
 
-    }
-    if(orientation==2){
-        v.y-=15;speed.y-=fireSpeed;
-        v.add({x:rand(2),y:0,z:rand(2)})
-
-    }
+   
+    v.add({x:rand(2),y:rand(2),z:rand(2)})
 
 
     //v.applyQuaternion(Render.player.quaternion)
@@ -217,7 +204,7 @@ function make(){
    	//speed.applyQuaternion(Render.player.quaternion)
    	boxBody.velocity.copy(speed)
 
-   	let opposite=new THREE.Vector3(-0.1*speed.x,-0.1*speed.y,-0.1*speed.z)
+   	let opposite=new THREE.Vector3(-0.05*speed.x,-0.05*speed.y,-0.05*speed.z)
    	//opposite.applyQuaternion(Render.player.quaternion)
    	opposite.add(playerBody.velocity);
 
@@ -275,6 +262,7 @@ function makeMan() {
     boxBody.addShape(boxShape);
     bodies.push(boxBody);
     boxBody.angularDamping=1
+    boxBody.position.set(Control.x(),Control.y(),20)
 
 
     boxBody.addEventListener("collide",ev=>{
@@ -340,26 +328,44 @@ function updatePhysics(){
 
             }
 
-
+            let r=Control.getAngle();
+            let vd=playerBody.velocity.length()
             if(controls.left){
-            	if(playerBody.velocity.x>-40)
-            			playerBody.velocity.x-=4
-                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), Math.PI/2);
+            	//if(playerBody.velocity.x>-40)
+            			//playerBody.velocity.x-=4
+            	if(vd<20){
+	            	playerBody.velocity.x-=Math.cos(r)*2
+	            	playerBody.velocity.y-=Math.sin(r)*2
+	            }
+            	orientation=r+Math.PI/2
+                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), orientation); 
 
             }else if(controls.right){
-            	if(playerBody.velocity.x<40)
-            			playerBody.velocity.x+=4
-                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), 3*Math.PI/2);
+            	//if(playerBody.velocity.x<40)
+            	if(vd<20){
+	            	playerBody.velocity.x+=Math.cos(r)*2
+	            	playerBody.velocity.y+=Math.sin(r)*2
+				}
+				orientation=r-Math.PI/2;
+                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), orientation);
 
             }else if(controls.up){
-            	if(playerBody.velocity.y<40)
-            			playerBody.velocity.y+=4
-                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), 0);
+            	//if(playerBody.velocity.y<40)
+            	if(vd<20){
+	            	playerBody.velocity.x-=Math.sin(r)*2
+	            	playerBody.velocity.y+=Math.cos(r)*2
+	            }
+	            orientation=r
+                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), orientation);
 
             }else if(controls.down){
-            	if(playerBody.velocity.y>-40)
-            			playerBody.velocity.y-=4
-                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), Math.PI);
+            	//if(playerBody.velocity.y>-40)
+            	if(vd<20){
+	            	playerBody.velocity.x+=Math.sin(r)*2
+	            	playerBody.velocity.y-=Math.cos(r)*2
+	            }
+	            orientation=r+Math.PI
+                playerBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), orientation);
 
             }
             Render.player.position.copy(playerBody.position);
@@ -399,6 +405,12 @@ function makeRoom(w,d,h,t){
     let zm=Render.cubic(w*2,d*2,t,0,0,0,Render.ground);
     Render.addModel(zm)
 
+}
+function makeFloor(){
+	let groundShape = new CANNON.Plane();
+	let groundBody = new CANNON.Body({ mass: 0 });
+	groundBody.addShape(groundShape);
+	world.addBody(groundBody);
 }
 function rand(x){
     return (Math.random()*2 -1)*x

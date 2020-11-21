@@ -1,6 +1,7 @@
 import * as THREE from "./lib/three.module.js";
 import * as Main from "./Main.js";
 import * as Control from "./Control.js";
+import * as Environment from "./Environment";
 import { GLTFLoader } from "./lib/GLTFLoader.js";
 
 
@@ -104,13 +105,14 @@ function init() {
 
 
     let material= new THREE.MeshBasicMaterial( {color:0x75D5CE});
+    new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
 
-    wood= new THREE.MeshBasicMaterial( {color: 0x20E89F, side: THREE.FrontSide} );
-    ground= new THREE.MeshBasicMaterial( {color: 0x5471A5, side: THREE.FrontSide} );
-    let guyMat= new THREE.MeshBasicMaterial( {color: 0xEAF722, side: THREE.FrontSide} );
-    defaultMat= new THREE.MeshBasicMaterial( {color: 0xCF2ADE, side: THREE.FrontSide} );
-    blood= new THREE.MeshBasicMaterial( {color: 0xB60B0B, side: THREE.FrontSide} );
-    yellow= new THREE.MeshBasicMaterial( {color: 0xEAF722, side: THREE.FrontSide} );
+    wood= new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
+    ground= new THREE.MeshStandardMaterial({ color: 0x5471A5, metalness: 0, roughness: 1.0 });
+    let guyMat= new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 }); 
+    defaultMat= new THREE.MeshStandardMaterial({ color: 0xCF2ADE, metalness: 0, roughness: 1.0 });
+    blood= new THREE.MeshStandardMaterial({ color: 0xB60B0B, metalness: 0, roughness: 1.0 }); 
+    yellow= new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 });
 
 
     //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("white")} );
@@ -143,6 +145,7 @@ function init() {
 
     scene.add(group)
     pointerInit();
+    Environment.init();
     Control.setRenderer(renderer,alphaCanvas,camera,false)
 
     animate();
@@ -161,16 +164,17 @@ function pointerInit(){
     scene.add(pointer);
 
 
+    let SCALE=80;
     let g=new THREE.Group();
-    let p=new THREE.PlaneBufferGeometry(2,20);
+    let p=new THREE.PlaneBufferGeometry(6,SCALE);
     let m=new THREE.Mesh(p,pointerMat)
-    m.position.set(20,0,0)
+    m.position.set(SCALE,0,0)
     g.add(m)
     for(let i=0;i<6;i++){
         let n=m.clone();
         n.rotation.z=i*Math.PI/3
 
-        n.position.set(Math.cos(n.rotation.z)*20,Math.sin(n.rotation.z)*20,0)
+        n.position.set(Math.cos(n.rotation.z)*SCALE,Math.sin(n.rotation.z)*SCALE,0)
         g.add(n)
     }
     g.position.z+=6;
@@ -287,9 +291,10 @@ function animate(time) {
     	dir=1;
 
     applyCursor()
+    Environment.animate();
 
     renderer.render(scene, camera);
-    composer.render();
+    //composer.render();
     requestAnimationFrame(animate);
 }
 
@@ -390,7 +395,7 @@ function cubic(i,j,k,x,y,z,c){
     	c=defaultMat
 
     let cube = new THREE.Mesh( geometry, c );
-    
+    cube.castShadow=true;
 
      cube.position.x=x?x:0;
      cube.position.y=y?y:0;
@@ -723,9 +728,12 @@ function getScene() {
 
 ///////////////
 
+function setClearColor(a,b){
+    renderer.setClearColor(a,b);
+}
 
 
 
 
-
-export { init, addModel,addModel2, setHexSelector,removeModel,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
+export { init, addModel, setHexSelector,removeModel,setClearColor,
+    addModel2,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
