@@ -4,7 +4,9 @@ import * as HexManager from "./HexManager.js";
 //import * as AssetManager from "./AssetManager.js";
 //import * as Environment from "./Environment.js";
 //import * as World from "./World.js";
-//import {OrbitControls} from "./lib/OrbitControls.js";
+import {OrbitControls} from "./lib/OrbitControls.js";
+import * as THREE from "./lib/three.module.js";
+
 
 var vrEnabled;
 
@@ -88,7 +90,7 @@ function defineVRControl(renderer){
 var buttonBobs=[] //DEV
 var vrSession
 function enterVR(){
-	if(controllers && controllers.length){
+	/*if(controllers && controllers.length){
 		vrSession =Render.getRenderer().xr.getSession();
 		if(vrSession){
 			/*for (let i = 0; i < 2; ++i) {
@@ -99,10 +101,10 @@ function enterVR(){
 				buttonBobs.push(bob)
 				Render.addModel(bob)
 			}*/
-		}
+		/*}
 	}
 	orbital.enabled=false;
-	vrEnabled=true;
+	vrEnabled=true;*/
 }
 var controllers
 var orbital;
@@ -121,7 +123,7 @@ function mousedown(ev){
 		return false;
 	}
 	mdown=true;
-	HexManager.hexCheck(mx,my)
+	HexManager.hexCheck(px,py)
 	return true;
 }
 function mouseup(ev){
@@ -226,13 +228,13 @@ function initRadial(array){
 }
 var touchOn=false;
 function startCircle(xx,yy){
-	let sb=document.querySelector('.bubbleSelector');
+	/*let sb=document.querySelector('.bubbleSelector');
 	if(!touchOn){
 		sb.style.visibility='visible';
 		touchOn=true;
 	}
 	sb.style.left=xx+'px';
-	sb.style.top=yy+'px';
+	sb.style.top=yy+'px';*/
 }
 function endCircle(){
 	if(touchOn){

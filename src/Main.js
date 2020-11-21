@@ -9,6 +9,7 @@ var dt = 1 / 20;
 
 
 function init(){
+
 	initCannon();
 	let canvas=Render.init();
 	document.querySelector('#main').appendChild(canvas)
@@ -25,6 +26,7 @@ function init(){
 
     HexManager.init();
     Control.init();
+
 
 
 

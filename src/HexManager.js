@@ -77,22 +77,30 @@ function processLand(){
 		for(let j=0;j<grid.length;j++){
 			let n=grid[i][j];
 			if(n>1){ //hex coordinate system follows, hang tight it's a bumpy ride!
-				//if(i==1 && j==2)
+				//if(i==2 && j==2)
 					//debugger
-				let l=grid[i-1][j]>1  // pure hex x left right
-				let r=grid[i+1][j]>1
+				let l,r,tl,tr;
+				if(i>0)
+				l=grid[i-1][j]>1  // pure hex x left right
+				if(i<grid.length-1)
+				r=grid[i+1][j]>1
 
 
 				//land('P1',i,j,1)
 			
 				//upper hex edges, left and right
-				let tl=grid[i-1][j+1]>1
-				let tr=grid[i][j+1]>1 
+
+				if(grid.length-1){
+
+					if(i>0)
+					tl=grid[i-1][j+1]>1
+					tr=grid[i][j+1]>1 
+				}
 				//land('T1',i,j,1)
 
 				//lower hex edges, left and right, notice the farther then normal postive check due to our skewed hex design
 				let bl=(j>0 && grid[i][j-1]>1)
-				let br=(j>0 && i<4 && grid[i+1][j-1]>1)
+				let br=(j>0 && i<grid.length-1 && grid[i+1][j-1]>1)
 
 				let st=(tl?'1':'0') + (l?'1':'0') + (bl?'1':'0') + (br?'1':'0') + (r?'1':'0') + (tr?'1':'0');
 				
@@ -102,6 +110,7 @@ function processLand(){
 				let index=0;
 				let circle=[tl,tr,r,br,bl,l]
 				let branches=[];
+				let hole=5;
 				circle.forEach((b,i)=>{
 					if(b){
 						branches.push(i)
@@ -109,7 +118,8 @@ function processLand(){
 							start=i;
 
 						index=i;
-					}
+					}else
+						hole=i
 				})
 				console.log('grid %i %i %s branches %i',i,j,st,branches.length)
 
@@ -136,9 +146,9 @@ function processLand(){
 						if(distances[0]==0){
 							type='3';r+=4;
 						}else if(distances[0]==1){
-							type='2';r+=1;
+							type='2';r+=5;
 						}else if(distances[0]==2){
-							type='1';r+=5;
+							type='1';r+=0;
 						}else if(distances[0]==3){
 							type='2';r+=3;
 						}else{
@@ -151,11 +161,11 @@ function processLand(){
 							if(distances[1]==0){
 								type=1;r+=5;
 							}else if(distances[1]==3){
-								type=1;r+=2;
+								type=1;r+=4;
 							}else if(distances[1]==1){
-								type=3;r+=1;
+								type=3;r+=2;
 							}else if(distances[1]==2){
-								type=2;r+=0;
+								type=2;r+=4;
 							}
 						}else if(distances[0]==1){
 							if(distances[1]==0){
@@ -163,7 +173,7 @@ function processLand(){
 							}else if(distances[1]==1){
 								type=4;//r+=0;
 							}else if(distances[1]==2){
-								type=3;r+=4;
+								type=3;r+=1;
 							}
 						}else if(distances[0]==2){
 							if(distances[1]==0){
@@ -181,25 +191,25 @@ function processLand(){
 						if(distances[0]==0){
 							if(distances[1]==0){
 								if(distances[2]==0){
-									type=1;//r+=0
+									type=1;r+=0
 								}else if(distances[2]==1){
 									type=3;r+=2;
 								}else if(distances[2]==2){
-									type=1; r+=1;
+									type=1; r+=5;
 								}
 							}else if(distances[1]==1){
 								if(distances[2]==0){
 									type=2;r+=4;
 								}else if(distances[2]==1){
-									type=3;r+=3
+									type=3;r+=1
 								}
 							}else {//}( 2==2)
-								type=1;r+=2;
+								type=1;r+=4;
 							}
 						}else if(distances[0]==1){
 							if(distances[1]==0){
 								if(distances[2]==0){
-									type=3; r+=2;
+									type=3; r+=4;
 
 								}else{
 									type=2;
@@ -214,16 +224,15 @@ function processLand(){
 						break;
 
 						case 5:letter='F';
-						if(start==0)
-							r=index+5;
-						else
-							r=start+5
+						r=hole+2;						
 						break;
 
 						case 6:letter='H';break;
 
 					}
 					land(letter+type,i,j,r)
+				}else{
+					land('N',i,j,0)
 				}
 
 
@@ -265,7 +274,7 @@ function land(st,x,y,r) {
 
 	//dummy.position.set(offsetx+i*9,0,offsetz+j*skew*2 +i*skew);
 	let m=hex["Grass_"+st].clone();
-	m.position.set(-120+x*skew*2 +y*skew,-120+y*30,40)
+	m.position.set(-120+x*skew*2 +y*skew,+y*30,2)
 	if(r){ //sp always not 0
 		r=6-r;
 		m.rotation.z=r*Math.PI/3
@@ -282,10 +291,11 @@ function modelClear(){
 	landBits=[];
 }
 function clearLand(){
+	let size=12
 	modelClear()
-	for(let i=0;i<6;i++){
+	for(let i=0;i<size;i++){
 		grid[i]=[];
-		for(let j=0;j<6;j++){
+		for(let j=0;j<size;j++){
 			grid[i][j]=1
 		}
 	}
@@ -295,9 +305,19 @@ function hexCheck(x,y){
 	let radius=1;
 	let skew=20*radius*Math.sqrt(3)/2;
 	//m.position.set(-120+x*skew*2 +y*skew,-120+y*30,40)
-	let y2=Math.floor((y+120)/30);
-	let x2=Math.floor(((x+120)-y2*skew)/(skew*2))
-	console.log('click',x2,y2)
+	let y2=Math.floor((20+y)/30);
+	let x2=Math.floor(((x+120+20)-y2*skew)/(skew*2))
+	Render.setHexSelector(-120+x2*skew*2 +y2*skew,+y2*30,8)
+
+	if(x2>-1 && y2>-1){
+	if(grid[x2][y2]>1){
+		place(x2,y2,1)
+	}else{
+		place(x2,y2,2)
+	}
+}
+
+	console.log('click',x,y,x2,y2)
 }
 
 

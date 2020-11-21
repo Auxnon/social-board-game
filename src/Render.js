@@ -48,6 +48,7 @@ var blood;
 var yellow;
 
 var pointer;
+var hexSelector;
 var pointerMat;
 var pointerMatOn;
 
@@ -57,11 +58,11 @@ function init() {
      
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-    camera.position.z = 100; //400
+    camera.position.z = 200; //400
     camera.position.y = -200; //-800
     camera.up = new THREE.Vector3(0, 0, 1)
 
-    camera.lookAt(new THREE.Vector3(0, 100, 0));
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     scene= new THREE.Scene();
     activeScene = scene;
@@ -142,6 +143,7 @@ function init() {
 
     scene.add(group)
     pointerInit();
+    Control.setRenderer(renderer,alphaCanvas,camera,false)
 
     animate();
     return alphaCanvas
@@ -157,6 +159,26 @@ function pointerInit(){
     pointer = new THREE.Mesh(pointerGeom,pointerMat);
     pointer.position.z=0.05;
     scene.add(pointer);
+
+
+    let g=new THREE.Group();
+    let p=new THREE.PlaneBufferGeometry(2,20);
+    let m=new THREE.Mesh(p,pointerMat)
+    m.position.set(20,0,0)
+    g.add(m)
+    for(let i=0;i<6;i++){
+        let n=m.clone();
+        n.rotation.z=i*Math.PI/3
+
+        n.position.set(Math.cos(n.rotation.z)*20,Math.sin(n.rotation.z)*20,0)
+        g.add(n)
+    }
+    g.position.z+=6;
+    scene.add(g)
+    hexSelector=g;
+}
+function setHexSelector(x,y,z){
+    hexSelector.position.set(x,y,z)
 }
 
 function getAlphaCanvas() {
@@ -258,7 +280,7 @@ function resize() {
 var dir=1;
 function animate(time) {
 	Main.updatePhysics();
-    group.rotation.z+=0.002*dir;
+    //group.rotation.z+=0.002*dir;
     if(group.rotation.z>Math.PI/16)
     	dir=-1;
     else if(group.rotation.z<-Math.PI/16)
@@ -706,4 +728,4 @@ function getScene() {
 
 
 
-export { init, addModel,addModel2, removeModel,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
+export { init, addModel,addModel2, setHexSelector,removeModel,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
