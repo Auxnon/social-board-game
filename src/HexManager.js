@@ -7,6 +7,8 @@ import * as THREE from "./lib/three.module.js";
 //grass3 #53963F
 //path #BEB55D
 //mountain #907B67
+///riverside #999065  river edged grass use grass3
+//river #659799
 
 
 var hex=[]
@@ -292,6 +294,8 @@ function land(n,st,x,y,r) {
 	let prefix="Grass_"
 	if(n==3){
 		prefix="Mount_"
+	}else if(n==4){
+		prefix="Water_"
 	}
 
 	//dummy.position.set(offsetx+i*9,0,offsetz+j*skew*2 +i*skew);
@@ -371,6 +375,8 @@ function toggleType(){
 	if(hexType==2)
 		hexType=3
 	else if(hexType==3)
+		hexType=4;
+	else if(hexType==4)
 		hexType=0
 	else
 		hexType=2
