@@ -15,6 +15,7 @@ var hex=[]
 var landBits=[]
 var grid=[];
 const SCALE=80
+const SIZE=32
 const HALF_GRID=12*SCALE/2
 
 var hexType=2;
@@ -94,14 +95,14 @@ function processLand(){
 			let n=grid[i][j];
 			let rando=Math.floor(randomSeed(1,4))
 			let turner=Math.floor(randomSeed(1,6))
-			if(n>1){ //hex coordinate system follows, hang tight it's a bumpy ride!
+			if(n!=1){ //hex coordinate system follows, hang tight it's a bumpy ride!
 				//if(i==2 && j==2)
 					//debugger
 				let l,r,tl,tr;
-				if(i>0)
-				l=grid[i-1][j]==n  // pure hex x left right
-				if(i<grid.length-1)
-				r=grid[i+1][j]==n 
+
+				l=(i>0)?grid[i-1][j]:0  
+				 // pure hex x left right
+				r=(i<grid.length-1)?grid[i+1][j]:0
 
 
 				//land('P1',i,j,1)
@@ -110,15 +111,24 @@ function processLand(){
 
 				if(j<grid.length-1){
 
-					if(i>0)
-					tl=grid[i-1][j+1]==n 
-					tr=grid[i][j+1]==n  
+					tl=(i>0)?grid[i-1][j+1]:0
+					tr=grid[i][j+1]
+				}else{
+					tl=0;tr=0;
 				}
+
 				//land('T1',i,j,1)
 
 				//lower hex edges, left and right, notice the farther then normal postive check due to our skewed hex design
-				let bl=(j>0 && grid[i][j-1]==n)
-				let br=(j>0 && i<grid.length-1 && grid[i+1][j-1]==n)
+				
+				let bl,br;
+				if(j>0){
+					bl=grid[i][j-1]
+					br=(i<grid.length-1)? grid[i+1][j-1]:0
+				}else{
+					bl=0;br=0;
+				}
+				l=l==n;r=r==n;tr=tr==n;br=br==n;bl=bl==n;tl=tl==n;
 
 				let st=(tl?'1':'0') + (l?'1':'0') + (bl?'1':'0') + (br?'1':'0') + (r?'1':'0') + (tr?'1':'0');
 				
@@ -294,7 +304,7 @@ function land(n,st,x,y,r) {
 	let prefix="Grass_"
 	if(n==3){
 		prefix="Mount_"
-	}else if(n==4){
+	}else if(n==0){
 		prefix="Water_"
 	}
 
@@ -317,17 +327,18 @@ function modelClear(){
 	landBits=[];
 }
 function clearLand(){
-	let size=12
+	
 	modelClear()
-	for(let i=0;i<size;i++){
+	for(let i=0;i<SIZE;i++){
 		grid[i]=[];
-		for(let j=0;j<size;j++){
+		for(let j=0;j<SIZE;j++){
 			grid[i][j]=1
 		}
 	}
 }
 
 function hexCheck(x,y){
+
 	let radius=1;
 	let skew=SCALE*radius*Math.sqrt(3)/2;
 	//m.position.set(-120+x*skew*2 +y*skew,-120+y*30,40)
@@ -339,18 +350,23 @@ function hexCheck(x,y){
 
 	
 }
+let lastPick={x:0,y:0}
 function hexPick(x,y){
 	let [x2,y2] = hexCheck(x,y)
+
 	//console.log('click',x,y,x2,y2)
-	if(x2>-1 && y2>-1){
-		let v=grid[x2][y2];
+	let bounds=grid.length;
+	if(!(x2==lastPick.x && y2==lastPick.y) && x2>-1 && y2>-1 && x2<bounds && y2<bounds){
+		/*let v=grid[x2][y2];
 		
 		if(v==hexType)	
 			v=1
 		else
-			v=hexType
+			v=hexType*/
 
-		place(x2,y2,v)
+
+		place(x2,y2,hexType)
+		lastPick.x=x2;lastPick.y=y2;
 	}
 }
 
@@ -375,12 +391,15 @@ function toggleType(){
 	if(hexType==2)
 		hexType=3
 	else if(hexType==3)
-		hexType=4;
-	else if(hexType==4)
 		hexType=0
+	else if(hexType==0)
+		hexType=1;
 	else
 		hexType=2
 }
+function setType(i){
+	hexType=i;
+}
 
 
-export {init,hexCheck,hexPick,toggleType}
+export {init,hexCheck,hexPick,toggleType,setType}

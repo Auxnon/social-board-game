@@ -111,6 +111,7 @@ function initCannon(){
                     case 66: for(let ii=0;ii<12;ii++){make();} break;
                     case 69: HexManager.toggleType();break;
                     case 71: makeMan();break;
+                    case 8: HexManager.setType(1);break;
             	}
 
             	

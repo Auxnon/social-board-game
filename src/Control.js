@@ -38,7 +38,7 @@ function defineOrbital(renderDom,camera){
 
 
     orbital.mouseButtons = {
-        LEFT: THREE.MOUSE.PAN,
+        LEFT: undefined,
         MIDDLE: THREE.MOUSE.ROTATE,
         RIGHT: THREE.MOUSE.PAN //THREE.MOUSE.DOLLY
     }
@@ -123,7 +123,7 @@ function mousedown(ev){
 		return false;
 	}
 	mdown=true;
-	HexManager.hexPick(px,py)
+	
 	return true;
 }
 function mouseup(ev){
@@ -193,7 +193,10 @@ function setVector(pos){
 	px=pos.x;
 	py=pos.y;
 	pz=pos.z;
-	HexManager.hexCheck(px,py)
+	if(mdown)
+		HexManager.hexPick(px,py)
+	else
+		HexManager.hexCheck(px,py)
 }
 var callback
 function onClick(f){
