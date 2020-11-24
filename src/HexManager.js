@@ -6,9 +6,11 @@ import * as THREE from "./lib/three.module.js";
 //grass2 #A1C73A
 //grass3 #53963F
 //path #BEB55D
-//mountain #907B67
+//mountain/dirt #907B67
 ///riverside #999065  river edged grass use grass3
 //river #659799
+// tree #B68A61
+//tree2 #8C735B
 
 
 var hex=[]
