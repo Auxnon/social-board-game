@@ -76,6 +76,8 @@ function init() {
     renderer = new THREE.WebGLRenderer({  antialias: true }); //alpha: true,
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping 
+    renderer.outputEncoding = THREE.sRGBEncoding
 
     renderer.setClearColor(0xFF7F32, 1); //0xb0e9fd,1);//0xb0e9fd,1)
 

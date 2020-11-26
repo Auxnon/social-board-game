@@ -56,7 +56,7 @@ function init(){
 	
 
 	window.sunLight=sunLight;
-	//setLightHelper(true)
+	setLightHelper(true)
 
 }
 

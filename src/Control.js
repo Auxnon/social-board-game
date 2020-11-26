@@ -53,6 +53,7 @@ function defineOrbital(renderDom,camera){
 
 	orbital.addEventListener('change',function(ev){
 		var zoom = orbital.target.distanceTo(orbital.object.position);
+
 		if(zoom>75){
 			if(zoomLevelToggle!=2){
 				zoomLevelToggle=2;
@@ -64,7 +65,7 @@ function defineOrbital(renderDom,camera){
 				Environment.changeShadowScale(0);
 			}
 		}
-		//console.log('changed camera '+zoom)
+		console.log('changed camera '+zoom)
 	})
 
 }

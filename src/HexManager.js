@@ -3,7 +3,7 @@ import * as Helper from "./Helper.js";
 import * as THREE from "./lib/three.module.js";
 
 //grass #6CA90B
-//grass2 #A1C73A
+//grass2/tree leaf #A1C73A
 //grass3 #53963F
 //path #BEB55D
 //mountain/dirt #907B67
@@ -40,30 +40,28 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 
 		mm.material=basicMat
 		mm.receiveShadow =true;
-		if(mm.name.startsWith("Mount"))
+		if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree"))
 			mm.castShadow =true;
 		//Render.addModel(mm)
 		hex[mm.name]=mm;
 
 		let colors=[];
-		let count=mm.geometry.attributes.color.array.length/4
-		for(let i=0;i<count;i++){
-			let n=i*4;
-			let vr=mm.geometry.attributes.color.array[0+n];
-			let vg=mm.geometry.attributes.color.array[1+n];
-			let vb=mm.geometry.attributes.color.array[2+n];
-			//let va=mm.geometry.attributes.color.array[3+n];
-			let val=Helper.rgbFloatToHex(vr,vg,vb)
-			colors[val]=val
+		if(mm.geometry){
+
+
+			let count=mm.geometry.attributes.color.array.length/4
+			for(let i=0;i<count;i++){
+				let n=i*4;
+				let vr=mm.geometry.attributes.color.array[0+n];
+				let vg=mm.geometry.attributes.color.array[1+n];
+				let vb=mm.geometry.attributes.color.array[2+n];
+				//let va=mm.geometry.attributes.color.array[3+n];
+				let val=Helper.rgbFloatToHex(vr,vg,vb)
+				colors[val]=val
+			}
+
+			console.log(colors)
 		}
-	/*	#6CA90B: "#2d6404"
-#3f6607: "#3f6607"
-#776d12: "#776d12"
-#396506: "#396506"
-
-
-#776d12: "#2d6404"*/
-		console.log(colors)
 		
 		//console.log(vr,vg,vb,va)
 		//let val=Helper.rgbFloatToHex(mm.geometry.attributes.color.array[0],mm.geometry.attributes.color.array[1],mm.geometry.attributes.color.array[2])
@@ -155,7 +153,9 @@ function processLand(){
 
 				let letter='N'
 				let type=''
-				if(branches.length>0){
+				if(branches.length==6){
+					land(n,'H'+type,i,j,Math.floor(turner));
+				}else if(branches.length>0){
 					let distances=[];
 					
 					var last=branches[0]
@@ -257,7 +257,7 @@ function processLand(){
 						r=hole+1;						
 						break;
 
-						case 6:letter='H';break;
+						
 
 					}
 					land(n,letter+type,i,j,r)
@@ -306,6 +306,8 @@ function land(n,st,x,y,r) {
 	let prefix="Grass_"
 	if(n==3){
 		prefix="Mount_"
+	}else if(n==4){
+		prefix="Tree_"
 	}else if(n==0){
 		prefix="Water_"
 	}
@@ -393,6 +395,8 @@ function toggleType(){
 	if(hexType==2)
 		hexType=3
 	else if(hexType==3)
+		hexType=4
+	else if(hexType==4)
 		hexType=0
 	else if(hexType==0)
 		hexType=1;
