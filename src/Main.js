@@ -3,6 +3,8 @@ import * as Render from "./Render.js";
 import * as HexManager from "./HexManager.js";
 import * as Control from "./Control.js";
 import * as CANNON from "./lib/cannon.min.js";
+import * as PictureMaker from "./PictureMaker.js";
+
 
 var dt = 1 / 20;
 
@@ -21,6 +23,7 @@ function init(){
 
     HexManager.init();
     Control.init();
+    PictureMaker.init();
 
 
 
@@ -111,6 +114,8 @@ function initCannon(){
                     case 66: for(let ii=0;ii<12;ii++){make();} break;
                     case 69: HexManager.toggleType();break;
                     case 71: makeMan();break;
+                    case 81: PictureMaker.test();break;
+                    case 82: PictureMaker.make(); break;
                     case 8: HexManager.setType(1);break;
             	}
 

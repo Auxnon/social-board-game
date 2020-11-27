@@ -20,6 +20,11 @@ import { SSAOPass } from './lib/SSAOPass.js';
 
 
 var camera, renderer;
+var scene
+var group
+
+var activeCamera, activeScene;
+
 
 var docWidth, docHeight;
 
@@ -39,8 +44,6 @@ var composer;
 var specterMaterial;
 var defaultMat
 
-var scene
-var group
 
 var player;
 var wood;
@@ -88,6 +91,9 @@ function init() {
     initCustomMaterial();
 
     activeCanvas = alphaCanvas;
+
+    activeScene=scene;
+    activeCamera=camera;
 
 
 
@@ -295,7 +301,7 @@ function animate(time) {
     applyCursor()
     Environment.animate();
 
-    renderer.render(scene, camera);
+    renderer.render(activeScene, activeCamera);
     //composer.render();
     requestAnimationFrame(animate);
 }
@@ -306,10 +312,14 @@ function dumpImage(img) {
         dom.setAttribute('src', img);
 }
 
-function bufferPrint() {
+function bufferPrint(sc,cam) {
     //_grabImage=true;
-    renderer.render(getScene(), camera);
-    dumpImage(renderer.domElement.toDataURL());
+    if(sc && cam)
+            renderer.render(sc,cam);
+    else    
+        renderer.render(getScene(), camera);
+    //dumpImage(renderer.domElement.toDataURL());
+    return renderer.domElement.toDataURL()
 }
 
 var anchors = [];
@@ -659,7 +669,21 @@ void main() {
         //fragmentShader: THREE.ShaderChunk.cube_frag
     });
 
+
 }
+function toggleScene(sc,cam){
+    if(cam && sc){
+        activeCamera=cam;
+        activeScene=sc;
+    }else{
+        activeScene=scene;
+        activeCamera=camera;
+    }
+}
+
+
+
+
 /////SCENE///////
 
 var emptyScene;
@@ -737,5 +761,5 @@ function setClearColor(a,b){
 
 
 
-export { init, addModel, setHexSelector,removeModel,setClearColor,
+export { init, addModel, setHexSelector,removeModel,setClearColor,toggleScene,
     addModel2,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
