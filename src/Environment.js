@@ -6,7 +6,9 @@ var debugLightHelper;
 var sunLight;
 var sunLight2;
 var sunTarget;
+var sunCenter;
 var ambientLight;
+
 
 var SHADOW_SIZE=1024;//2048*16;
 
@@ -18,7 +20,7 @@ let tempD=-0.04; //-0.004
 function init(){
  
 	wind=new THREE.Vector3(1,0,0);
-
+	sunCenter=new THREE.Vector3(0,0,0);
 
 	ambientLight = new THREE.AmbientLight( 0x8F8F8F ); // soft white light  0x404040
 	Render.addModel2( ambientLight );
@@ -126,7 +128,7 @@ function animate(){
         Render.setClearColor(0xF86722,1);
     }*/
     sunLight.position.z=200+tempHeight*4;
-    sunTarget.position.set(0,0,-tempHeight*4);
+    sunTarget.position.y=sunCenter.y-tempHeight*4;
 }
 
 
@@ -143,6 +145,12 @@ function setShadows(bool){
      }
    // sunLight.shadow.mapSize.width = SHADOW_SIZE;  // default
     //sunLight.shadow.mapSize.height = SHADOW_SIZE; // default
+}
+function setShadowPos(pos){
+	sunCenter.set(pos.x,pos.y,pos.z)
+sunLight.position.x=pos.x;
+sunLight.position.y=pos.y;
+sunTarget.position.x=pos.x;
 }
 
 function setLightHelper(bool){
@@ -162,4 +170,4 @@ function setLightHelper(bool){
      }
 }
 
-export {init,getWind,animate,changeShadowScale,setShadows,setLightHelper}
+export {init,getWind,animate,changeShadowScale,setShadows,setShadowPos,setLightHelper}

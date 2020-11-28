@@ -1,5 +1,7 @@
 import * as THREE from "./lib/three.module.js";
 import * as Main from "./Main.js";
+import * as Physics from "./Physics.js";
+
 import * as Control from "./Control.js";
 import * as Environment from "./Environment";
 import { GLTFLoader } from "./lib/GLTFLoader.js";
@@ -76,7 +78,7 @@ function init() {
 
 
 
-    renderer = new THREE.WebGLRenderer({  antialias: true }); //alpha: true,
+    renderer = new THREE.WebGLRenderer({  antialias: true ,alpha: true,}); //
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping 
@@ -142,21 +144,29 @@ function init() {
     let blackMat= new THREE.MeshBasicMaterial( {color: 0x321818, side: THREE.FrontSide} );
 
 
-    let p1=cubic(10,10,20,0,0,0,guyMat);
-    let p2=cubic(10,2,10,0,5,5,whiteMat)
-    let p3=cubic(3,2,3,0,6,5,blackMat)
+    let p1=cubic(1,1,2,0,0,0,guyMat);
+    let p2=cubic(1,.2,1,0,.5,.5,whiteMat)
+    let p3=cubic(.3,.2,.3,0,.6,.5,blackMat)
 
     player.add(p1)
     player.add(p2)
     player.add(p3)
     group.add(player)
 
+    let referenceCube=cubic(.5,.5,1.5,0.75,0,20,new THREE.MeshBasicMaterial( { color:0xD62B5F } ))
+    group.add(referenceCube)
+
     scene.add(group)
     pointerInit();
     Environment.init();
     Control.setRenderer(renderer,alphaCanvas,camera,false)
 
-    animate();
+
+    
+    setTimeout(function(){
+        animate();
+    },1)
+    
     return alphaCanvas
 
 
@@ -172,25 +182,6 @@ function pointerInit(){
     scene.add(pointer);
 
 
-    let SCALE=80;
-    let g=new THREE.Group();
-    let p=new THREE.PlaneBufferGeometry(6,SCALE);
-    let m=new THREE.Mesh(p,pointerMat)
-    m.position.set(SCALE,0,0)
-    g.add(m)
-    for(let i=0;i<6;i++){
-        let n=m.clone();
-        n.rotation.z=i*Math.PI/3
-
-        n.position.set(Math.cos(n.rotation.z)*SCALE,Math.sin(n.rotation.z)*SCALE,0)
-        g.add(n)
-    }
-    g.position.z+=6;
-    scene.add(g)
-    hexSelector=g;
-}
-function setHexSelector(x,y,z){
-    hexSelector.position.set(x,y,z)
 }
 
 function getAlphaCanvas() {
@@ -291,7 +282,7 @@ function resize() {
 
 var dir=1;
 function animate(time) {
-	Main.updatePhysics();
+	Physics.updatePhysics();
     //group.rotation.z+=0.002*dir;
     if(group.rotation.z>Math.PI/16)
     	dir=-1;
@@ -313,13 +304,23 @@ function dumpImage(img) {
 }
 
 function bufferPrint(sc,cam) {
+    //renderer.setPixelRatio(0.2)
     //_grabImage=true;
-    if(sc && cam)
-            renderer.render(sc,cam);
-    else    
+    
+    //renderer.setPixelRatio(0.5)
+
+    renderer.setSize(256, 256);
+    renderer.setClearColor(0xffffff,0)
+
+    if(sc && cam){
+        renderer.render(sc,cam);
+    }else    
         renderer.render(getScene(), camera);
     //dumpImage(renderer.domElement.toDataURL());
-    return renderer.domElement.toDataURL()
+     //renderer.setPixelRatio(0.5)
+    let m=renderer.domElement.toDataURL()
+    renderer.setSize(docWidth, docHeight);
+    return m;
 }
 
 var anchors = [];
@@ -761,5 +762,5 @@ function setClearColor(a,b){
 
 
 
-export { init, addModel, setHexSelector,removeModel,setClearColor,toggleScene,
+export { init, addModel,removeModel,setClearColor,toggleScene,
     addModel2,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }

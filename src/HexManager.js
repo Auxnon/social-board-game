@@ -16,11 +16,13 @@ import * as THREE from "./lib/three.module.js";
 var hex=[]
 var landBits=[]
 var grid=[];
-const SCALE=80
+const SCALE=8
 const SIZE=32
 const HALF_GRID=12*SCALE/2
 
 var hexType=2;
+
+var hexSelector
 
 function init(){
 
@@ -68,17 +70,74 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 		//console.log(val)
 
 	}
+
 	clearLand()
 
-		window.hex=hex;
-		window.place=place
-		window.land=land
-		window.clearLand=clearLand
+	window.hex=hex;
+	window.place=place
+	window.land=land
+	window.clearLand=clearLand
+
+	
 	 	
 
 	
 	//window.m=m;//.children[0]
 })
+pointerInit();
+hexLines();
+
+}
+
+function pointerInit(){
+	let pointerMat = new THREE.MeshBasicMaterial( { color:0x4AE13A } );
+
+    let g=new THREE.Group();
+    let p=new THREE.PlaneBufferGeometry(.6,SCALE);
+    let m=new THREE.Mesh(p,pointerMat)
+    m.position.set(SCALE,0,0)
+    g.add(m)
+    for(let i=0;i<6;i++){
+        let n=m.clone();
+        n.rotation.z=i*Math.PI/3
+
+        n.position.set(Math.cos(n.rotation.z)*SCALE,Math.sin(n.rotation.z)*SCALE,0)
+        g.add(n)
+    }
+    g.position.z+=6;
+    Render.addModel(g)
+    hexSelector=g;
+}
+
+function hexLines(){
+	let radius=1;
+	let skew=SCALE*radius*Math.sqrt(3)/2;
+	
+
+	//dummy.position.set(offsetx+i*9,0,offsetz+j*skew*2 +i*skew);
+	//let m=hex[prefix+st].clone();
+	//m.position.set((-HALF_GRID)+x*skew*2 +y*skew,y*SCALE*1.5,-SCALE*.2)
+
+	var geometry = new THREE.Geometry();
+	let my=SCALE/2;
+	for(let x=0;x<SIZE;x++){
+		for(let y=0;y<SIZE;y++){
+			geometry.vertices.push( new THREE.Vector3((-HALF_GRID+skew)+x*skew*2 +y*skew,-my+y*SCALE*1.5,.8))
+			geometry.vertices.push( new THREE.Vector3((-HALF_GRID+skew)+x*skew*2 +y*skew,my+y*SCALE*1.5,.8))
+			geometry.vertices.push( new THREE.Vector3((-HALF_GRID+skew)+x*skew*2 +y*skew,my+y*SCALE*1.5,.8))
+			geometry.vertices.push( new THREE.Vector3((-HALF_GRID)+x*skew*2 +y*skew,SCALE+y*SCALE*1.5,.8))
+			geometry.vertices.push( new THREE.Vector3((-HALF_GRID)+x*skew*2 +y*skew,SCALE+y*SCALE*1.5,.8))
+			geometry.vertices.push( new THREE.Vector3((-HALF_GRID-skew)+x*skew*2 +y*skew,my+y*SCALE*1.5,.8))
+		}
+	}
+    /*geometry.vertices.push( new THREE.Vector3( -2, 0, 0 ) );
+	geometry.vertices.push( new THREE.Vector3( 0, 2, 0 ) );
+	geometry.vertices.push( new THREE.Vector3( 0, 0, 0 ) );
+	geometry.vertices.push( new THREE.Vector3( 2, 0, 0 ) );*/
+
+    var material = new THREE.LineBasicMaterial( { color: 0xffffff } );
+    var line = new THREE.LineSegments( geometry, material );
+    Render.addModel( line );
 
 }
 
@@ -348,7 +407,7 @@ function hexCheck(x,y){
 	//m.position.set(-120+x*skew*2 +y*skew,-120+y*30,40)
 	let y2=Math.floor((SCALE+y)/(SCALE*1.5));
 	let x2=Math.floor(((x+HALF_GRID+SCALE)-y2*skew)/(skew*2))
-	Render.setHexSelector(-HALF_GRID+x2*skew*2 +y2*skew,y2*SCALE*1.5,8)
+	hexSelector.position.set(-HALF_GRID+x2*skew*2 +y2*skew,y2*SCALE*1.5,.8)
 	
 	return [x2,y2]
 
@@ -406,6 +465,9 @@ function toggleType(){
 function setType(i){
 	hexType=i;
 }
+function getModel(st){
+	return hex[st].clone();
+}
 
 
-export {init,hexCheck,hexPick,toggleType,setType}
+export {init,hexCheck,hexPick,toggleType,setType,getModel}

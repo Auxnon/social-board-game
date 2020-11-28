@@ -65,7 +65,8 @@ function defineOrbital(renderDom,camera){
 				Environment.changeShadowScale(0);
 			}
 		}
-		console.log('changed camera '+zoom)
+		Environment.setShadowPos(orbital.target)
+		//console.log('changed camera '+orbital.object.position.y)
 	})
 
 }
