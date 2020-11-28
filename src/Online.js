@@ -6,20 +6,27 @@ import * as Physics from "./Physics.js";
 
 var socket;
 
+var physReady=false;
+
 function init() {
-	socket = io();
+	socket = io('/dand-dev');
 	//socket.emit('init','hi')
 
 	socket.on('physUpdate', function(data){
 		//Physics.setPlayer()
-		Physics.syncOnline(data)
-		console.log('yee')
+		if(physReady){
+			Physics.syncOnline(data)
+			console.log('phys synced')
+		}else
+			console.log('!!!phys IGNORED')
+		
 	})
 	socket.on('physInit', function(data){
 		Physics.clearPhys();
 		data.forEach(item=>{
 			Physics.makePhys(item[0],item[1],item[2],{x:0,y:0,z:0})
 		})
+		physReady=true;
 	})
 
 

@@ -4,7 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = (env,argv) => {
 	let devMode= argv.mode !== 'production';
-	console.log("dev mode is "+devMode+" "+argv.mode);
+	if(devMode)
+		console.log("\x1b[35m[[DEVELOPMENT]] test building")
+	else
+		console.log("\x1b[36m[[PRODUCTION]] building")
 
 return {
   mode: 'development', //'production',

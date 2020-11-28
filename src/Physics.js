@@ -376,7 +376,7 @@ function makePhys(id,size, mass, pos) {
     bodies.push(body)
     world.addBody(body);
 
-    let mesh=Render.cubic(size,size,size,pos.x,pos.y,pos.z)
+    let mesh=Render.cubic(size.x*2,size.y*2,size.z*2,pos.x,pos.y,pos.z)
     Render.addModel(mesh)
     meshArray[id]=mesh
 }
@@ -386,10 +386,23 @@ function makePhys(id,size, mass, pos) {
 function syncOnline(data){
 	data.forEach(stuff=>{
 		let p=physArray[stuff[0]];
+		/*interpolate(p.position,stuff[1])
+		interpolate(p.velocity,stuff[3])
+		interpolate(p.angularVelocity,stuff[4])
+		p.quaternion.copy(stuff[2])*/
+
+
 		p.position.copy(stuff[1])
 		p.quaternion.copy(stuff[2])
 		p.velocity.copy(stuff[3])
+		p.angularVelocity.copy(stuff[4])
 	})
+}
+function interpolate(a,b){
+	let m={x:a.x-b.x,y:a.y-b.y,z:a.z-b.z}
+	a.x-=m.x/2
+	a.y-=m.y/2
+	a.z-=m.z/2
 }
 
 

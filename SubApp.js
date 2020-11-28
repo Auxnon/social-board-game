@@ -13,6 +13,21 @@ app.get('/*', function(req, res, next){
   res.header('Content-Security-Policy', "img-src 'self'");
   next(); 
 });
+
+const dandSpace = io.of('/dand-dev'); 
+
+dandSpace.use((socket, next) => {
+  // ensure the user has sufficient rights
+  next();
+});
+/*
+adminNamespace.on('connection', socket => {
+  socket.on('delete user', () => {
+    // ...
+  });
+});*/
+
+
 /*
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/public/index.html');
@@ -33,7 +48,8 @@ var boxBody;
 
 
 
-io.on('connection', function(socket){
+
+dandSpace.on('connection', function(socket){
   console.log('user connection made');
   
 
@@ -71,11 +87,11 @@ io.on('connection', function(socket){
   });
   socket.on('make',function(obj){
     obj.id=createObject(obj);
-    io.sockets.emit('make',obj)
+    dandSpace.emit('make',obj) //io.sockets
   });
 
   socket.on('chat', function(id,message){
-    io.sockets.emit('chat',id,message);
+    dandSpace.emit('chat',id,message);
   });
 
   socket.on('reboot',function(crypt){
@@ -83,7 +99,7 @@ io.on('connection', function(socket){
       console.log('!!! DESTROY THE MAP!!!');
       users=[];
       objects=[];
-      io.sockets.emit('reboot')
+      dandSpace.emit('reboot')
     }
   });
 
@@ -92,8 +108,8 @@ io.on('connection', function(socket){
 
   socket.on('physReset', function(){
     //io.sockets.emit('chat',id,message);
-    boxBody.position.set(0,0,100)
-    boxBody.velocity.set(0,0,0)
+    //boxBody.position.set(0,0,100)
+    //boxBody.velocity.set(0,0,0)
     physArray.forEach(o=>{
         o.position.set(0,0,100)
         o.velocity.set(0,0,0)
@@ -102,7 +118,7 @@ io.on('connection', function(socket){
 
   socket.on('physMake', function(size,mass,pos){
     let id=addPhys(size,mass,pos);
-    io.sockets.emit('physMake',id,size,mass,pos)
+    dandSpace.emit('physMake',id,size,mass,pos)
     console.log('made obj')
   });
   socket.on('physInit', function(){
@@ -149,6 +165,8 @@ var posArray=[];
 var physData=[]
 var physInits=[]
 
+var physTick=0;
+
 function addPhys(size,mass,pos){
   let body = new CANNON.Body({ mass: mass });
   let boxShape = new CANNON.Box(new CANNON.Vec3(size.x,size.y,size.z));
@@ -163,9 +181,9 @@ function addPhys(size,mass,pos){
   physCounter++;
 
 
-  physData.push([id,body.position,body.quaternion, body.velocity])
+  physData.push([id,body.position,body.quaternion, body.velocity,body.angularVelocity])
   physInits.push([id,size,mass])
-  return id;
+  return id; 
 }
 function initCannon(){
   world = new CANNON.World();
@@ -181,21 +199,23 @@ function initCannon(){
   world.addBody(groundBody);
 
 
-  let boxShape = new CANNON.Box(new CANNON.Vec3(1,1,2));
+  /*let boxShape = new CANNON.Box(new CANNON.Vec3(1,1,2));
            
   boxBody = new CANNON.Body({ mass: 2 });
   boxBody.addShape(boxShape);
   boxBody.position.set(0,0,60);
-  world.addBody(boxBody);
+  world.addBody(boxBody);*/
   setInterval(function(){
     updatePhysics()
-    io.sockets.emit('physUpdate',physData);
+    
+    if(physTick>=10){
+      dandSpace.emit('physUpdate',physData);
+      physTick=0;
+    }
+    physTick++;
   },10)
 
-  setInterval(function(){
-    //io.sockets.emit('physUpdate',boxBody.position,boxBody.quaternion, boxBody.velocity);
-    //console.log('out')
-  },100)
+  
 
   
 }

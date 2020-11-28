@@ -19,23 +19,221 @@
 			background-color: purple;
 			overflow: hidden;
 		}
-		.portrait{
-			position: fixed;
-			width: 400px;
-			height: 400px;
+		.hexPortrait{
+			position: absolute;
+			width: 48px;
+			height: 48px;
 			display: block;
-			top: 0;
-			left: 0;
-			
+			top: 24px;
+			left: 16.16px;
+			transform: translate(-50%,-50%);
 		}
 		body{
 			margin: 0
 		}
+
+
+
+	.app {
+        position: absolute;
+        background-color: #4158D0;
+        background-image: linear-gradient(156deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+        border-radius: 16px;
+        width: 56px;
+        height: 56px;
+        top: -100px;
+        transform: translate(-50%, -50%);
+        transition: 0.8s;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .appMove {
+        border-top: 6px white solid;
+        transition: border-radius 0.4s, width 0.4s, height 0.4s;
+    }
+
+    #bar {
+        position: absolute;
+        width: 256px;
+        height: 128px;
+        border-radius: 16px;
+        /*border: white 3px solid;*/
+        background-color: #7774;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        bottom: 64px;
+        box-sizing: border-box;
+        z-index: 1;
+    }
+
+    #barHandle {
+        width: 80%;
+        height: 32px;
+        border-radius: 32px;
+        /*border: white solid 3px;*/
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -200%);
+    }
+
+    .appMax {
+        width: 100%;
+        height: 100%;
+        border-radius: 0px;
+        top: 50% !important;
+        left: 50% !important;
+    }
+
+    #appCenter {
+        position: absolute;
+        /*border: white solid 3px;*/
+        background-color: #7774;
+        box-sizing: border-box;
+        border-radius: 16px;
+        width: 80%;
+        height: 80%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #navLine {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        pointer-events: none;
+        stroke: inherit;
+    }
+    cube {
+        --s: 1s;
+        transform-style: preserve-3d;
+        top: 50%;
+        left: 50%;
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background-color: rgba(255, 0, 0, 0.3);
+        transition: transform 1s;
+        animation: cubeSpin var(--s) linear forwards infinite;
+        outline: 5px solid black;
+        box-sizing: border-box;
+    }
+
+    cube:before {
+        display: block;
+        content: '';
+        width: 100px;
+        height: 100px;
+        top: 00px;
+        left: 0px;
+        position: absolute;
+        background-color: rgba(0, 0, 255, 0.3);
+        transform: rotateX(90deg) translateZ(50px) translateY(-50px);
+        outline: 5px solid black;
+        box-sizing: border-box;
+    }
+
+    cube:after {
+        display: block;
+        content: '';
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        background-color: rgba(0, 255, 0, 0.3);
+        transform: rotateY(90deg) translateZ(50px) translateX(50px);
+        outline: 5px solid black;
+        box-sizing: border-box;
+    }
+
+    @keyframes cubeSpin {
+        00% {
+            transform: rotate3d(-1, 0, 0, 90deg) translate3d(-50%, -50%, 50px);
+        }
+        33% {
+            transform: rotate3d(0, -1, 0, 90deg) translate3d(-50%, -50%, 50px);
+        }
+        66% {
+            transform: rotate3d(0, 0, 0, 90deg) translate3d(-50%, -50%, 50px);
+        }
+        100% {
+            transform: rotate3d(-1, 0, 0, 90deg) translate3d(-50%, -50%, 50px);
+        }
+    }
+
+    .lineButton {
+        animation: lineWiggle 4s linear infinite;
+        stroke-dasharray: 100 20;
+        stroke: inherit;
+    }
+
+    @keyframes lineWiggle {
+        0% {
+            stroke-dashoffset: 0;
+            transform: scale(1, 1)
+        }
+
+        50% {
+            transform: scale(1, 0.8)
+        }
+
+        100% {
+            stroke-dashoffset: var(--offset);
+            transform: scale(1, 1)
+        }
+    }
+
+    .hex{
+    	width: 32.3px;
+    	height: 56px;
+    	position: fixed;
+    	top: 100px;
+    	left: 100px;
+    	background-color: white;
+    }
+    .hex::after{
+    	content: '';
+    	width: 0px;
+    	display: block;
+    	left: 32.3px;
+    	position: absolute;
+    	border-bottom: transparent 28px solid;
+    	border-top: transparent 28px solid;
+    	border-left: white 16.16px solid;
+    }
+    .hex::before{
+    	content: '';
+    	width: 0px;
+    	display: block;
+    	left: -16.16px;
+    	position: absolute;
+    	border-bottom: transparent 28px solid;
+    	border-top: transparent 28px solid;
+    	border-right: white 16.16px solid;
+    }
+
+
+
+
+
+
+
 	</style>
 </head>
 <body>
 	<div id="main">
-		
+		<div id="bar">
+            <div id="barHandle"></div>
+        </div>
+        <div class="app" id="app1"><img id="afterImage" style="opacity:0" src="" /></div>
+        <div class="app" id="app2"></div>
+        <div class="app" id="app3"></div>
+        <svg id='navLine' fill="none" stroke-width="6" stroke-linecap="round">
+            <path d="M0 0 L 0 2" />
+        </svg>
+        <div class="hex"></div>
 	</div>
 	
 </body>

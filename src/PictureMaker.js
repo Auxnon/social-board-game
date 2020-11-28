@@ -27,7 +27,7 @@ function make(m,size,offset){
         m.scale.set(size,size,size)
     else
         m.scale.set(75,75,75)
-    
+
     if(offset)
         m.position.set(0,0,offset)
     else
@@ -35,10 +35,12 @@ function make(m,size,offset){
 
     scene.add(m)
 	let pic= document.createElement('img');
-    pic.className='portrait'
+    pic.className='hexPortrait'
     pic.setAttribute('src', Render.bufferPrint(scene,camera));
-    document.querySelector('#main').appendChild(pic);
+    //document.querySelector('#main').appendChild(pic);
+
     scene.remove(m)
+    return pic;
 }
 function test(){
 	if(testToggle)

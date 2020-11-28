@@ -6,16 +6,21 @@ import * as Online from "./Online.js";
 
 import * as PictureMaker from "./PictureMaker.js";
 import * as Physics from "./Physics.js";
+import * as UI from "./UI.js";
+import * as BarUI from "./BarUI.js";
 
 
 
-
-
+var mainDom;
 
 function init() {
+	mainDom=document.querySelector('#main');
 	controls = {};
+	UI.init(mainDom)
 
     Physics.init();
+
+   
 
     window.addEventListener('keydown', ev => {
         console.log(ev.keyCode)
@@ -59,7 +64,7 @@ function init() {
                 //PictureMaker.make(HexManager.getModel('Mount_N'), 90, -20);
                 break;
             case 89:
-                Online.makePhys(1,2,{x:0,y:0,z:30});
+                Online.makePhys({x:.5,y:.5,z:.5},2,{x:0,y:0,z:30});
                 break;
 
             case 8:
@@ -92,7 +97,7 @@ function init() {
     })
 
     let canvas = Render.init();
-    document.querySelector('#main').appendChild(canvas)
+    mainDom.appendChild(canvas)
 
 
 
@@ -103,6 +108,15 @@ function init() {
     Control.init();
     PictureMaker.init();
     Online.init();
+
+    BarUI.init();
+
+    setTimeout(function(){
+ let p=PictureMaker.make(HexManager.getModel('Tree_N'), 75, -75);
+    let hexDom=document.querySelector('.hex')
+	hexDom.appendChild(p)
+},1000)
+   
 
 
 
