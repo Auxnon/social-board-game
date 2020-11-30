@@ -97,7 +97,7 @@ function init() {
     })
 
     let canvas = Render.init();
-    mainDom.appendChild(canvas)
+   
 
 
 
@@ -111,12 +111,7 @@ function init() {
 
     BarUI.init();
 
-    setTimeout(function(){
- let p=PictureMaker.make(HexManager.getModel('Tree_N'), 75, -75);
-    let hexDom=document.querySelector('.hex')
-	hexDom.appendChild(p)
-},1000)
-   
+
 
 
 

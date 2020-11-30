@@ -20,18 +20,19 @@ function init(){
 
     //let m=Render.cubic(100,100,1)
     //scene.add(m)
+    
 }
 
 function make(m,size,offset){
     if(size)
         m.scale.set(size,size,size)
     else
-        m.scale.set(75,75,75)
+        m.scale.set(110,110,110)
 
     if(offset)
         m.position.set(0,0,offset)
     else
-        m.position.set(0,0,-75)
+        m.position.set(0,0,-30)
 
     scene.add(m)
 	let pic= document.createElement('img');
@@ -50,5 +51,8 @@ function test(){
 	testToggle=!testToggle;
 
 }
+
+
+
 
 export {init,make,test}

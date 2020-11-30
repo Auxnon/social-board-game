@@ -73,8 +73,8 @@ function init() {
     scene= new THREE.Scene();
     activeScene = scene;
 
-    alphaCanvas = document.createElement('div');
-    alphaCanvas.classList.add('canvasHolder');
+    alphaCanvas = document.querySelector('.canvasHolder');
+
 
 
 

@@ -1,5 +1,5 @@
 import * as UI from "./UI.js";
-
+import * as Render from "./Render.js";
 
 //doms
 var apps;
@@ -28,7 +28,7 @@ var pendingRenderId; //if not undefined, wait for Render to load and then apply 
 var resizeDebouncer;
 
 function init(argument) {
-    let preApps = document.querySelectorAll('.app');
+    let preApps = document.querySelectorAll('.card');
     apps = []
     preApps.forEach(app => { //convert out of a nodelist to an array, it matters trust me
         apps.push(app)
@@ -58,7 +58,7 @@ function init(argument) {
 function openApp(id) {
     let app = apps[id];
     if(app) {
-        app.classList.add('appMax')
+        app.classList.add('cardMax')
         app.focused = true;
         app.style.zIndex = 0;
         /*if(Render) {
@@ -100,7 +100,7 @@ function openAppApplyRender(id, app) {
 
 function closeApp(disableFade) {
     if(focused) {
-        focused.classList.remove('appMax')
+        focused.classList.remove('cardMax')
         focused.style.zIndex = 2;
         focused.focused = undefined; //wow why did i name this like this
         /*window.history.pushState({}, '', '/');
@@ -121,8 +121,9 @@ function resize() {
         //svg.setAttribute('width', window.innerWidth + "px")
         //svg.setAttribute('height', window.innerHeight + "px")
         barAdjust();
+        Render.resize();
 
-        UI.systemMessage('inner ' + window.innerWidth + '; screen ' + window.screen.width, 'success')
+        //UI.systemMessage('inner ' + window.innerWidth + '; screen ' + window.screen.width, 'success')
     }, 250);
 
 
@@ -184,14 +185,12 @@ function barCalculate(notate) {
     }
     if(sideWays) {
         bar.style.height = (count > 0 ? count : 1) * 64 + 'px'
-        bar.style.width = '64px'
+        bar.style.width = '82px'
+        
     } else {
         bar.style.width = (count > 0 ? count : 1) * 64 + 'px'
-        bar.style.height = '64px'
+        bar.style.height = '82px'
     }
-
-
-
 
     let rect = bar.getBoundingClientRect();
     barBox = rect
@@ -205,11 +204,13 @@ function barCalculate(notate) {
         ratio = width / (count);
 
     if(!notate) {
-        if(sideWays)
+        if(sideWays){
             appsInRow.sort(function(a, b) {
                 return parseInt(a.style.top) - parseInt(b.style.top);
             });
-        else
+            //bar.style.borderWidth="0 6px 0px 6px";
+
+        }else
             appsInRow.sort(function(a, b) {
                 return parseInt(a.style.left) - parseInt(b.style.left);
             });
@@ -347,6 +348,7 @@ function drawBarLine(nextVector) {
 function drawSimpleBarLine(one, two) {
     let st = "M" + one.x + ' ' + one.y + "L" + two.x + ' ' + two.y;
     //path.setAttribute('d', st);
+   
 }
 
 function mousemove(ev) {
@@ -458,80 +460,44 @@ function barMoveHandler(ev) {
 
 function barAdjust() {
     if(barPos == 2) { //right
-        bar.style.left = window.innerWidth - 64 + 'px';
+        bar.style.left = window.innerWidth - 48 + 'px';
         bar.style.top = '50%'; //window.innerHeight/2;
         barCalculate();
         barHandle.style.transform = 'translate(-200%,-50%)'
         barHandle.style.width = '32px';
         barHandle.style.height = '80%';
+        bar.style.borderWidth="0px 0px 0px 6px";
         //mainTitle.style.top = '28px';
     } else if(barPos == 3) { //top
         barHandle.style.transform = 'translate(-50%,100%)'
         bar.style.left = '50%';
-        bar.style.top = '64px' //-196+window.innerWidth/2
+        bar.style.top = '48px' //-196+window.innerWidth/2
         //mainTitle.style.top = 'calc(100% - 128px)';
         barCalculate();
         barHandle.style.height = '32px';
         barHandle.style.width = '80%';
+        bar.style.borderWidth="0px 0px 6px 0px";
     } else if(barPos == 1) { //bottom
         barHandle.style.transform = 'translate(-50%,-200%)'
         bar.style.left = '50%';
-        bar.style.top = (window.innerHeight - 64) + 'px'; //-196+window.innerWidth/2
+        bar.style.top = (window.innerHeight - 48) + 'px'; //-196+window.innerWidth/2
         //mainTitle.style.top = '28px';
         barCalculate();
         barHandle.style.height = '32px';
         barHandle.style.width = '80%';
+        bar.style.borderWidth="6px 0px 0px 0px"
     } else { //left
         barHandle.style.transform = 'translate(100%,-50%)'
-        bar.style.left = '64px';
+        bar.style.left = '48px';
         bar.style.top = '50%'
         barCalculate()
         barHandle.style.width = '32px'
         barHandle.style.height = '80%'
+        bar.style.borderWidth="0px 6px 0px 0px";
         //mainTitle.style.top = '28px';
     }
 }
-/*
-function pointCheck(point,index){
-	let d={x:point.x-targetMove.pos.x,y:point.y-targetMove.pos.y}
-			let dr=Math.sqrt(d.x*d.x +d.y*d.y);
 
-
-			if(dr<40){
-				targetMove.pos={x:point.x-d.x/3,y:point.y-d.y/3}
-				if(targetMove.moving){ //called once per state change
-					targetMove.moving=undefined
-					//targetMove.classList.remove('appMove')
-				}
-				if(point.app==targetMove){
-
-				}else{ //switcheroo the app icons
-					//let oldPoint=appPoints[targetMove.spot];
-					let swapApp=point.app;
-					targetMove.spot=index;
-					apps.forEach(app=>{
-						if(app==targetMove){
-
-						}else{
-							if(app.pos.x>targetMove.pos.x){
-								_moveEle(app,64+app.pos.x,app.pos.y,true)
-							}else{
-								_moveEle(app,-64+app.pos.x,app.pos.y,true)
-							}
-						}
-
-					})
-
-
-				}
-			}else{
-				if(!targetMove.moving){ //called once per state change
-					targetMove.moving=true;
-					//targetMove.classList.add('appMove')
-
-				}
-			}
-}*/
 
 function appSelect(app, ev) {
     if(!app.focused) {
@@ -541,7 +507,7 @@ function appSelect(app, ev) {
         targetPoint = { x: app.pos.x, y: app.pos.y }
         //app.origin={x:app.pos.x,y:app.pos.y}
         app.offset = { x: app.pos.x - ev.clientX, y: app.pos.y - ev.clientY }
-        app.classList.add('appMove')
+        app.classList.add('cardMove')
         app.moving = undefined;
 
     }
@@ -558,11 +524,11 @@ function winMouseUp(ev) {
     }
 
     if(targetMove) {
-        targetMove.classList.remove('appMove')
+        targetMove.classList.remove('cardMove')
         console.log(moveFactor)
         if(moveFactor < 10) {
             if(focused && focused == targetMove) {
-                targetMove.classList.remove('appMax')
+                targetMove.classList.remove('cardMax')
                 targetMove.focused = undefined;
                 focused = undefined;
                 targetMove.style.zIndex = 2;
@@ -639,49 +605,5 @@ function clearPendApp(id) {
         cube.remove()
 }
 
-
-/**
-OlD curve code
-			let last={x:mouseObj.x,y:mouseObj.y,dir:dir,pos:pos};
-			let lastMode=-1;
-			for(let i=0;i<points.length;i++){
-				//st+="M"+last.x+" "+last.y
-				let halfy=(points[i].y-last.y)/2
-				let halfx=(points[i].x-last.x)/2
-				if(lastMode==-1){
-					lastMode=(Math.abs(halfx)<Math.abs(halfy))?1:0
-				}
-				if(points[i].dir==last.dir){
-					if(!last.dir){ //up down dir //points[i].dir
-						st+="Q"+last.x+" "+(last.y+halfy)+" "+(last.x+halfx)+" "+(last.y+halfy);
-						st+="Q"+points[i].x+" "+(last.y+halfy)+" "+points[i].x+" "+points[i].y;
-					}else{ //left right dir
-						st+="Q"+(last.x+halfx)+" "+last.y+" "+(last.x+halfx)+" "+(last.y+halfy);
-						st+="Q"+(last.x+halfx)+" "+points[i].y+" "+points[i].x+" "+points[i].y;
-						
-					}
-				}else{ //curve in then
-					if(last.dir){ // true is x left right
-						if((halfy>0)!=last.pos){
-							st+="C"+(last.x)+" "+(last.y-halfy)+" "+(last.x+halfx)+" "+(last.y-halfy)+" "+(last.x+halfx)+" "+(last.y+halfy);
-
-							st+="Q"+(last.x+halfx)+" "+(last.y+halfy)+" "+points[i].x+" "+points[i].y;
-													console.log('special')
-
-
-						}else{
-							st+="Q"+(points[i].x)+" "+last.y+" "+points[i].x+" "+points[i].y;
-						}
-						
-					}else{
-						st+="Q"+(last.x)+" "+points[i].y+" "+points[i].x+" "+points[i].y;
-					}
-				}
-
-				let prev={x:points[i].x,y:points[i].y,dir:points[i].dir,pos:points[i].pos};
-				points[i]={x:last.x,y:last.y,dir:last.dir,pos:last.pos};
-				last=prev;
-			}
-**/
 
 export { pendApp, clearPendApp,apps,init }

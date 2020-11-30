@@ -1,5 +1,6 @@
 import * as Render from "./Render.js";
 import * as Helper from "./Helper.js";
+import * as PictureMaker from "./PictureMaker.js";
 import * as THREE from "./lib/three.module.js";
 
 //grass #6CA90B
@@ -69,7 +70,22 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 		//let val=Helper.rgbFloatToHex(mm.geometry.attributes.color.array[0],mm.geometry.attributes.color.array[1],mm.geometry.attributes.color.array[2])
 		//console.log(val)
 
+		
+
 	}
+	function clik(d,i){
+		d.addEventListener('click',ev=>{
+			setType(i)
+		})
+	}
+
+	let doms=document.querySelectorAll('.hex')
+	doms[0].appendChild(PictureMaker.make(getModel('Grass_O1')));clik(doms[0],1);
+	doms[1].appendChild(PictureMaker.make(getModel('Tree_N'), 75, -75));clik(doms[1],4);
+	doms[2].appendChild(PictureMaker.make(getModel('Grass_P1')));clik(doms[2],2);
+	doms[3].appendChild(PictureMaker.make(getModel('Mount_N'),90));clik(doms[3],3);
+	doms[4].appendChild(PictureMaker.make(getModel('Water_N')));clik(doms[4],0);
+
 
 	clearLand()
 
