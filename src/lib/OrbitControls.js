@@ -25,6 +25,7 @@ import {
 //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
 var OrbitControls = function ( object, domElement ) {
+	this.callbackCounts;
 
 	if ( domElement === undefined ) console.warn( 'THREE.OrbitControls: The second parameter "domElement" is now mandatory.' );
 	if ( domElement === document ) console.error( 'THREE.OrbitControls: "document" should not be used as the target "domElement". Please use "renderer.domElement" instead.' );
@@ -780,6 +781,10 @@ var OrbitControls = function ( object, domElement ) {
 	// event handlers - FSM: listen for events and reset state
 	//
 
+	function handleHex(event) {
+		scope.callbackCounts(1);
+	}
+
 	function onMouseDown( event ) {
 
 		if ( scope.enabled === false ) return;
@@ -961,6 +966,9 @@ var OrbitControls = function ( object, domElement ) {
 
 				break;
 
+			case 69:
+				handleHex(event);break;
+
 		}
 
 	}
@@ -1034,6 +1042,7 @@ var OrbitControls = function ( object, domElement ) {
 						state = STATE.TOUCH_PAN;
 
 						break;
+					case 69: handleHex(event);break;
 
 					default:
 
@@ -1044,6 +1053,7 @@ var OrbitControls = function ( object, domElement ) {
 				break;
 
 			case 2:
+				scope.callbackCounts(2)
 
 				switch ( scope.touches.TWO ) {
 
@@ -1137,6 +1147,7 @@ var OrbitControls = function ( object, domElement ) {
 				scope.update();
 
 				break;
+			case 69: handleHex(event);break;
 
 			default:
 

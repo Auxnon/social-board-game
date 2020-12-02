@@ -65,8 +65,11 @@ function openApp(id) {
 
         if(app.id=='landscapeCard'){
             Control.secondaryTouchPan()
+            Control.setLandscaping(true)
         }else{
              Control.primaryTouchPan()
+            Control.setLandscaping(false)
+
         }
         /*if(Render) {
             openAppApplyRender(id, app)
@@ -111,6 +114,8 @@ function closeApp(disableFade) {
         focused.style.zIndex = 2;
         focused.focused = undefined; //wow why did i name this like this
         Control.primaryTouchPan()
+        Control.setLandscaping(false)
+
         /*window.history.pushState({}, '', '/');
         if(!disableFade && Render) {
             let d = Render.getAlphaCanvas();

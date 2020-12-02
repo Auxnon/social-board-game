@@ -63,7 +63,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 				colors[val]=val
 			}
 
-			console.log(colors)
+			//console.log(colors)
 		}
 		
 		//console.log(vr,vg,vb,va)
@@ -224,7 +224,7 @@ function processLand(){
 					}else
 						hole=i
 				})
-				console.log('grid %i %i %s branches %i',i,j,st,branches.length)
+				//console.log('grid %i %i %s branches %i',i,j,st,branches.length)
 
 				let letter='N'
 				let type=''
@@ -238,7 +238,7 @@ function processLand(){
 						distances.push((branches[i]-last)-1)
 						last=branches[i]
 					}
-					console.log(distances)
+					//console.log(distances)
 
 					let r=start==-1?0:start;
 					
