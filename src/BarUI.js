@@ -1,5 +1,6 @@
 import * as UI from "./UI.js";
 import * as Render from "./Render.js";
+import * as Control from "./Control.js";
 
 //doms
 var apps;
@@ -61,6 +62,12 @@ function openApp(id) {
         app.classList.add('cardMax')
         app.focused = true;
         app.style.zIndex = 0;
+
+        if(app.id=='landscapeCard'){
+            Control.secondaryTouchPan()
+        }else{
+             Control.primaryTouchPan()
+        }
         /*if(Render) {
             openAppApplyRender(id, app)
         } else {
@@ -103,6 +110,7 @@ function closeApp(disableFade) {
         focused.classList.remove('cardMax')
         focused.style.zIndex = 2;
         focused.focused = undefined; //wow why did i name this like this
+        Control.primaryTouchPan()
         /*window.history.pushState({}, '', '/');
         if(!disableFade && Render) {
             let d = Render.getAlphaCanvas();

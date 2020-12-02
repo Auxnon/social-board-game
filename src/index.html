@@ -340,6 +340,17 @@
 	background-image: url("../assets/round-toggle_on-24px.svg") !important;
 }
 
+form{
+	width: 300px;
+	height: 200px;
+	border-radius: 16px;
+	background-color: white;
+	position: absolute;
+	left: 20px;
+	top: 20px;
+	display: block;
+}
+
 
 
 
@@ -387,6 +398,20 @@
         <svg id='navLine' fill="none" stroke-width="6" stroke-linecap="round">
             <path d="M0 0 L 0 2" />
         </svg>
+
+        <form action="/login" method="post">
+		    <div>
+		        <label>Username:</label>
+		        <input type="text" name="username"/>
+		    </div>
+		    <div>
+		        <label>Password:</label>
+		        <input type="password" name="password"/>
+		    </div>
+		    <div>
+		        <input type="submit" value="Log In"/>
+		    </div>
+		</form>
         
 	</div>
 	

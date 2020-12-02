@@ -4,7 +4,8 @@
  
 const io = require('socket.io')(server); //{serveClient: false}
 const CANNON = require('./cannon.min')
-
+//const passport = require('passport')
+//var BasicStrategy = require('passport-http').BasicStrategy;
 
 app.use(express.static(__dirname + '/public'));
 app.get('/*', function(req, res, next){ 
@@ -13,6 +14,53 @@ app.get('/*', function(req, res, next){
   res.header('Content-Security-Policy', "img-src 'self'");
   next(); 
 });
+
+/*
+passport.use(new BasicStrategy(
+  function(userid, password, done) {
+    User.findOne({ username: userid }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      if (!user.verifyPassword(password)) { return done(null, false); }
+      return done(null, user);
+    });
+  }
+));*/
+
+
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy({
+  passReqToCallback : true
+},function(username, password, done) {
+    User.findOne({ username: username }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
+/*
+app.post('/login',
+  passport.authenticate('local', { successRedirect: './?v=0',
+                                   failureRedirect: './?v=1',
+                                   failureFlash: true })
+);*/
+
+app.post('/login',
+  passport.authenticate('local'),
+  function(req, res) {
+    // If this function gets called, authentication was successful.
+    // `req.user` contains the authenticated user.
+    res.redirect('/users/' + req.user.username);
+  });
+
 
 const dandSpace = io.of('/dand-dev'); 
 

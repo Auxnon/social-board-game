@@ -43,13 +43,10 @@ function defineOrbital(renderDom,camera){
         RIGHT: THREE.MOUSE.PAN //THREE.MOUSE.DOLLY
     }
 
-    orbital.touches = {
-        ONE: THREE.TOUCH.PAN,
-        TWO: THREE.TOUCH.DOLLY_ROTATE
-    }
+    
     orbital.maxPolarAngle=1.3;
     orbital.isControl()
-
+    primaryTouchPan();
 
 	orbital.addEventListener('change',function(ev){
 		var zoom = orbital.target.distanceTo(orbital.object.position);
@@ -69,6 +66,20 @@ function defineOrbital(renderDom,camera){
 		//console.log('changed camera '+orbital.object.position.y)
 	})
 
+}
+function secondaryTouchPan(){
+	orbital.touches = {
+        ONE: THREE.TOUCH.NONE, //PAN 
+        TWO: THREE.TOUCH.DOLLY_PAN//DOLLY_ROTATE
+        //THREE: THREE.TOUCH.DOLLY_PAN
+    }
+}
+
+function primaryTouchPan(){
+	orbital.touches = {
+        ONE: THREE.TOUCH.PAN,
+        TWO: THREE.TOUCH.DOLLY_ROTATE
+    }
 }
 
 function defineVRControl(renderer){
@@ -633,4 +644,4 @@ function moveLock(){
 
 
 export {init,x,y,z,pos,down,animate,onClick,setVector,screenX,screenY,initRadial,menu1,defineOrbital,isMenuLocked,lockMenu,getAngle,
-	addConfetti,setRenderer,enterVR,isVR,getVRPointer}
+	addConfetti,setRenderer,enterVR,isVR,getVRPointer,secondaryTouchPan,primaryTouchPan}
