@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<style>
+	@font-face {
+		  font-family: 'foont';
+		  src: url(ClearSans-Bold.woff);/* Pretty Modern Browsers */
+	}
+
+	body{
+		background-color: #E3C0A3;
+		margin: 0;
+		font-family: 'foont';
+	}
+	.sheet{
+		position: absolute;
+		width: calc(100% - 64px);
+		height: calc(100% - 64px);
+		border-radius: 16px;
+		background-color: white;
+		box-shadow: 6px 6px 1px #0005;
+		margin: 32px;
+		align-items: stretch
+	}
+	.section{
+		font-size: 16px;
+		width: 300px;
+		border-radius: 16px;
+		background-color: #EADBBB;
+		box-shadow: 6px 6px 1px #0005;
+		flex-flow: column wrap;
+	}
+	.saving-throws{
+
+	}
+
+	.section-item{
+		border-radius: 16px;
+		width: 100%;
+		height: 32px;
+		box-shadow: 6px 6px 1px #0005;
+		padding: 16px;
+		position: relative;
+		background-color: #83D943;
+		margin: 16px;
+	}
+	.section-item-number{
+		font-size: 32px;
+		left: 50%;
+		top: 50%;
+		position: absolute;
+		transform: translate(-50%,-50%);
+		text-align: center;
+	}
+
+	.section-item-label{
+		position: absolute;
+		left: 16px;
+		top: 16px;
+	}
+	.strength{
+		background-color: #FF1B71 !important;
+		color: #8B1944 !important;
+	}
+	.dexterity{
+		background-color: #8BFF36 !important;
+		color: #697F1E !important;
+	}
+	.constitution{
+		background-color: #E9EE6A !important;
+		color: #76602C !important;
+	}
+	.intelligence{
+		background-color: #730FB2 !important;
+		color: #FDC3FF !important;
+	}
+	.wisdom{
+		background-color: #FFA81F !important;
+		color: #FFFEB6 !important;
+	}
+	.charisma{
+		background-color: #FFA3A3 !important;
+		color: #8800AF !important;
+	}
+	.skill-link{
+		width: 32px;
+		height: 32px;
+		border-radius: 16px;
+		background-color: white;
+		position: relative;
+		display: inline-block;
+		margin: 6px;
+	}
+	.section-skills{
+
+	}
+	.skill-item{
+		border-radius: 16px;
+		width: 100%;
+		height: 24px;
+		box-shadow: 6px 6px 1px #0005;
+		padding: 8px;
+		position: relative;
+		background-color: #8DA4EE;
+		margin: 16px;
+	}
+	.skill-item-icon{
+
+	}
+	.skill-item-number{
+
+	}
+	.skill-item-label{
+		
+	}
+</style>
+<body>
+	<div id="main">
+		<div class="sheet">
+			<div class="section saving-throws">
+
+			</div>
+			<div class="section section-skills">
+				<div class="skill-item"></div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+<script>
+	function init() {
+
+		let dom=document.querySelectorAll('.section')
+		
+		dom[0].appendChild(makeStat('strength','Strength',10))
+		dom[0].appendChild(makeStat('dexterity','Dexterity',10))
+		dom[0].appendChild(makeStat('constitution','Constitution',7))
+		dom[0].appendChild(makeStat('intelligence','Intelligence',10))
+		dom[0].appendChild(makeStat('wisdom','Wisdom',3))
+		dom[0].appendChild(makeStat('charisma','Charisma',2))
+
+
+		dom[1].appendChild(makeSkill('Hello',2));
+	}init()
+
+	function makeStat(type,label,number){
+		let item=d('section-item '+type);
+		let labelDom=d('section-item-label')
+		let num=d('section-item-number')
+		num.innerText=''+number
+		labelDom.innerText=label
+		item.appendChild(labelDom)
+		item.appendChild(num)
+		let count=Math.floor(Math.random()*4)
+		if(count){
+			let row=d('')
+			let o
+			for(let i =0;i<count;i++){
+				o=d('skill-link')
+				row.appendChild(o)
+			}
+
+			
+			item.appendChild(row)
+			
+		}
+		return item;
+	}
+
+	function makeSkill(label,number){
+		let item=d('skill-item');
+		let iconDom=d('skill-item-icon');
+		let labelDom=d('skill-item-label');
+		labelDom.innerText=label
+		let numberDom=d('skill-item-number');
+		numberDom.innerText=number;
+
+		item.appendChild(iconDom);
+		item.appendChild(labelDom);
+		item.appendChild(numberDom);
+		return item;
+	}
+
+
+	function d(c){
+		let dom=document.createElement('div')
+		dom.className=c;
+		return dom
+	}
+</script>
+</html>
