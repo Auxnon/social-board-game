@@ -109,13 +109,15 @@
 		margin: 16px;
 	}
 	.skill-item-icon{
-
+		width: 48px;
+		height: 48px;
+		border-radius: 24px
 	}
 	.skill-item-number{
 
 	}
 	.skill-item-label{
-		
+
 	}
 </style>
 <body>
@@ -155,6 +157,12 @@
 		labelDom.innerText=label
 		item.appendChild(labelDom)
 		item.appendChild(num)
+
+		let st=d('section-item-saving-throw')
+		st.innerText='10'
+		item.appendChild(st)
+
+
 		let count=Math.floor(Math.random()*4)
 		if(count){
 			let row=d('')
