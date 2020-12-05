@@ -119,6 +119,52 @@
 	.skill-item-label{
 
 	}
+
+
+
+		.floater-number-input{
+			position: fixed;
+			width: 144px;
+			height: 48px;
+			/*border:black 3px solid;*/
+		}
+		.floater-number-input *{
+			width: 48px;
+			height: 48px;
+			border-radius: 24px;
+			background-color: #5555;
+			position: absolute;
+			left: 0;
+			top: 0;
+			display: inline-block;
+						animation: 0.3s;
+
+			        background-repeat: no-repeat;
+	    background-size:32px;
+	    background-position: center center;
+
+
+			background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M14.71 6.71c-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"/></svg>');
+
+		}
+		.floater-number-input *:nth-child(1){
+			left: 96px;
+			transform: rotate(180deg);
+
+		}
+		@keyframes blinker {
+			0%{
+				background-color: #fff6;
+			}
+			50%{
+				background-color: #0004;
+			}
+			100%{
+
+			}
+		}
+
+
 </style>
 <body>
 	<div id="main">
@@ -130,6 +176,7 @@
 				<div class="skill-item"></div>
 			</div>
 		</div>
+
 	</div>
 	
 </body>
@@ -147,6 +194,7 @@
 
 
 		dom[1].appendChild(makeSkill('Hello',2));
+		makeInputNumber(document.querySelector('#main'))
 	}init()
 
 	function makeStat(type,label,number){
@@ -191,6 +239,25 @@
 		item.appendChild(labelDom);
 		item.appendChild(numberDom);
 		return item;
+	}
+	function makeInputNumber(parent){
+		let row=d('floater-number-input')
+		let down=d();
+		let up=d();
+		up.addEventListener('click',ev=>{
+			up.style.animationName=''
+			void up.offsetWidth;
+			up.style.animationName='blinker';
+		});
+		down.addEventListener('click',ev=>{
+			down.style.animationName=''
+			void down.offsetWidth;
+			down.style.animationName='blinker';
+		})
+
+		row.appendChild(up);
+		row.appendChild(down);
+		parent.appendChild(row)
 	}
 
 
