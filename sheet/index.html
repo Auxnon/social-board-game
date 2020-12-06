@@ -1,201 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <style>
-	@font-face {
-		  font-family: 'foont';
-		  src: url(ClearSans-Bold.woff);/* Pretty Modern Browsers */
-	}
-	input::-webkit-outer-spin-button,
-	input::-webkit-inner-spin-button {
-	  -webkit-appearance: none;
-	  margin: 0;
-	}
+@font-face {
+    font-family: 'foont';
+    src: url(ClearSans-Bold.woff);
+    /* Pretty Modern Browsers */
+}
 
-	/* Firefox */
-	input[type=number] {
-	  -moz-appearance: textfield;
-	}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
-	body{
-		background-color: #E3C0A3;
-		margin: 0;
-		font-family: 'foont';
-		touch-action: none;
-	}
-	.sheet{
-		position: absolute;
-		width: calc(100% - 64px);
-		height: calc(100% - 64px);
-		border-radius: 16px;
-		background-color: white;
-		box-shadow: 6px 6px 1px #0005;
-		margin: 32px;
-		align-items: stretch
-	}
-	.section{
-		font-size: 16px;
-		width: 300px;
-		border-radius: 16px;
-		background-color: #EADBBB;
-		box-shadow: 6px 6px 1px #0005;
-		flex-flow: column wrap;
-	}
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
 
-	.section-item{
-		border-radius: 16px;
-		width: 100%;
-		height: 32px;
-		box-shadow: 6px 6px 1px #0005;
-		padding: 16px;
-		position: relative;
-		background-color: #83D943;
-		margin: 16px;
-	}
-	.section-item-number{
-		left: 50%;
-		top: 50%;
-		position: absolute;
-		transform: translate(-50%,-50%);
-		text-align: center;
-		padding: 0;
-		background-color: transparent;
-		outline: none;
-		border: none;
-		width: auto;
-		color: inherit;
-		font: inherit;
-		font-size: 32px;
-	}
+body {
+    background-color: #E3C0A3;
+    margin: 0;
+    font-family: 'foont';
+    touch-action: none;
+    user-select: none;
+}
 
-	.section-item-label{
-		position: absolute;
-		left: 16px;
-		top: 16px;
-	}
-	.strength{
-		background-color: #FF1B71 !important;
-		color: #8B1944 !important;
-	}
-	.dexterity{
-		background-color: #8BFF36 !important;
-		color: #697F1E !important;
-	}
-	.constitution{
-		background-color: #E9EE6A !important;
-		color: #76602C !important;
-	}
-	.intelligence{
-		background-color: #730FB2 !important;
-		color: #FDC3FF !important;
-	}
-	.wisdom{
-		background-color: #FFA81F !important;
-		color: #FFFEB6 !important;
-	}
-	.charisma{
-		background-color: #FFA3A3 !important;
-		color: #8800AF !important;
-	}
-	.skill-link-row{
-		bottom: -24px;
-		position: absolute;
-	}
-	.skill-link{
-		width: 32px;
-		height: 32px;
-		border-radius: 16px;
-		background-color: black;
-		position: relative;
-		display: inline-block;
-		margin: 6px;
-		box-sizing: border-box;
-		border: white solid 3px;
-	}
-	.section-item-saving-throw{
-		border: white dashed 3px;
-		width: 64px;
-		height: 64px;
-		position: absolute;
-		right: 0;
-		top: 0;
-		box-sizing: border-box;
-		border-radius: 16px;
-		font-size: 24px;
-		text-align: center;
-		line-height: 24px;
-	}
+.sheet {
+    display: flex;
+    position: absolute;
+    width: calc(100% - 64px);
+    height: calc(100% - 64px);
+    border-radius: 16px;
+    background-color: white;
+    box-shadow: 6px 6px 1px #0005;
+    margin: 32px;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+}
 
-	.section-item-saving-throw::before{
+.section {
+    font-size: 16px;
+    width: 300px;
+    border-radius: 16px;
+    background-color: #F5F0E5;
+    box-shadow: 6px 6px 1px #0005;
+    flex: 3 1 1;
+    margin: 16px;
+}
+.section *{
+	border-radius: 16px;
+}
+.section-banner{
+	position: relative;
+	font-size: 24px;
+	background-color: inherit;
+	box-shadow: inherit;
+}
 
-		color: white;
-		font-size: 16px;
-		content: 'S.T.\A'
-	}
+.section-item {
+    height: 32px;
+    box-shadow: 6px 6px 1px #0005;
+    padding: 16px;
+    position: relative;
+    background-color: #83D943;
+    margin: 16px;
+}
+
+.number {
+    color: inherit;
+    font: inherit;
+    width: auto;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    text-align: center;
+    max-width: 64px;
+}
 
 
+.section-item .number {
+    font-size: 32px;
+}
+
+.section-item-label {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+}
+
+.STR {
+    background-color: #FF1B71 !important;
+    color: #8B1944 !important;
+}
+
+.DEX {
+    background-color: #8BFF36 !important;
+    color: #697F1E !important;
+}
+
+.CON {
+    background-color: #E9EE6A !important;
+    color: #76602C !important;
+}
+
+.INT {
+    background-color: #730FB2 !important;
+    color: #FDC3FF !important;
+}
+
+.WIS {
+    background-color: #FFA81F !important;
+    color: #FFFEB6 !important;
+}
+
+.CHR {
+    background-color: #FFA3A3 !important;
+    color: #8800AF !important;
+}
+
+.skill-link-row {
+    bottom: -18px;
+    position: absolute;
+}
+
+.skill-link {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: black;
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    background-size: 32px;
+    z-index: 10;
+    margin-right: 2px;
+}
+
+.section-item-saving-throw {
+    border: white solid 3px;
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    box-sizing: border-box;
+    border-radius: 16px;
+    font-size: 24px;
+    text-align: center;
+    line-height: 24px;
+}
+
+.section-item-saving-throw::before {
+	line-height: 102px;
+	top: -10px;
+    color: white;
+    font-size: 16px;
+    content: 'S.T.\A'
+}
 
 
-	.section-skills{
-
-	}
-	.skill-item{
-		border-radius: 16px;
-		width: 100%;
-		height: 24px;
-		box-shadow: 6px 6px 1px #0005;
-		padding: 8px;
-		position: relative;
-		background-color: #8DA4EE;
-		margin: 16px;
-	}
-	.skill-item-icon{
-		width: 48px;
-		height: 48px;
-		border-radius: 24px
-	}
-	.skill-item-number{
-
-	}
-	.skill-item-label{
-
-	}
 
 
+.section-skills {}
+.section-stats {}
+.section-status *{
+	margin: 8px;
+}
+.section-character{
 
-		.floater-number-input{
-			position: absolute;
-			width: 144px;
-			height: 48px;
-			/*border:black 3px solid;*/
-		}
-		.floater-arrow{
-			width: 48px;
-			height: 48px;
-			border-radius: 24px;
-			background-color: #5555;
-			position: absolute;
-			left: 0;
-			top: 0;
-			display: inline-block;
-			animation: 0.3s;
-			background-repeat: no-repeat;
-	    	background-size:32px;
-	    	background-position: center center;
+}
+.section-spells{
+
+}
+.section-equipment{
+
+}
+
+.skill-item {
+    border-radius: 16px;
+    height: 24px;
+    box-shadow: 6px 6px 1px #0005;
+    padding: 8px;
+    position: relative;
+    background-color: #8DA4EE;
+    margin: 16px;
+}
+
+.skill-item-icon {
+    border-radius: 16px 8px 8px 16px;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 0;
+    left: -1px;
+    background-color: white;
+    background-size: 40px;
+    background-image: url('./spell.png');
+}
+
+.skill-item .number {
+	position: absolute;
+	right: 32px;
+}
+
+.skill-item-label {
+    display: inline-block;
+    margin-left: 48px;
+    content: 'hello'
+}
+
+.floater-number-input {
+    position: absolute;
+    width: 144px;
+    height: 48px;
+    /*border:black 3px solid;*/
+}
+
+.floater-arrow {
+    z-index: 99;
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    background-color: #5558;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    animation: 0.3s;
+    background-repeat: no-repeat;
+    background-size: 32px;
+    background-position: center center;
 
 
-			background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M14.71 6.71c-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"/></svg>');
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M14.71 6.71c-.39-.39-1.02-.39-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"/></svg>');
 
-		}
-		.floater-number-input .floater-arrow:nth-child(1){
-			left: 96px;
-			transform: rotate(180deg);
-		}
-		/*.floater-arrow::after{
+}
+
+.floater-number-input .floater-arrow:nth-child(1) {
+    left: 96px;
+    transform: rotate(180deg);
+}
+
+/*.floater-arrow::after{
 			content: '';
 			background-color: red;
 			width: 16px;
@@ -221,279 +276,541 @@
 			transform: translate(0,-50%);
 		}*/
 
-		@keyframes blinker {
-			0%{
-				background-color: #fff6;
-			}
-			50%{
-				background-color: #0004;
-			}
-			100%{
+@keyframes blinker {
+    0% {
+        background-color: #fff6;
+    }
 
-			}
-		}
-		.editable-number{
-			width: 48px;
-			height: 48px;
-			box-sizing: border-box;
-			border-radius: 24px;
-			border: white dashed 3px;
-			display: block;
-			position: absolute;
-			left: 0;
-			top: 0;
-	    	
-	    	overflow: visible;
-	    	transition: 0.1s transform;
-		}
-		.editable-number::before{
-			content: '';
-			width: 24px;
-			height: 24px;
-			display: block;
-			position: absolute;
-			left: 32px;
-			top:-8px;
-			
-			background-repeat: no-repeat;
-	    	background-size:24px;
-	    	background-position: center center;
-			background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>');
-		}
+    50% {
+        background-color: #0004;
+    }
 
+    100% {}
+}
+
+.editable-number {
+    width: 48px;
+    height: 48px;
+    box-sizing: border-box;
+    border-radius: 24px;
+    border: #fff7 dotted 3px;
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    overflow: visible;
+    transition: 0.1s transform;
+}
+
+.editable-number::before {
+    content: '';
+    width: 24px;
+    height: 24px;
+    display: block;
+    position: absolute;
+    left: 32px;
+    top: -8px;
+
+    background-repeat: no-repeat;
+    background-size: 24px;
+    background-position: center center;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>');
+}
+
+
+.selected {
+
+    box-shadow: 12px 6px 0px white;
+}
+
+.selected::after {
+    content: '';
+    right: 0px;
+    top: 8px;
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    display: block;
+    background-position: center center;
+    background-size: 24px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" fill="white" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>');
+}
+
+.section-dashed-line {
+    height: 0;
+    margin: 16px;
+    border-bottom: 3px dashed black;
+    border-radius:0;
+}
+
+.centered {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.status-hitpoints{
+	height: 64px;
+	background-color: red;
+}
+.status-initiative{
+	display: inline-block;
+	width:64px;
+	height: 64px;
+	background-color: #AA4000;
+}
+.status-armor{
+	display: inline-block;
+	width:64px;
+	height: 64px;
+	background-color: #224E22;
+}
+.status-speed{
+	display: inline-block;
+	width:64px;
+	height: 64px;
+	background-color: #1F46B4;
+}
+.status-dice{
+	background-color: green;
+	height: 64px;
+}
+
+
+.character-picture{
+	width:212px;
+	height: 256px;
+	background-color: #17D1FF;
+}
+
+.character-proficiency{
+	display: inline-block;
+	width:64px;
+	height: 64px;
+	position: relative;
+	left: 0;
+	top: 0;
+	background-color: purple;
+}
+.character-inspiration{
+	display: inline-block;
+	width:64px;
+	height: 64px;
+	position: relative;
+	right: 0;
+	top: 0;
+	background-color: purple;
+}
 
 </style>
+
 <body>
-	<div id="main">
-		<div class="sheet">
-			<div class="section saving-throws">
+    <div id="main">
+        <div class="sheet">
+            <div class="section section-stats">
+            </div>
+            <div class="section section-skills">
+            </div>
+            <div class="section section-status">
+            </div>
+            <div class="section section-character">
+            	<div class="character-picture">
+            		<div class="character-proficiency"></div>
+            		<div class="character-inspiration"></div>
+            	</div>
+            	
+            </div>
 
-			</div>
-			<div class="section section-skills">
-				<div class="skill-item"></div>
-			</div>
-		</div>
-
-		
-	</div>
-	
+            <div class="section section-spells">
+            	h
+            </div>
+             <div class="section section-equipment">
+            	h
+            </div>
+        </div>
+    </div>
 </body>
 <script>
-	var main;
-	function init() {
-		main=document.querySelector('#main')
+const SKILLS = [
+    ['STR', 'Athletics', 'athletics.png'],
 
-		let dom=document.querySelectorAll('.section')
-		
-		dom[0].appendChild(makeStat('strength','Strength',5))
-		dom[0].appendChild(makeStat('dexterity','Dexterity',5))
-		dom[0].appendChild(makeStat('constitution','Constitution',5))
-		dom[0].appendChild(makeStat('intelligence','Intelligence',5))
-		dom[0].appendChild(makeStat('wisdom','Wisdom',5))
-		dom[0].appendChild(makeStat('charisma','Charisma',5))
+    ['DEX', 'Acrobatics', 'acrobatics.png'],
+    ['DEX', 'Sleight of Hand', 'sleight.png'],
+    ['DEX', 'Stealth', 'stealth.png'],
 
+    ['INT', 'Arcana', 'arcana.png'],
+    ['INT', 'History', 'history.png'],
+    ['INT', 'Investigation', 'investigation.png'],
+    ['INT', 'Nature', 'nature.png'],
+    ['INT', 'Religion', 'religion.png'],
 
-		dom[1].appendChild(makeSkill('Hello',2));
+    ["WIS", "Animal Handling", 'animal.png'],
+    ["WIS", "Insight", 'insight.png'],
+    ["WIS", "Medicine", 'medicine.png'],
+    ["WIS", "Perception", 'perception.png'],
+    ["WIS", "Survival", 'survival.png'],
 
+    ["CHR", "Deception", 'deception.png'],
+    ["CHR", "Intimidation", 'intimidation.png'],
+    ["CHR", "Performance", 'performance.png'],
+    ["CHR", "Persuasion", 'persuasion.png'],
 
-		
+]
 
-		createSimpleAdjuster(main)
+var testToggle = false;
+var main;
+var skillList;
 
-		let numbers=document.querySelectorAll('.section-item-number')
-		numbers.forEach(o=>{
-			makeInputNumber(o)
-		})
+function init() {
+    main = document.querySelector('#main')
 
+    let dom = document.querySelectorAll('.section')
 
-		
-	}init()
+    let strDom = makeStat('STR', 'Strength', 5)
+    let dexDom = makeStat('DEX', 'Dexterity', 5)
+    let conDom = makeStat('CON', 'Constitution', 5)
+    let intDom = makeStat('INT', 'Intelligence', 5)
+    let wisDom = makeStat('WIS', 'Wisdom', 5)
+    let chrDom = makeStat('CHR', 'Charisma', 5)
+    dom[0].appendChild(strDom)
+    dom[0].appendChild(dexDom)
+    dom[0].appendChild(conDom)
+    dom[0].appendChild(intDom)
+    dom[0].appendChild(wisDom)
+    dom[0].appendChild(chrDom)
 
-	function makeStat(type,label,number){
-		let item=d('section-item '+type);
-		let labelDom=d('section-item-label')
-		let num=document.createElement('input');
-		num.className='section-item-number';
-		num.value=number
-		num.type='number'
-		num.min=0;
-		num.max=30;
-		//num.disabled=true;
-		labelDom.innerText=label
-		item.appendChild(labelDom)
-		item.appendChild(num)
+    skillList = dom[1]
 
-		let st=d('section-item-saving-throw')
-		st.innerText='10'
-		item.appendChild(st)
+    SKILLS.forEach((i, n) => {
+        skillList.appendChild(makeSkill(n, i[0], i[1], i[2], (n < 5)));
+    })
 
+    //
+    window.addEventListener('keyup', ev => {
+        if(ev.keyCode == 32) {
 
-		let count=Math.floor(Math.random()*4)
-		if(count){
-			let row=d('skill-link-row')
-			let o
-			for(let i =0;i<count;i++){
-				o=d('skill-link')
-				row.appendChild(o)
-			}
+            if(testToggle)
+                enableEdit()
+            else
+                disableEdit()
 
-			
-			item.appendChild(row)
-			
-		}
-		return item;
-	}
+            testToggle = !testToggle
+        }
+    })
 
-	function makeSkill(label,number){
-		let item=d('skill-item');
-		let iconDom=d('skill-item-icon');
-		let labelDom=d('skill-item-label');
-		labelDom.innerText=label
+    //dom[1].appendChild(makeSkill(0,'CHR','Hello',null,2));
+    makeStatus();
 
-		let numberDom=document.createElement('input')
-		numberDom.className='skill-item-number'
-		numberDom.innerText=number;
+    createSimpleAdjuster(main)
 
-		item.appendChild(iconDom);
-		item.appendChild(labelDom);
-		item.appendChild(numberDom);
-		return item;
-	}
-	function makeInputNumber(parent){
-		let input=d('editable-number');
-		let box=parent.getBoundingClientRect();
+    enableEdit();
 
-		input.style.left=-24+box.left+box.width/2+'px';
-		input.style.top=-24+box.top+box.height/2+'px';
+}
+init()
 
-		input.addEventListener('touchstart',numberStartAdjust);
-		input.addEventListener('touchmove',numberMoveAdjust);
-		input.addEventListener('touchend',numberEndAdjust);
-		input.addEventListener('click',numberClick);
-		input.host=parent;
-		input.range=[0,0,30]
+function makeStat(type, label, number) {
+    let item = d('section-item ' + type);
+    let labelDom = d('section-item-label')
+    let num = document.createElement('input');
+    num.className = 'number';
+    num.value = number
+    num.type = 'number'
+    num.min = 0;
+    num.max = 30;
+    //num.disabled=true;
+    labelDom.innerText = label
+    item.appendChild(labelDom)
 
-		main.appendChild(input)
-	}
-	function killInputs(){
-		let doms=document.querySelectorAll('.editable-number')
-		doms.forEach(input=>{
-			input.removeEventListener('touchstart',numberStartAdjust);
-			input.removeEventListener('touchmove',numberMoveAdjust);
-			input.removeEventListener('touchend',numberEndAdjust);
-			input.addEventListener('click',numberClick);
-			input.remove();
-		})
-	}
+    let center = d('centered')
+    center.appendChild(num)
+    item.appendChild(center)
 
-	var simpleAdjuster
-	function createSimpleAdjuster(parent){
-		let row=d('floater-number-input')
-		let down=d('floater-arrow');
-		let up=d('floater-arrow');
-		
-		up.addEventListener('click',ev=>{
-			up.style.animationName=''
-			void up.offsetWidth;
-			up.style.animationName='blinker';
-			adjustHost.range[0]=Math.min(adjustHost.range[2],++adjustHost.range[0])
-			adjustTarget.value=adjustHost.range[0]
-		})
-		down.addEventListener('click',ev=>{
-			down.style.animationName=''
-			void down.offsetWidth;
-			down.style.animationName='blinker';
-			adjustHost.range[0]=Math.max(adjustHost.range[1],--adjustHost.range[0])
-			adjustTarget.value=adjustHost.range[0]
-		})
-		row.appendChild(up);
-		row.appendChild(down);
-		row.style.display='none';
-		simpleAdjuster=row;
-		parent.appendChild(simpleAdjuster)
-	}
+    let st = d('section-item-saving-throw')
+    let stCenter = d('centered')
+    let stn = document.createElement('input');
+    stn.className = 'number';
+    stn.value = 0
+    stn.type = 'number'
+    stn.min = 0;
+    stn.max = 30;
+    stCenter.appendChild(stn)
+    st.appendChild(stCenter)
+    item.appendChild(st)
 
-	function moveSimpleAdjuster(target){
-		simpleAdjuster.style.display='block';
-		let box=target.getBoundingClientRect();
-		simpleAdjuster.style.left=-48+box.left+'px'
-		simpleAdjuster.style.top=box.top+'px'
-	}
+    let row = d('skill-link-row')
+    item.appendChild(row)
+
+    return item;
+}
+
+function makeSkill(id, type, label, icon, on) {
+    let item = d('skill-item');
+    item.classList.add(type)
+    item.type = type;
+
+    if(!on)
+        item.style.display = 'none'
 
 
-	function sliderButton(dom){
-		dom.addEventListener('touchmove',ev=>{
-			let v=ev.touches[0].clientX-ev.target.getBoundingClientRect().left;
-			v=Math.max(0,Math.min(v,96));
-			console.log(v)
-			ev.target.style.transform='translate('+v+'px)'
-		})
-		/**/
-	}
+    let iconDom = d('skill-item-icon');
+    iconDom.style.backgroundImage = " url('./" + icon + "')";
+    let labelDom = d('skill-item-label');
+    labelDom.innerText = label
 
-	var adjustTarget;
-	var adjustHost;
-	var movingAdjust={x:0,y:0}
+    let numberDom = document.createElement('input')
+    numberDom.className = 'number'
+    numberDom.value = 0;
+    numberDom.type = 'number'
+    numberDom.min = -5
+    numberDom.max = 10
 
-	var touchTimeout=false;
+    item.appendChild(iconDom);
+    item.appendChild(labelDom);
+    item.appendChild(numberDom);
 
-	function numberStartAdjust(ev){
-		adjustHost=ev.target;
-		adjustTarget=ev.target.host
-		simpleAdjuster.style.display='none';
-		movingAdjust={x:ev.touches[0].clientX,y:ev.touches[0].clientY};
-		ev.target.className='floater-arrow'
-		ev.target.range[0]=parseInt(adjustTarget.value);
-		setTimeout(function(){
-			touchTimeout=true
-		},200)
-		touchTimeout=false;
+    item.skillId = id;
+    return item;
+}
 
-		//console.log('hi')
-	}
+function makeInputNumber(parent) {
+    let input = d('editable-number');
+    let box = parent.getBoundingClientRect();
+    //offsetLeft
+    input.style.left = -24 + box.width / 2 + parent.offsetLeft + 'px'; //
+    input.style.top = -24 + box.height / 2 + parent.offsetTop + 'px';
 
-	function numberMoveAdjust(ev){
-		if(movingAdjust){
-			let flip=true;
-			//let box=ev.target.getBoundingClientRect()
-			let v=ev.touches[0].clientX-(movingAdjust.x);
-			let c=0
-			if(v>24 || v<-24){
-				v=Math.max(-96,Math.min(v,96));
-				if(v<-24){
-					flip=false;
-					c=(ev.target.range[1]-ev.target.range[0])* ((Math.abs(v)-24)/72)
-				}else{
-					c=(ev.target.range[2]-ev.target.range[0])* ((v-24)/72)
-				}
-			}else
-				v=0;
-			console.log(v)
-			
-			adjustTarget.value=Math.round(ev.target.range[0]+c);
-			ev.target.style.transform='translate('+v+'px)'+(flip?' rotate(180deg)':'');
-		}
-	}
-	function numberEndAdjust(ev){
-		movingAdjust=false;
-		ev.target.className='editable-number'
-		ev.target.style.transform='translate(0)';
-		if(!touchTimeout){
-			moveSimpleAdjuster(ev.target)
-		}
-	}
-	function numberClick(ev){
-		adjustHost=ev.target;
-		adjustTarget=ev.target.host
-		ev.target.host.focus();
-	}
-	
+    input.addEventListener('touchstart', numberStartAdjust);
+    input.addEventListener('touchmove', numberMoveAdjust);
+    input.addEventListener('touchend', numberEndAdjust);
+    input.addEventListener('click', numberClick);
+    input.host = parent;
+    input.range = [parseInt(parent.value), parseInt(parent.min), parseInt(parent.max)]
+
+    parent.parentElement.appendChild(input)
+}
+
+function enableEdit() {
+
+    let skills = skillList.querySelectorAll('.skill-item')
+    skillList.appendChild(d('section-dashed-line'))
+    skills.forEach(skill => {
+        if(skill.style.display == 'none') {
+            skill.style.display = 'block'
+            //skill.remove();
+            skillList.appendChild(skill)
+        } else {
+            skill.classList.add('selected')
+        }
+        skill.addEventListener('click', skillSelect)
+    })
+
+    let numbers = document.querySelectorAll('.number')
+    numbers.forEach(number => {
+        number.disabled = false;
+        makeInputNumber(number)
+    })
+
+}
+
+function disableEdit() {
+    let bar = skillList.querySelector('.section-dashed-line')
+    if(bar)
+        bar.remove();
+    let stats = document.querySelector('.section-stats')
+    stats.querySelectorAll('.skill-link-row').forEach(row => {
+        row.innerHTML = ''
+    })
 
 
-	function d(c){
-		let dom=document.createElement('div')
-		dom.className=c;
-		return dom
-	}
+    let skills = skillList.querySelectorAll('.skill-item')
+    skills.forEach(skill => {
+        if(skill.classList.contains('selected')) {
+            skill.classList.remove('selected')
+            let stat = stats.querySelector('.' + skill.type)
+            if(stat) {
+                let row = stat.querySelector('.skill-link-row')
+                let icon = d('skill-link')
+                icon.style.backgroundImage = skill.querySelector('.skill-item-icon').style.backgroundImage
+                row.appendChild(icon)
+            }
+            skill.removeEventListener('click', skillSelect)
+
+        } else {
+            skill.style.display = 'none'
+        }
+
+    })
+
+    let doms = document.querySelectorAll('.editable-number')
+    doms.forEach(input => {
+        input.removeEventListener('touchstart', numberStartAdjust);
+        input.removeEventListener('touchmove', numberMoveAdjust);
+        input.removeEventListener('touchend', numberEndAdjust);
+        input.addEventListener('click', numberClick);
+        input.remove();
+
+    })
+    let numbers = document.querySelectorAll('.number')
+    numbers.forEach(number => {
+        number.disabled = true;
+    })
+
+
+}
+
+var simpleAdjuster
+
+function createSimpleAdjuster(parent) {
+    let row = d('floater-number-input')
+    let down = d('floater-arrow');
+    let up = d('floater-arrow');
+
+    up.addEventListener('click', ev => {
+        up.style.animationName = ''
+        void up.offsetWidth;
+        up.style.animationName = 'blinker';
+        adjustHost.range[0] = Math.min(adjustHost.range[2], ++adjustHost.range[0])
+        adjustTarget.value = adjustHost.range[0]
+    })
+    down.addEventListener('click', ev => {
+        down.style.animationName = ''
+        void down.offsetWidth;
+        down.style.animationName = 'blinker';
+        adjustHost.range[0] = Math.max(adjustHost.range[1], --adjustHost.range[0])
+        adjustTarget.value = adjustHost.range[0]
+    })
+    row.appendChild(up);
+    row.appendChild(down);
+    row.style.display = 'none';
+    simpleAdjuster = row;
+    parent.appendChild(simpleAdjuster)
+}
+
+function moveSimpleAdjuster(target) {
+    simpleAdjuster.style.display = 'block';
+    let box = target.getBoundingClientRect();
+    simpleAdjuster.style.left = -48 + box.left + 'px'
+    simpleAdjuster.style.top = box.top + 'px'
+}
+
+
+function sliderButton(dom) {
+    dom.addEventListener('touchmove', ev => {
+        let v = ev.touches[0].clientX - ev.target.getBoundingClientRect().left;
+        v = Math.max(0, Math.min(v, 96));
+        console.log(v)
+        ev.target.style.transform = 'translate(' + v + 'px)'
+    })
+    /**/
+}
+
+var adjustTarget;
+var adjustHost;
+var movingAdjust = { x: 0, y: 0 }
+
+var touchTimeout = false;
+
+function numberStartAdjust(ev) {
+    adjustHost = ev.target;
+    adjustTarget = ev.target.host
+    simpleAdjuster.style.display = 'none';
+    movingAdjust = { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+    ev.target.className = 'floater-arrow'
+    ev.target.range[0] = parseInt(adjustTarget.value);
+    setTimeout(function() {
+        touchTimeout = true
+    }, 200)
+    touchTimeout = false;
+
+    //console.log('hi')
+}
+
+function numberMoveAdjust(ev) {
+    if(movingAdjust) {
+        let flip = true;
+        //let box=ev.target.getBoundingClientRect()
+        let v = ev.touches[0].clientX - (movingAdjust.x);
+        let c = 0
+        if(v > 24 || v < -24) {
+            v = Math.max(-96, Math.min(v, 96));
+            if(v < -24) {
+                flip = false;
+                c = (ev.target.range[1] - ev.target.range[0]) * ((Math.abs(v) - 24) / 72)
+            } else {
+                c = (ev.target.range[2] - ev.target.range[0]) * ((v - 24) / 72)
+            }
+        } else
+            v = 0;
+        console.log(v)
+
+        adjustTarget.value = Math.round(ev.target.range[0] + c);
+        ev.target.style.transform = 'translate(' + v + 'px)' + (flip ? ' rotate(180deg)' : '');
+    }
+}
+
+function numberEndAdjust(ev) {
+    movingAdjust = false;
+    ev.target.className = 'editable-number'
+    ev.target.style.transform = 'translate(0)';
+    if(!touchTimeout) {
+        moveSimpleAdjuster(ev.target)
+    }
+}
+
+function numberClick(ev) {
+    adjustHost = ev.target;
+    adjustTarget = ev.target.host
+    ev.target.host.focus();
+}
+
+function skillSelect(ev) {
+    if(ev.target.classList.contains('skill-item')) {
+        if(ev.target.classList.contains('selected')) {
+            ev.target.classList.remove('selected')
+            ev.target.parentElement.appendChild(ev.target)
+        } else {
+            ev.target.classList.add('selected')
+            let parent = ev.target.parentElement;
+            let line = parent.querySelector('.section-dashed-line')
+            parent.insertBefore(ev.target, line)
+        }
+
+    }
+}
+
+function d(c) {
+    let dom = document.createElement('div')
+    if(c)
+    dom.className = c;
+    return dom
+}
+
+function makeStatus(){
+	let status=document.querySelector('.section-status');
+	let armor=d('status-armor')
+	let initiative=d('status-initiative')
+	let speed=d('status-speed')
+
+	let row=d();
+	row.appendChild(armor);
+	row.appendChild(initiative);
+	row.appendChild(speed);
+	status.appendChild(row)
+
+	let hitpoints=d('status-hitpoints')
+	status.appendChild(hitpoints);
+
+	let hitDice=d('status-dice')
+	status.appendChild(hitDice);
+
+}
+
+
+
+
+
 </script>
+
 </html>
