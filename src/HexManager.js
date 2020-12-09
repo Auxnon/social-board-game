@@ -13,6 +13,14 @@ import * as THREE from "./lib/three.module.js";
 // tree #B68A61
 //tree2 #8C735B
 
+/* house
+wall #B9AE8C
+roof #70665C
+hinges #20140E
+door #67483C
+window #67483C
+#703212*/
+
 
 var hex=[]
 var landBits=[]
@@ -63,7 +71,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 				colors[val]=val
 			}
 
-			//console.log(colors)
+			console.log(colors)
 		}
 		
 		//console.log(vr,vg,vb,va)
@@ -75,6 +83,14 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 	}
 	function clik(d,i){
 		d.addEventListener('click',ev=>{
+			console.log('clicking hex')
+			let target=ev.target;
+			if(!target.classList.contains('hex')){
+				target=target.parentElement
+			}
+			target.classList.remove('jelloAnim')
+			void target.offsetWidth;
+			target.classList.add('jelloAnim')
 			setType(i)
 		})
 	}
@@ -85,7 +101,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 	doms[2].appendChild(PictureMaker.make(getModel('Grass_P1')));clik(doms[2],2);
 	doms[3].appendChild(PictureMaker.make(getModel('Mount_N'),90));clik(doms[3],3);
 	doms[4].appendChild(PictureMaker.make(getModel('Water_N')));clik(doms[4],0);
-
+	doms[5].appendChild(PictureMaker.make(getModel('House_N')));clik(doms[5],5);
 
 	clearLand()
 
@@ -378,25 +394,31 @@ function land(n,st,x,y,r) {
 	//n==1 grass, n==2 path, n==3 mount
 	let radius=1;
 	let skew=SCALE*radius*Math.sqrt(3)/2;
-	let prefix="Grass_"
-	if(n==3){
-		prefix="Mount_"
-	}else if(n==4){
-		prefix="Tree_"
-	}else if(n==0){
-		prefix="Water_"
+	let prefix="Grass_";
+	switch(n){
+		case 1:prefix="Grass_";break; //more efficient as it's most common
+		case 0:prefix="Water_";break;
+		case 3:prefix="Mount_";break;
+		case 4:prefix="Tree_";break;
+		case 5:prefix="House_";break;
 	}
 
 	//dummy.position.set(offsetx+i*9,0,offsetz+j*skew*2 +i*skew);
-	let m=hex[prefix+st].clone();
-	m.position.set((-HALF_GRID)+x*skew*2 +y*skew,y*SCALE*1.5,-SCALE*.2)
-	if(r){ //sp always not 0
-		r=6-r;
-		m.rotation.z=r*Math.PI/3
+	let picked=hex[prefix+st];
+	if(picked){
+		let m=picked.clone();
+		m.position.set((-HALF_GRID)+x*skew*2 +y*skew,y*SCALE*1.5,-SCALE*.2)
+		if(r){ //sp always not 0
+			r=6-r;
+			m.rotation.z=r*Math.PI/3
+		}
+		
+		landBits.push(m)
+		Render.addModel(m)
+	}else{
+		console.log('invalid model '+prefix+st)
 	}
 	
-	landBits.push(m)
-	Render.addModel(m)
 }
 
 function modelClear(){
@@ -480,6 +502,7 @@ function toggleType(){
 }
 function setType(i){
 	hexType=i;
+	console.log('set hex '+hexType)
 }
 function getModel(st){
 	return hex[st].clone();

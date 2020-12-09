@@ -271,7 +271,7 @@ function setVector(pos) {
         if(!mdown)
             HexManager.hexCheck(px, py)
 
-        console.log(singleTouch)
+        //console.log(singleTouch)
 
         if(singleTouch)
             HexManager.hexPick(px, py)

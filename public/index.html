@@ -198,6 +198,8 @@
     	margin: 0 35px 0 35px;
     	background-color: white;
     	display: inline-block;
+
+        pointer-events: auto;
     }
     .hex::after{
     	content: '';
@@ -221,6 +223,7 @@
     	border-right: white 16.16px solid;
     }
     .hexRow{
+        pointer-events: none;
     	display: block;
     	position: absolute;
     	margin: 12px 0 12px 0;
@@ -351,6 +354,27 @@ form{
 	display: block;
 }
 
+.jelloAnim{
+    animation: jello 0.4s;
+}
+
+@keyframes jello{
+    0% {
+        transform: scale(1,1);
+    }
+    25% {
+        transform: scale(1.15,1.25);
+    }
+    50% {
+        transform: scale(0.9,0.8);
+    }
+    75% {
+        transform: scale(1.1,1.1);
+    }
+    100% {
+        transform: scale(1,1);
+    }
+}
 
 
 
@@ -415,5 +439,5 @@ form{
         
 	</div>
 	
-<script src="runtime.55ca66c543e541470d7d.js"></script><script src="vendors.a31f0408b17069e67cf0.js"></script><script src="libs.6d6cfae4206c70fd3d5c.js"></script><script src="main.6b280d0793e7afbed9cb.js"></script></body>
+<script src="runtime.55ca66c543e541470d7d.js"></script><script src="vendors.a31f0408b17069e67cf0.js"></script><script src="libs.6d6cfae4206c70fd3d5c.js"></script><script src="main.d0e9cbc9de3aadaf6517.js"></script></body>
 </html>
