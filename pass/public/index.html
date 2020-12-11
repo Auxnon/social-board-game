@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style type="text/css">
+		body{
+			background-color: #543;
+		}
+		.box{
+			width: 200px;
+			height: auto;
+			min-height: 64px;
+			background-color: white;
+			box-shadow: 6px 6px 1px #0005;
+			border-radius: 16px;
+			margin:16px;
+		}
+	</style>
+</head>
+<body>
+	<form class='box' action="/login" method="POST">
+		<input type="text" id="username" value="nameo">
+		<input type="password" id="password">
+		<input id='button' type="button" value="get on" >
+	</form>
+	<div class="message box"></div>
+	
+</body>
+<script>
+	
+function init(){
+	document.querySelector('#button').addEventListener('click',onclick)
+}init()
+
+function onclick(){
+	let username=document.querySelector('#username').value
+	let pass=document.querySelector('#password').value
+	fetch('/login', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({username:username,password:pass})
+  }).then(function(response) {
+  	if(!response.ok){
+  		let box=document.querySelector('.message')
+  		box.innerText=response.status+":"+response.statusText;
+  		return undefined;
+  	}else
+    	return response.json();
+  }).then(function(data) {
+  	if(data){
+  		 let box=document.querySelector('.message')
+    	box.innerText=JSON.stringify(data)
+	}
+  }).catch(e=>{
+  	console.error('ERROR'+e);
+  });
+}
+
+</script>
+</html>
