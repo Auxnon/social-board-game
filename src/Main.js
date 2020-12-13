@@ -9,6 +9,7 @@ import * as Physics from "./Physics.js";
 import * as UI from "./UI.js";
 import * as BarUI from "./BarUI.js";
 import * as Login from "./Login.js";
+import * as Chat from "./Chat.js";
 
 
 var mainDom;
@@ -110,6 +111,8 @@ function init() {
 
     BarUI.init();
     Login.init();
+    
+    Chat.init();
 
 
 

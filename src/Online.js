@@ -4,13 +4,16 @@ import * as io from 'socket.io-client';
 import * as Main from "./Main.js";
 import * as Physics from "./Physics.js";
 import * as UI from "./UI.js";
+import * as Login from "./Login.js";
+import * as Chat from "./Chat.js";
+
 
 var socket;
 
 var physReady=false;
 
 function initSocket() {
-
+	window.m=m;
 	console.error('trying auth...');
 	socket= io('/dand-dev').connect('', {
 	    reconnection: true,
@@ -18,6 +21,7 @@ function initSocket() {
 	});
 
 	socket.on('connect', function(){
+		Login.hide();
 		console.log('connected')
 		socket.emit('physInit')
 	});
@@ -26,7 +30,7 @@ function initSocket() {
   socket.on('disconnect', function(data){
   	console.log('disconnected ',data)
   	if(data.includes('disconnect')){
-  		requestLogin();
+  		Login.show();
   		socket.io.opts.reconnection=false;
   	}else{
   		socket.connect('',{
@@ -37,6 +41,7 @@ function initSocket() {
   });
 
   socket.on('message', function(username,m){
+  	Chat.hook(username,m)
   	console.log(username,': ',m);
   });
 
@@ -112,14 +117,15 @@ function login(username,pass){
 }
 
 
-function sendMessage(){
-	socket.emit('message','test')
+function message(string){
+	socket.emit('message',string);
 }
 
-function requestLogin(){
-	console.log('Must relogin')
+function m(st){
+	if(!st)
+		st='test'
+	socket.emit('message',st);
 }
 
-
-export {login,makePhys,resetPhys}
+export {login,makePhys,resetPhys,message}
 
