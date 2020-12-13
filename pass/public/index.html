@@ -26,11 +26,19 @@
 		<input id='button' type="button" value="get on" >
 	</form>
 	<div class="message box"></div>
+	<div class="box">
+		<button id='test'>MEssage</button>
+	</div>
 	
 </body>
+<script src="/socket.io/socket.io.js"></script>
 <script>
-	
+
+	var socket;
+
 function init(){
+	document.querySelector('#test').disabled=true;
+	document.querySelector('#test').addEventListener('click',sendMessage)
 	document.querySelector('#button').addEventListener('click',onclick)
 }init()
 
@@ -54,10 +62,47 @@ function onclick(){
   	if(data){
   		 let box=document.querySelector('.message')
     	box.innerText=JSON.stringify(data)
+    	initSocket();
 	}
   }).catch(e=>{
   	console.error('ERROR'+e);
   });
+}
+
+function initSocket(){
+	console.error('trying auth...');
+	socket= io.connect('', {
+	    reconnection: true,
+	    reconnectionAttempts: 10
+	});
+
+	socket.on('connect', function(){
+		console.log('connected')
+		document.querySelector('#test').disabled=false;
+	});
+  socket.on('event', function(data){});
+  socket.on('disconnect', function(data){
+  	console.log('disconnected ',data)
+  	if(data.includes('disconnect')){
+  		requestLogin();
+  		socket.io.opts.reconnection=false;
+  	}else{
+  		socket.connect('',{
+	    	reconnection: true,
+	    	reconnectionAttempts: 10
+		});
+  	}
+  });
+  socket.on('message', function(username,m){
+  	console.log(username,': ',m);
+  });
+}
+function sendMessage(){
+	socket.emit('message','test')
+}
+
+function requestLogin(){
+	console.log('Must relogin')
 }
 
 </script>

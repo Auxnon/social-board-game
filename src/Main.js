@@ -8,7 +8,7 @@ import * as PictureMaker from "./PictureMaker.js";
 import * as Physics from "./Physics.js";
 import * as UI from "./UI.js";
 import * as BarUI from "./BarUI.js";
-
+import * as Login from "./Login.js";
 
 
 var mainDom;
@@ -107,10 +107,9 @@ function init() {
     HexManager.init();
     Control.init();
     PictureMaker.init();
-    Online.init();
 
     BarUI.init();
-
+    Login.init();
 
 
 

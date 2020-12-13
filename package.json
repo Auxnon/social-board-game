@@ -23,11 +23,17 @@
     "webpack-cli": "^4.2.0"
   },
   "dependencies": {
+    "colors": "^1.4.0",
+    "connect-sqlite3": "^0.9.11",
+    "cookie-parser": "^1.4.5",
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "express-session": "^1.17.1",
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
     "passport-local": "^1.0.0",
     "sequelize": "^6.3.5",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "sqlite3": "^5.0.0"
   }
 }
