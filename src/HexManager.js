@@ -1,6 +1,8 @@
 import * as Render from "./Render.js";
 import * as Helper from "./Helper.js";
 import * as PictureMaker from "./PictureMaker.js";
+import * as Online from "./Online.js";
+
 import * as THREE from "./lib/three.module.js";
 
 //grass #6CA90B
@@ -73,7 +75,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 				colors[val]=val
 			}
 
-			console.log(colors)
+			//console.log(colors)
 		}
 		
 		//console.log(vr,vg,vb,va)
@@ -471,10 +473,11 @@ function hexPick(x,y){
 		place(x2,y2,hexType)
 		lastPick.x=x2;lastPick.y=y2;
 		if(hexDebounce){
-			clearInterval(hexDebounce)
+			clearTimeout(hexDebounce)
+			hexDebounce=null
 		}
-		hexDebounce=setInterval(function(){
-
+		hexDebounce=setTimeout(function(){
+			Online.terrain(0,grid)
 		},2000)
 		
 	}
@@ -523,7 +526,7 @@ function updateTerrain(chunk,data){
 	grid=data
 	processLand();
 }
-function 
+ 
 
 
-export {init,hexCheck,hexPick,toggleType,setType,getModel}
+export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain}

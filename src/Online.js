@@ -6,6 +6,7 @@ import * as UI from "./UI.js";
 import * as Login from "./Login.js";
 import * as Chat from "./Chat.js";
 import * as PlayerManager from "./PlayerManager.js";
+import * as HexManager from "./HexManager.js";
 
 
 var socket;
@@ -49,6 +50,7 @@ function initSocket() {
 
     socket.on('terrain', function(id,chunk,data) {
     	//Chat.makeDivider(username+' has joined!')
+    	HexManager.updateTerrain(chunk,data)
     });
 
 
@@ -78,6 +80,7 @@ function initSocket() {
     })
 
     lastChats();
+    getGrid();
 }
 
 function makePhys(size, mass, pos) {
@@ -142,6 +145,28 @@ function lastChats() {
     }).then(function(data) {
         if(data) {
         	Chat.lastChats(data.array)
+        }
+    }).catch(e => {
+    	UI.systemMessage(e,'error')
+        console.error('ERROR ',e);
+    });
+}
+function getGrid() {
+    fetch('/grid', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        //body: JSON.stringify({ username: username, password: pass })
+    }).then(function(response) {
+        if(!response.ok) {
+            return undefined;
+        } else
+            return response.json();
+    }).then(function(data) {
+        if(data) {
+        	if(data.grid.length>0)
+        		HexManager.updateTerrain(0,data.grid)
         }
     }).catch(e => {
     	UI.systemMessage(e,'error')

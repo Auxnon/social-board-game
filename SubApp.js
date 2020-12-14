@@ -52,7 +52,7 @@
      var USERS = [];
      var possibleUsers = []; //TODO get rid of this lol
      var lastChats=[];
-
+     var grid=[];
 
 
      const { Sequelize, Model, DataTypes } = require('sequelize');
@@ -241,6 +241,9 @@
      app.post('/lastChats', function(req, res, next) {
          res.send({ array: lastChats });
      })
+     app.post('/grid',function(req,res,next){
+      res.send({grid:grid});
+     })
 
 
 
@@ -321,6 +324,11 @@
                      /*User.findOne({ which: { username: user } }).then(o => {
                          console.log('messaged with id ', o ? o.username : undefined, " message: ", m);
                      })*/
+                 });
+                 socket.on('terrain',function(id,chunk,data){
+                  grid=data;
+                  socket.broadcast.emit('terrain',id,chunk,data);
+                  console.log('- terrain sync length ',data.length)
                  })
 
 
