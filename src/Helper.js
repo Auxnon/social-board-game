@@ -58,4 +58,11 @@ function getRandomColor() {
   return parseInt(color);
 }
 
-export {rgbToHex,rgbFloatToHex, hexToRGB, hexToRGBFloat,getRandomColor}
+function testBW(rgb) {
+    // http://stackoverflow.com/a/3943023/112731
+    let val = (rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114)
+    console.log(val)
+    return val > 186
+}
+
+export {rgbToHex,rgbFloatToHex, hexToRGB, hexToRGBFloat,getRandomColor,testBW}

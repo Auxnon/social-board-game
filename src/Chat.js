@@ -1,34 +1,36 @@
 import * as Render from "./Render.js";
 import * as Control from "./Control.js";
 import * as Online from "./Online.js";
-
+import * as BarUI from "./BarUI.js";
+import * as Helper from "./Helper.js";
+import * as PlayerManager from "./PlayerManager.js";
 //import * as Mail from "./Mail.js";
 
 var chatPane;
-var chatBlock;
+//var chatBlock;
 var chatInput;
 
 
 
 function init(){
 	let mainDom=document.querySelector('#chatCard');
-	let chatButton=document.createElement('div');
-	chatButton.classList.add('chatButton','menuHidable');
+	//let chatButton=document.createElement('div');
+	//chatButton.classList.add('chatButton','menuHidable');
 
-	chatBlock=document.createElement('div');
-	chatBlock.classList.add('chatBlock');
+	//chatBlock=document.createElement('div');
+	//chatBlock.classList.add('chatBlock');
 
 	chatPane=document.createElement('div');
-	chatPane.classList.add('chatPane');
+	chatPane.classList.add('chat-pane');
 
-	mainDom.appendChild(chatButton);
-	chatBlock.appendChild(chatPane);
-	mainDom.appendChild(chatBlock);
+	//mainDom.appendChild(chatButton);
+	mainDom.appendChild(chatPane);
+	//mainDom.appendChild(chatBlock);
 	
 
 
 	let bottom=document.createElement('div');
-	bottom.classList.add('chatBottom');
+	bottom.classList.add('chat-bottom');
 
 	chatInput=document.createElement('input');
 	let color="0xffff55";//World.getOwnPlayer().color
@@ -36,20 +38,21 @@ function init(){
 	chatInput.style.border=color+" 6px solid"
 	bottom.appendChild(chatInput);
 
-	let toggle=document.createElement('div');
-	toggle.classList.add('chatToggle');
-	bottom.appendChild(toggle);
+	//let toggle=document.createElement('div');
+	//toggle.classList.add('chatToggle');
+	//bottom.appendChild(toggle);
 
-	chatBlock.appendChild(bottom)
+	mainDom.appendChild(bottom)
 
-	chatBlock.style.left='100%';
+	//chatBlock.style.left='100%';
 
 	
-
+/*
 	chatButton.addEventListener('click',function(ev){
 		Control.addConfetti(window.innerWidth-30,window.innerHeight-30,225);
 		openChat();
-	})
+	})*/
+
 	chatPane.addEventListener('click',function(ev){
 		closeChat();
 	})
@@ -68,7 +71,7 @@ function init(){
 			closeChat();
 		}
 	});
-	toggle.addEventListener('click',function(ev){
+	/*toggle.addEventListener('click',function(ev){
 		if(toggle.classList.contains('chatToggle')){
 			toggle.classList.remove('chatToggle');
 			toggle.classList.add('mailToggle');
@@ -77,7 +80,7 @@ function init(){
 			toggle.classList.add('chatToggle');
 		}
 
-	})
+	})*/
 
 	//s
     //World.socket.on('chat', chatHook);
@@ -95,13 +98,19 @@ var pastDom=null;
 var pastPlayerId=-1;
 var lastDom=null;
 var lastPlayerId=-1
-function addBubble(s,player,color,model){
+function addBubble(s,player,model){
 	
-
 	let chatBubble=document.createElement('p');
-	
-	chatBubble.style.border=color+' solid 6px'
-	let stt=s.split('');
+	let color=player.color;
+	//chatBubble.style.border=color+' solid 6px'
+	chatBubble.style.backgroundColor=color;
+
+	let bool = Helper.testBW(Helper.hexToRGB(color))
+
+    chatBubble.style.color = bool ? '#000000' : '#FFFFFF';
+    chatBubble.style.textShadow = '1px 1px 2px ' + (bool ? '#FFFFFF' : '#000000');
+
+	/*let stt=s.split('');
 	stt.forEach((c,i)=>{
 		let sp=document.createElement('span');
 		sp.style.animationDelay=(i*0.03 +Math.random()/10)+'s';
@@ -112,9 +121,11 @@ function addBubble(s,player,color,model){
 	})
 	setTimeout(function(){
 		chatBubble.innerHTML=s;
-	},(s.length*0.03+2)*1000)
+	},(s.length*0.03+2)*1000)*/
+	chatBubble.innerHTML=s;
+
 	if(model){
-		chatBubble.classList.add('chatWorldBubble');
+		chatBubble.classList.add('chat-world-bubble');
 		let projection=document.querySelector('#projection');
 		
 		projection.appendChild(chatBubble);
@@ -126,30 +137,30 @@ function addBubble(s,player,color,model){
 
 	}else{
 		let chatRow=document.createElement('div');
-		chatRow.classList.add('chatRow')
+		chatRow.classList.add('chat-row')
 
-		/*if(player.id==World.getOwnPlayer().id)
-			chatRow.style.textAlign= 'right';*/
+		if(player.id==PlayerManager.getOwnPlayer().id)
+			chatRow.classList.add('chat-right')
 
-		chatBubble.classList.add('chatBubble');
+		chatBubble.classList.add('chat-bubble');
 		if(lastPlayerId>=0 && lastPlayerId==player.id){
 			if(pastPlayerId==player.id){
-				lastDom.classList.remove("chatBubbleFooter");
-				lastDom.classList.add("chatBubbleBody");
+				lastDom.classList.remove("chat-bubble-footer");
+				lastDom.classList.add("chat-bubble-body");
 			}else{
-				lastDom.classList.add("chatBubbleHeader");
+				lastDom.classList.add("chat-bubble-header");
 			}
 			//lastDom.classList.remove("chatBubbleHeader","chatBubbleBody")
 			
-			chatBubble.classList.add("chatBubbleFooter");
+			chatBubble.classList.add("chat-bubble-footer");
 		}else{
 			let nameTag=document.createElement('p');
-			nameTag.classList.add('chatNameTag');
-			nameTag.innerHTML=player.name;
+			nameTag.classList.add('chat-nametag');
+			nameTag.innerHTML=player.username;
 			let tagRow=document.createElement('div');
-			//if(player.id==World.getOwnPlayer().id)
-			//	tagRow.style.textAlign='right'
-			nameTag.style.background=color;
+			if(player.id==PlayerManager.getOwnPlayer().id)
+				tagRow.style.textAlign='right'
+			//nameTag.style.background=color;
 			tagRow.appendChild(nameTag);
 			chatPane.appendChild(tagRow);
 		}
@@ -169,7 +180,7 @@ function addBubble(s,player,color,model){
 	
 }
 function hook(id,message){
-	let player=id//World.getPlayer(id);
+	let player=PlayerManager.getUser(id)//World.getPlayer(id);
 	let color='black'
 	/*if(player){ //TODO
 		color=player.color;
@@ -186,22 +197,60 @@ function hook(id,message){
 	}*/
 	//if(!Control.isMenuLocked())
 	//	Control.addConfetti(window.innerWidth-30,window.innerHeight-30,225);
-
-	addBubble(message,{id:id},color);
+	if(!player)
+		player={username: 'Unknown',id:-1,color:'black'}
+	addBubble(message,player);
+	//makeEpic('test')
+}
+function lastChats(chats){
+	chats.forEach(chat=>{
+		hook(chat[0],chat[1])
+	});
+	makeDivider('Last 10 messages')
 }
 function openChat(){
 	if(!Control.isMenuLocked()){
-		chatBlock.style.left='0%';
+		//chatBlock.style.left='0%';
 		//addBubble('test text for great prosperity','red');
 		chatInput.focus();
 		Control.lockMenu(true);
 	}
-	
 }
 function closeChat(){
-	chatBlock.style.left='100%';
+	//chatBlock.style.left='100%';
 	chatInput.blur();
+	BarUI.closeApp();
 	Control.lockMenu(false);
 }
 
-export {init,openChat,closeChat,hook}
+function makeDivider(message){
+	let dom=document.createElement('div');
+	dom.className='chat-divider'
+	let p=document.createElement('p');
+	p.innerText=message
+	dom.appendChild(p)
+	chatPane.appendChild(dom)
+}
+function makeEpic(message){
+	let dom=document.createElement('div');
+	dom.className='chat-epic'
+	let inner=document.createElement('div');
+	inner.className='chat-epic-inner'
+
+	let p=document.createElement('p');
+	p.innerHTML=message.italics();
+	inner.appendChild(p)
+	dom.appendChild(inner)
+	chatPane.appendChild(dom)
+}
+function setSize(bool){
+	if(bool){
+		chatPane.style.height='calc(100vh - 100px)';
+		document.querySelector('.chat-bottom').style.bottom='100px'
+	}else{
+		chatPane.style.height='calc(100vh - 64px)';
+		document.querySelector('.chat-bottom').style.bottom='0px'
+	}
+}
+
+export {init,openChat,closeChat,hook,setSize,lastChats,makeDivider,makeEpic}

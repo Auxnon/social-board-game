@@ -1,6 +1,7 @@
 import * as UI from "./UI.js";
 import * as Render from "./Render.js";
 import * as Control from "./Control.js";
+import * as Chat from "./Chat.js";
 
 //doms
 var apps;
@@ -108,11 +109,11 @@ function openAppApplyRender(id, app) {
     Render.flipScene(id)
 }
 
-function closeApp(disableFade) {
+function closeApp() {
     if(focused) {
         focused.classList.remove('cardMax')
         focused.style.zIndex = 2;
-        focused.focused = undefined; //wow why did i name this like this
+        focused.focused = undefined; //wow why did i name this like this //TODO
         Control.primaryTouchPan()
         Control.setLandscaping(false)
 
@@ -138,7 +139,6 @@ function resize() {
 
         //UI.systemMessage('inner ' + window.innerWidth + '; screen ' + window.screen.width, 'success')
     }, 250);
-
 
 }
 
@@ -481,15 +481,18 @@ function barAdjust() {
         barHandle.style.height = '80%';
         bar.style.borderWidth="0px 0px 0px 6px";
         //mainTitle.style.top = '28px';
+        Chat.setSize(false)
     } else if(barPos == 3) { //top
         barHandle.style.transform = 'translate(-50%,100%)'
         bar.style.left = '50%';
         bar.style.top = '48px' //-196+window.innerWidth/2
         //mainTitle.style.top = 'calc(100% - 128px)';
+        
         barCalculate();
         barHandle.style.height = '32px';
         barHandle.style.width = '80%';
         bar.style.borderWidth="0px 0px 6px 0px";
+        Chat.setSize(false)
     } else if(barPos == 1) { //bottom
         barHandle.style.transform = 'translate(-50%,-200%)'
         bar.style.left = '50%';
@@ -499,6 +502,7 @@ function barAdjust() {
         barHandle.style.height = '32px';
         barHandle.style.width = '80%';
         bar.style.borderWidth="6px 0px 0px 0px"
+        Chat.setSize(true)
     } else { //left
         barHandle.style.transform = 'translate(100%,-50%)'
         bar.style.left = '48px';
@@ -508,6 +512,7 @@ function barAdjust() {
         barHandle.style.height = '80%'
         bar.style.borderWidth="0px 6px 0px 0px";
         //mainTitle.style.top = '28px';
+        Chat.setSize(false)
     }
 }
 
@@ -515,6 +520,9 @@ function barAdjust() {
 function appSelect(app, ev) {
     if(!app.focused) {
         targetMove = app;
+        if(app.id=='chatCard'){
+            Chat.openChat()
+        }
 
         app.pos = { x: parseInt(app.style.left), y: parseInt(app.style.top) }
         targetPoint = { x: app.pos.x, y: app.pos.y }
@@ -619,4 +627,4 @@ function clearPendApp(id) {
 }
 
 
-export { pendApp, clearPendApp,apps,init }
+export { pendApp, clearPendApp,apps,init,closeApp }

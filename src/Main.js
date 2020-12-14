@@ -15,14 +15,21 @@ import * as Chat from "./Chat.js";
 var mainDom;
 
 function init() {
-	mainDom=document.querySelector('#main');
-	controls = {};
-	UI.init(mainDom)
+    mainDom=document.querySelector('#main');
+    controls = {};
+    UI.init(mainDom)
+
+    window.onError = function(message, source, lineno, colno, error) {
+        UI.systemMessage(message,'error')
+        
+    }
+
+	
 
     Physics.init();
 
    
-
+/*
     window.addEventListener('keydown', ev => {
         console.log(ev.keyCode)
         switch (ev.keyCode) {
@@ -95,7 +102,7 @@ function init() {
                 controls.down = false;
                 break; //down
         }
-    })
+    })*/
 
     let canvas = Render.init();
    

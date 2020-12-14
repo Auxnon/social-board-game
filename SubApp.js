@@ -51,6 +51,7 @@
 
      var USERS = [];
      var possibleUsers = []; //TODO get rid of this lol
+     var lastChats=[];
 
 
 
@@ -118,20 +119,22 @@
 
      (async () => {
          if(passedArgs[0] == 'purge') {
+          console.log('P U R G I N G  DB'.red)
              await sequelize.sync({ force: true });
              let contents = [
-                 ['test0', '1234', 'salt', '#B234C5'],
-                 ['test1', '1234', 'salt', '#B234C5'],
-                 ['test2', '1234', 'salt', '#B234C5'],
-                 ['test3', '1234', 'salt', '#B234C5'],
-                 ['test4', '1234', 'salt', '#B234C5'],
-                 ['test5', '1234', 'salt', '#B234C5'],
-                 ['Jake', '8888', 'salt', '#B234C5'],
-                 ['VA', '9999', 'salt', '#B234C5'],
-                 ['Meg', '4343', 'salt', '#B234C5'],
-                 ['Claire', '7272', 'salt', '#B234C5'],
-                 ['Emo', '1111', 'salt', '#B234C5'],
+                 ['Bingo', '1234', 'salt', '#8F239F'],
+                 ['Boingo', '1234', 'salt', '#C25BD2'],
+                 ['Bongo', '1234', 'salt', '#7B068D'],
+                 ['Bungo', '1234', 'salt', '#8248A3'],
+                 ['Bango', '1234', 'salt', '#B804AD'],
+                 ['Bilbo', '1234', 'salt', '#7C03D0'],
+                 ['Jake', '8008', 'salt', '#FFED24'],
+                 ['VA', '9999', 'salt', '#F48A0D'],
+                 ['Meg', '4343', 'salt', '#25BDFC'],
+                 ['Claire', '7272', 'salt', '#D10054'],
+                 ['Emo', '1111', 'salt', '#940818'],
                  ['Jon', '4200', 'salt', '#B234C5'],
+                 ['Jack', '1954', 'salt', '#863D0C'],
                  ['Helen', '0005', 'salt', '#B234C5'],
                  ['Greg', '9000', 'salt', '#3442C5'],
                  ['Nick', '8008', 'salt', '#7EBB1D'],
@@ -220,34 +223,24 @@
                      user.online = true;
                      USERS[req.sessionID] = user;
                      user.save();
-                     next();
+                     res.status(200).send({ id:user.id, message: 'logged in!' });
+                     //next();
                  }
              })(req, res);
-         },
+         //},
+        });
 
-
-         function(req, res) {
-             res.status(200).send({ message: 'logged in!' });
-         });
+         //function(req, res) {
+         //    res.status(200).send({ message: 'logged in!' });
+         //});
 
      app.post('/getUsers', function(req, res, next) {
          console.log('* sending users ', possibleUsers.length)
          res.send({ users: possibleUsers });
      })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+     app.post('/lastChats', function(req, res, next) {
+         res.send({ array: lastChats });
+     })
 
 
 
@@ -307,6 +300,10 @@
                  //socket nodes
 
                  console.log('-socket connected to user:', username);
+                 let user=USERS[socket.request.session.id];
+                 
+                  socket.broadcast.emit('join', user?user.username:'Unknown');
+
                  socket.on('disconnect', function() {
                      if(socket.request.session.id) {
                          let user = USERS[socket.request.session.id];
@@ -316,11 +313,14 @@
                      console.log('lost connection to user')
                  });
                  socket.on('message', function(m) {
-                     let user = getUsername(socket.request.session);
-                     dandSpace.emit('message', user, m)
-                     User.findOne({ which: { username: user } }).then(o => {
-                         console.log('messaged with id ', o?o.username:undefined," message: ",m);
-                     })
+                     let userId = getUserId(socket.request.session);
+                     lastChats.push([userId, m]);
+                     if(lastChats.length>10)
+                      lastChats.shift()
+                     dandSpace.emit('message', userId, m)
+                     /*User.findOne({ which: { username: user } }).then(o => {
+                         console.log('messaged with id ', o ? o.username : undefined, " message: ", m);
+                     })*/
                  })
 
 
@@ -406,6 +406,15 @@
 
      });
 
+     function getUserId(session) {
+         if(session) {
+             let user = USERS[session.id];
+             if(user) {
+                 return user.id
+             }
+         }
+     }
+
      function getUsername(session) {
          if(session) {
              let user = USERS[session.id];
@@ -432,7 +441,7 @@
 
      }
 
-
+     //older method
      function createUser(channel, player, versionMatch) {
          count++;
          player.model = undefined;
@@ -468,6 +477,8 @@
      var physInits = []
 
      var physTick = 0;
+
+     var sleeping
 
      function addPhys(size, mass, pos) {
          let body = new CANNON.Body({ mass: mass });
@@ -510,22 +521,30 @@
          world.addBody(boxBody);*/
          setInterval(function() {
              updatePhysics()
-
-             if(physTick >= 10) {
-                 dandSpace.emit('physUpdate', physData);
-                 physTick = 0;
+             if(!sleeping){
+                if(physTick >= 10) {
+                  dandSpace.emit('physUpdate', physData);
+                  physTick = 0;
+                }
+               physTick++;
              }
-             physTick++;
+             
          }, 10)
-
-
-
 
      }
 
 
 
      function updatePhysics() {
+        let array=Object.values(physArray);
+        let awakeCount=0;
+        array.forEach(obj=>{
+          if(obj.sleepState==0){ //active
+            awakeCount++;
+          }
+        })
+        
+        sleeping=awakeCount<=0
          /*bodies[0].position.set(point.x,point.y,point.z)
          bodies[0].velocity.set(0,0,0)
          bodies[0].angularDamping=1

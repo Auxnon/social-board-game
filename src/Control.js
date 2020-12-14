@@ -1,4 +1,4 @@
-//import * as Chat from "./Chat.js";
+import * as UI from "./UI.js";
 import * as Render from "./Render.js";
 import * as HexManager from "./HexManager.js";
 //import * as AssetManager from "./AssetManager.js";
@@ -552,7 +552,7 @@ function lockMenu(b) {
 }
 
 var settingsObject = {};
-
+/*
 function initSettings() {
     let mainDom = document.querySelector('#main')
 
@@ -616,16 +616,7 @@ function initSettings() {
                 callback(val);
                 updateSettings(reference, val)
 
-                /*
-                if(!button.classList.contains('switchOn')){
-                	button.classList.add('switchOn')
-                	callback(true);
-                	updateSettings(reference,true)
-                }else{
-                	button.classList.remove('switchOn')
-                	callback(false);
-                	updateSettings(reference,false)
-                }*/
+   
             });
         } else { //boolean
             if(defaultState)
@@ -701,21 +692,7 @@ function updateSettings(reference, val) {
         localStorage.setItem('settings', JSON.stringify(settingsObject));
     }
 }
-
-function addConfetti(x, y, angle) {
-    let mainDom = document.querySelector('#main')
-
-    let con = document.createElement('div');
-    con.classList.add('confetti');
-    con.innerHTML = '<svg viewbox="0 0 100 100" style="fill:none;stroke:lightgreen;stroke-linecap:round"><path d="M45 70L55 75M45 50L55 50M45 30L55 25" /></svg>';
-    con.style.left = x + 'px'
-    con.style.top = y + 'px',
-        con.style.transform = 'translate(-50%,-50%) rotate(' + (angle ? angle : 0) + 'deg)';
-    setTimeout(function() {
-        con.remove();
-    }, 500);
-    mainDom.appendChild(con)
-}
+*/
 
 function isVR() {
     return vrEnabled
@@ -748,7 +725,6 @@ export {
     isMenuLocked,
     lockMenu,
     getAngle,
-    addConfetti,
     setRenderer,
     enterVR,
     isVR,

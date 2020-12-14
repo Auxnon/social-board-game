@@ -6,6 +6,8 @@
         </div></div>
 </div>*/
 import * as Online from "./Online.js";
+import * as Helper from "./Helper.js";
+import * as PlayerManager from "./PlayerManager.js";
 
 var input
 
@@ -43,12 +45,13 @@ function init() {
         return response.json();
     }).then(function(data) {
         if(data) {
+        	PlayerManager.init(data.users)
             data.users.forEach(user => {
                 let dom = document.createElement('div');
                 dom.className = 'list-item';
                 let color = user.color;
                 dom.style.backgroundColor = color;
-                let bool = testBW(hexToRGB(color))
+                let bool = Helper.testBW(Helper.hexToRGB(color))
 
                 dom.style.color = bool ? '#000000' : '#FFFFFF';
                 dom.style.textShadow = '1px 1px 2px ' + (bool ? '#FFFFFF' : '#000000');
@@ -61,6 +64,7 @@ function init() {
                     dom.appendChild(login)
                     dom.classList.add('bigger-item')
                     ev.stopPropagation();
+                    input.focus();
                 })
 
                 let port = document.createElement('div');
@@ -119,25 +123,7 @@ function text() {
     return st;
 }
 
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#'; //Math.random()>0.3?0x66B136:0x76610E;
-    for(var i = 0; i < 6; i++) {
-        let val;
-        /*if(i<2)
-            val=(Math.random() * 4)+4
-        else if(i<4)
-            val=(Math.random() * 6)+7
-        else*/
-        val = Math.random() * 16
-
-        color += letters[Math.floor(val)];
-    }
-
-    i
-    return color //parseInt(color);
-}
-
+/*
 function hexToRGB(h) {
 
     if(h.startsWith('0x'))
@@ -161,16 +147,9 @@ function hexToRGB(h) {
     let ar = [parseInt(r), parseInt(g), parseInt(b)]
 
     return ar;
-}
-
-function testBW(rgb) {
-    // http://stackoverflow.com/a/3943023/112731
-    let val = (rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114)
-    console.log(val)
-    return val > 186
+}*/
 
 
-}
 
 function makeNum(ele) {
     let row = document.createElement('div');
@@ -237,7 +216,7 @@ function initSheet() {
             font-size: 2em;
             text-shadow: 1px 1px 2px black;
             text-align: center;
-            font-family: 'foont', serif;
+            font-family: 'openBold', serif;
             transition: 0.2s transform;
 
         }
@@ -245,14 +224,16 @@ function initSheet() {
             margin: 32px 0 32px 0;
         }
         .list-item:hover{
-            transform: translate(-50%,0) scale(1.1,1.1);// rotate3d(1,0,0,0deg);
-
+            transform: translate(-50%,0) scale(1.05,1.05);// rotate3d(1,0,0,0deg);
         }
         .list{
             width: 100%;
             height: 100%;
             position: absolute;
-            overflow: scroll;
+            overflow-y: scroll;
+        }
+        .list *{
+        	user-select: none;
         }
         .list-portrait{
             left: 8px;

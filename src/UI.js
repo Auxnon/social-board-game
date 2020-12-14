@@ -1,4 +1,4 @@
-//version 2
+//version 2.5 confetti added
 
 
 let main;
@@ -18,7 +18,7 @@ function init(mainDom){
 
 
 	if(main){
-		sysTop=document.createElement('duv');
+		sysTop=document.createElement('div');
 		sysTop.className='uiHolderSysTop';
 		main.appendChild(sysTop);
 
@@ -165,6 +165,22 @@ function _copyText(dom){
 	textDump.style.display='none'
 	
 }
+
+function addConfetti(x, y, angle) {
+    let mainDom = document.querySelector('#main')
+
+    let con = document.createElement('div');
+    con.classList.add('confetti');
+    con.innerHTML = '<svg viewbox="0 0 100 100" style="fill:none;stroke:lightgreen;stroke-linecap:round"><path d="M45 70L55 75M45 50L55 50M45 30L55 25" /></svg>';
+    con.style.left = x + 'px'
+    con.style.top = y + 'px',
+        con.style.transform = 'translate(-50%,-50%) rotate(' + (angle ? angle : 0) + 'deg)';
+    setTimeout(function() {
+        con.remove();
+    }, 500);
+    mainDom.appendChild(con)
+}
+
 
 function styleInit(){
 	var sheet = document.createElement('style')
@@ -350,6 +366,38 @@ function styleInit(){
 		100%{
 			opacity: 0;
 			transform: translate(-50%,0%)
+		}
+	}
+
+	.confetti{
+		pointer-events: none;
+		left:200px;
+		top:200px;
+		width:50px;
+		height:50px;
+		position: absolute;
+		stroke-width:40px;
+		/*background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewbox="0 0 100 100" style="fill:none;stroke:lightgray;stroke-linecap:round;"><path d="M45 65L75 75M45 50L75 50M45 35L75 25" /></svg>');
+		background-size: cover;
+		background-position: center;
+	  	background-repeat: no-repeat;*/
+	}
+	.confetti svg{
+		position: relative;
+		animation: dooter 0.5s forwards;
+		transform: translate(-50%,-50%);
+		width: 50px;
+		height: 50px;
+	}
+	@keyframes dooter{
+		from{
+			transform: translate(0%,0%) scale(0.1,0.1);
+			stroke-width:30;
+		}
+		to{
+			transform: translate(100%,0%) scale(3,3);
+			stroke-width:0;
+			filter:hue-rotate(270deg);
 		}
 	}
 

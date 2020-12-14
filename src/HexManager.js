@@ -33,6 +33,8 @@ var hexType=2;
 
 var hexSelector
 
+var hexDebounce;
+
 function init(){
 
 Render.loadModel('./assets/models/Hex.glb',m=>{
@@ -468,8 +470,18 @@ function hexPick(x,y){
 
 		place(x2,y2,hexType)
 		lastPick.x=x2;lastPick.y=y2;
+		if(hexDebounce){
+			clearInterval(hexDebounce)
+		}
+		hexDebounce=setInterval(function(){
+
+		},2000)
+		
 	}
 }
+
+
+
 
 
 
@@ -507,6 +519,11 @@ function setType(i){
 function getModel(st){
 	return hex[st].clone();
 }
+function updateTerrain(chunk,data){
+	grid=data
+	processLand();
+}
+function 
 
 
 export {init,hexCheck,hexPick,toggleType,setType,getModel}
