@@ -245,7 +245,7 @@
 
 
 
-     const dandSpace = io;//.of('/dand-dev');
+     const dandSpace = io.of('dev.makeavoy.com');///'/dand-dev');
 
     /* dandSpace.use((socket, next) => {
          // ensure the user has sufficient rights

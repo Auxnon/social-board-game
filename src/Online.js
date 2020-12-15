@@ -21,7 +21,11 @@ function initSocket() {
         reconnectionAttempts: 10
     });*/
     //socket = io(':443/dand-dev')
-    socket = io();//.connect('/dand-dev',{ secure: true, transports: [ "flashsocket","polling","websocket" ] });
+    socket = io('https://makeavoy.com');
+    	/*&'makeavoy.com',{
+    	transports: ['websocket','xhr-polling']
+    });*/
+    //.connect('/dand-dev',{ secure: true, transports: [ "flashsocket","polling","websocket" ] });
     //https://makeavoy.com/dand-dev
     //'/dand-dev',{transports: ['websocket']}
     //socket = io('/dand-dev',{transports: ['websocket'],secure: true});
