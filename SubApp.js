@@ -1,4 +1,4 @@
- module.exports = function Game(app, express, server) {
+ module.exports = function Game(app, express, server,io) {
 
 
 
@@ -10,42 +10,23 @@
      const passportInit = passport.initialize();
      const passportSession = passport.session();
      const LocalStrategy = require('passport-local').Strategy
-     const cookieParser = require('cookie-parser')();
+     
      //const app = require("https-localhost")()
      const fs = require("fs");
-
-     //var passportSocketIo = require('passport.socketio');
-     var session = require('express-session');
-     var SQLiteStore = require('connect-sqlite3')(session);
-     var sessionStore = new SQLiteStore;
 
      var passedArgs = process.argv.slice(2);
      console.log(passedArgs)
 
-     var sessionObj = session({
-         //key: 'express.sid',
-         store: sessionStore,
-         secret: 'your secret',
-         //resave: true,
-         // httpOnly: true,
-         //secure: true,
-         //ephemeral: true,
-         saveUninitialized: true,
-         //cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 1 week
-     });
 
-     app.use(sessionObj);
-     var io = require("socket.io")(server);
+     //var passportSocketIo = require('passport.socketio');
+     
 
      //var sharedsession = require("express-socket.io-session");
 
-     io.use(function(socket, next) {
-         sessionObj(socket.request, {}, next); //socket.request.res || {}
-     });
+     
 
-     app.use(express.json());
-     app.use(express.urlencoded({ extended: true }));
-     app.use(cookieParser);
+     
+     
      app.use(passportInit);
      app.use(passportSession);
 
@@ -197,12 +178,12 @@
      const CANNON = require('./cannon.min')
 
      app.use(express.static(__dirname + '/public'));
-     app.get('/*', function(req, res, next) {
-         res.setHeader('Last-Modified', (new Date()).toUTCString());
-         res.setHeader('Cache-Control', 'no-cache'); //max-age=14400');
-         res.header('Content-Security-Policy', "img-src 'self'");
+    /* app.get('/*', function(req, res, next) {
+         //res.setHeader('Last-Modified', (new Date()).toUTCString());
+         //res.setHeader('Cache-Control', 'no-cache'); //max-age=14400');
+         //res.header('Content-Security-Policy', "img-src 'self'");
          next();
-     });
+     });*/
 
      app.post('/login', function(req, res, next) {
              passport.authenticate('local', function(error, user, info) {
@@ -264,12 +245,13 @@
 
 
 
-     const dandSpace = io.of('/dand-dev');
+     const dandSpace = io;//.of('/dand-dev');
 
-     dandSpace.use((socket, next) => {
+    /* dandSpace.use((socket, next) => {
          // ensure the user has sufficient rights
          next();
-     });
+     });*/
+
      /*
      adminNamespace.on('connection', socket => {
        socket.on('delete user', () => {
@@ -294,6 +276,11 @@
 
 
      dandSpace.on('connection', function(socket) {
+        if(!socket.request.session){
+          console.log("! socket session doesn't exist!".red);
+           return;
+        }
+         
          console.log('socket session id ', socket.request.session.id)
          evaluateUser(socket.request.session, username => {
              if(!username) {

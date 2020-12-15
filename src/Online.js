@@ -16,10 +16,16 @@ var physReady = false;
 function initSocket() {
     window.m = m;
     console.error('trying auth...');
-    socket = io('/dand-dev').connect('', {
+    /*socket = io.connect('https://makeavoy.com', { //,{transports: ['websocket'],secure: true}
         reconnection: true,
         reconnectionAttempts: 10
-    });
+    });*/
+    //socket = io(':443/dand-dev')
+    socket = io();//.connect('/dand-dev',{ secure: true, transports: [ "flashsocket","polling","websocket" ] });
+    //https://makeavoy.com/dand-dev
+    //'/dand-dev',{transports: ['websocket']}
+    //socket = io('/dand-dev',{transports: ['websocket'],secure: true});
+
 
     socket.on('connect', function() {
         Login.hide();
