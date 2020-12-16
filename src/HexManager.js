@@ -36,6 +36,7 @@ var hexType=2;
 var hexSelector
 
 var hexDebounce;
+var gridLineModel;
 
 function init(){
 
@@ -169,9 +170,15 @@ function hexLines(){
 	geometry.vertices.push( new THREE.Vector3( 2, 0, 0 ) );*/
 
     var material = new THREE.LineBasicMaterial( { color: 0xffffff } );
-    var line = new THREE.LineSegments( geometry, material );
-    Render.addModel( line );
-
+    gridLineModel = new THREE.LineSegments( geometry, material );
+    //Render.addModel( line );
+}
+function setGrid(bool){
+	if(bool){
+		Render.addModel( gridLineModel );
+	}else{
+		Render.removeModel( gridLineModel );
+	}
 }
 
 function place(x,y,t){
@@ -526,4 +533,4 @@ function updateTerrain(chunk,data){
  
 
 
-export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain}
+export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain,setGrid}

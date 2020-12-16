@@ -52,11 +52,11 @@ function init(){
 		Control.addConfetti(window.innerWidth-30,window.innerHeight-30,225);
 		openChat();
 	})*/
-
+/*
 	chatPane.addEventListener('click',function(ev){
 		closeChat();
 	})
-
+*/
 	chatInput.addEventListener('keyup',function(ev){
 		if(ev.which==13){
 			if(chatInput.value.length>0){
@@ -212,9 +212,11 @@ function openChat(){
 	if(!Control.isMenuLocked()){
 		//chatBlock.style.left='0%';
 		//addBubble('test text for great prosperity','red');
-		chatInput.focus();
-		Control.lockMenu(true);
+		//chatInput.focus();
+		//Control.lockMenu(true);
 	}
+			chatInput.focus();
+
 }
 function closeChat(){
 	//chatBlock.style.left='100%';

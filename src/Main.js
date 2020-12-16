@@ -10,6 +10,8 @@ import * as UI from "./UI.js";
 import * as BarUI from "./BarUI.js";
 import * as Login from "./Login.js";
 import * as Chat from "./Chat.js";
+import * as Settings from "./Settings.js";
+
 
 
 var mainDom;
@@ -114,6 +116,7 @@ function init() {
     Login.init();
     
     Chat.init();
+    Settings.init();
 
      //makeRoom(200,220,80,10)
 

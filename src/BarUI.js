@@ -63,6 +63,9 @@ function openApp(id) {
         app.classList.add('cardMax')
         app.focused = true;
         app.style.zIndex = 0;
+        Object.values(app.children).forEach(sub=>{
+            sub.style.display='initial';
+        })
 
         if(app.id=='landscapeCard'){
             Control.secondaryTouchPan()
@@ -72,6 +75,7 @@ function openApp(id) {
             Control.setLandscaping(false)
 
         }
+
         /*if(Render) {
             openAppApplyRender(id, app)
         } else {
@@ -79,6 +83,10 @@ function openApp(id) {
             pendApp(id);
         }*/
         focused = app;
+        if(app.id=='chatCard'){
+            //Chat.openChat()
+        }
+
     }
 }
 
@@ -116,6 +124,10 @@ function closeApp() {
         focused.focused = undefined; //wow why did i name this like this //TODO
         Control.primaryTouchPan()
         Control.setLandscaping(false)
+        Object.values(focused.children).forEach(sub=>{
+            sub.style.display='none';
+        })
+
 
         /*window.history.pushState({}, '', '/');
         if(!disableFade && Render) {
@@ -520,9 +532,6 @@ function barAdjust() {
 function appSelect(app, ev) {
     if(!app.focused) {
         targetMove = app;
-        if(app.id=='chatCard'){
-            Chat.openChat()
-        }
 
         app.pos = { x: parseInt(app.style.left), y: parseInt(app.style.top) }
         targetPoint = { x: app.pos.x, y: app.pos.y }
