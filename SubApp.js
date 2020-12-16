@@ -1,4 +1,4 @@
- module.exports = function Game(app, express, server,io) {
+ module.exports = function Game(app, express, server,io,sessionObj){
 
 
 
@@ -17,7 +17,7 @@
      var passedArgs = process.argv.slice(2);
      console.log(passedArgs)
 
-
+    //var io = require('socket.io')(server)
      //var passportSocketIo = require('passport.socketio');
      
 
@@ -42,7 +42,7 @@
          host: 'localhost',
          storage: './database.sqlite',
          dialect: 'sqlite',
-         /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */
+         // one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' 
          logging: false,
      });
 
@@ -178,12 +178,14 @@
      const CANNON = require('./cannon.min')
 
      app.use(express.static(__dirname + '/public'));
-    /* app.get('/*', function(req, res, next) {
-         //res.setHeader('Last-Modified', (new Date()).toUTCString());
-         //res.setHeader('Cache-Control', 'no-cache'); //max-age=14400');
-         //res.header('Content-Security-Policy', "img-src 'self'");
+     //app.use('dev.makeavoy.com', express.static(__dirname + '/public'))
+
+     app.get('/*', function(req, res, next) {
+         res.setHeader('Last-Modified', (new Date()).toUTCString());
+         res.setHeader('Cache-Control', 'no-cache'); //max-age=14400');
+         res.header('Content-Security-Policy', "img-src 'self'");
          next();
-     });*/
+     });
 
      app.post('/login', function(req, res, next) {
              passport.authenticate('local', function(error, user, info) {
@@ -233,31 +235,25 @@
 
 
 
+     const dandSpace = io.of('/dand-dev');///'/dand-dev');
+
+     dandSpace.use(function(socket, next) {
+      console.log('* passed session through io socket')
+      sessionObj(socket.request, {}, next); //socket.request.res || {}
+    });
 
 
+     // dandSpace.use((socket, next) => {
+     //     // ensure the user has sufficient rights
+     //     next();
+     // });
 
-
-
-
-
-
-
-
-
-
-     const dandSpace = io.of('dev.makeavoy.com');///'/dand-dev');
-
-    /* dandSpace.use((socket, next) => {
-         // ensure the user has sufficient rights
-         next();
-     });*/
-
-     /*
-     adminNamespace.on('connection', socket => {
-       socket.on('delete user', () => {
-         // ...
-       });
-     });*/
+    
+     // adminNamespace.on('connection', socket => {
+     //   socket.on('delete user', () => {
+         
+     //   });
+     // });
 
 
      var users = [];
@@ -276,6 +272,7 @@
 
 
      dandSpace.on('connection', function(socket) {
+      console.log('* connecting...');
         if(!socket.request.session){
           console.log("! socket session doesn't exist!".red);
            return;
@@ -283,6 +280,7 @@
          
          console.log('socket session id ', socket.request.session.id)
          evaluateUser(socket.request.session, username => {
+          
              if(!username) {
                  socket.disconnect('reauth');
                  console.log('- kicked null user'.yellow)
@@ -331,6 +329,7 @@
                          socket.broadcast.emit('move', move);
                      }
                  });
+                 /*
                  socket.on('disconnect', function() {
                      let id = sockets.indexOf(socket);
                      if(id >= 0) {
@@ -340,7 +339,7 @@
                          users[id].dead = true;
                          sockets[id] = null;
                      }
-                 });
+                 });*/
 
                  socket.on('move', function(move) {
                      console.log('move ready, player ' + move.id);

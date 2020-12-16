@@ -1,5 +1,5 @@
 //import io from "socket.io-client"
-import * as io from 'socket.io-client';
+import * as io from './lib/socket.io.js';
 import * as Main from "./Main.js";
 import * as Physics from "./Physics.js";
 import * as UI from "./UI.js";
@@ -12,16 +12,19 @@ import * as HexManager from "./HexManager.js";
 var socket;
 
 var physReady = false;
+var pendingLogin;
 
 function initSocket() {
     window.m = m;
-    console.error('trying auth...');
-    /*socket = io.connect('https://makeavoy.com', { //,{transports: ['websocket'],secure: true}
+    console.log('trying auth...');
+    pendingLogin=UI.systemMessage('attempting communications...','net',true)
+    socket = io('/dand-dev')
+    /*.connect('', { //,{transports: ['websocket'],secure: true}
         reconnection: true,
         reconnectionAttempts: 10
     });*/
     //socket = io(':443/dand-dev')
-    socket = io('https://makeavoy.com');
+
     	/*&'makeavoy.com',{
     	transports: ['websocket','xhr-polling']
     });*/
@@ -35,6 +38,8 @@ function initSocket() {
         Login.hide();
         console.log('connected')
         socket.emit('physInit')
+        pendingLogin.remove();
+        pendingLogin=undefined;
     });
 
     socket.on('event', function(data) {});

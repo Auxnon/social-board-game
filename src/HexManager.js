@@ -109,10 +109,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 
 	clearLand()
 
-	window.hex=hex;
-	window.place=place
-	window.land=land
-	window.clearLand=clearLand
+	processLand();
 
 	
 	 	

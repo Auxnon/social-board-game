@@ -553,14 +553,14 @@ function winMouseUp(ev) {
                 targetMove.focused = undefined;
                 focused = undefined;
                 targetMove.style.zIndex = 2;
-                window.history.pushState({}, '', '/');
+                //window.history.pushState({}, '', '/');
 
             } else {
                 closeApp(true);
 
                 openApp(targetMove.appId);
 
-                window.history.pushState({ appId: targetMove.appId }, targetMove.name, '?id=' + targetMove.appId + '&app=' + targetMove.id);
+                //window.history.pushState({ appId: targetMove.appId }, targetMove.name, '?id=' + targetMove.appId + '&app=' + targetMove.id);
             }
         } else {
             barCalculate();

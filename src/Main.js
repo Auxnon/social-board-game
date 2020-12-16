@@ -21,11 +21,8 @@ function init() {
 
     window.onError = function(message, source, lineno, colno, error) {
         UI.systemMessage(message,'error')
-        
+
     }
-
-	
-
     Physics.init();
 
    
@@ -104,14 +101,11 @@ function init() {
         }
     })*/
 
+
+
+
+
     let canvas = Render.init();
-   
-
-
-
-    //makeRoom(200,220,80,10)
-   
-
     HexManager.init();
     Control.init();
     PictureMaker.init();
@@ -121,7 +115,7 @@ function init() {
     
     Chat.init();
 
-
+     //makeRoom(200,220,80,10)
 
 
 

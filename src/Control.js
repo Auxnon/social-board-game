@@ -273,7 +273,7 @@ function setVector(pos) {
 
         //console.log(singleTouch)
 
-        if(singleTouch)
+        if(singleTouch || mdown)
             HexManager.hexPick(px, py)
     }
 }
