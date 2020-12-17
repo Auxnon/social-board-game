@@ -378,7 +378,7 @@ body {
 	height: 64px;
 }
 
-
+/*************/
 .character-picture{
 	width:212px;
 	height: 256px;
@@ -403,6 +403,10 @@ body {
 	top: 0;
 	background-color: purple;
 }
+/***********************/
+
+
+
 
 </style>
 
@@ -512,15 +516,10 @@ init()
 
 
 
-function makeStat(type, label, number) {
+function makeStat(type, label) {
     let item = d('section-item ' + type);
     let labelDom = d('section-item-label')
-    let num = document.createElement('input');
-    num.className = 'number';
-    num.value = number
-    num.type = 'number'
-    num.min = 0;
-    num.max = 30;
+    let num=input(0,30)
     //num.disabled=true;
     labelDom.innerText = label
     item.appendChild(labelDom)
@@ -788,12 +787,33 @@ function d(c) {
     dom.className = c;
     return dom
 }
+function input(start,end){
+    let num = document.createElement('input');
+    num.className = 'number';
+    num.value = 0
+    num.type = 'number'
+    num.min = start;
+    num.max = end;
+    return num;
+
+}
 
 function makeStatus(){
 	let status=document.querySelector('.section-status');
 	let armor=d('status-armor')
 	let initiative=d('status-initiative')
 	let speed=d('status-speed')
+    let speedNumber=input(0,10);
+    let armorNumber=input(0,10);
+    let initiNumber=input(0,10);
+
+    speedNumber.innerText=10;
+    initiNumber.innerText=10;
+    armorNumber.innerText=10;
+    armor.appendChild(armorNumber)
+    speed.appendChild(speedNumber)
+    initiative.appendChild(initiNumber)
+
 
 	let row=d();
 	row.appendChild(armor);
