@@ -49,7 +49,7 @@ io.use(function(socket, next) {
 });
 
 
-var gameBase = require('./SubApp')(app,express,server,io);
+var gameBase = require('./SubApp')(app,express,server,io,sessionObj);
 
 server.listen(8080, function(){
   console.log('1. listening on *:8080, version '+serverVersion);

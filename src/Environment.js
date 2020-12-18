@@ -5,17 +5,20 @@ var wind;
 var debugLightHelper;
 var sunLight;
 var sunLight2;
+var sunLight2;
+
 var sunTarget;
 var sunCenter;
 var ambientLight;
 
 
-var SHADOW_SIZE=1024;//2048*16;
+var SHADOW_SIZE=2048;//2048*16;
 
 let pi2=Math.PI*2;
 
-let tempHeight=20;
-let tempD=-0.04; //-0.004
+let tempHeight=1;
+let tempD=-0.001; //-0.004
+let shadowMaxHeight;
 
 function init(){
  
@@ -64,17 +67,48 @@ function init(){
 
 function changeShadowScale(factor){
 	let d1;
+	switch(factor){
+		case 4:{ //yuge
+			d1 = 600;
+			sunLight.shadow.camera.far = 1200;
+			sunLight.shadow.mapSize.width = SHADOW_SIZE;
+			sunLight.shadow.mapSize.height= SHADOW_SIZE;
+			shadowMaxHeight=200/2
+			sunLight.position.z=600
+		} break;
+		case 3:{
+			d1 = 300;
+			sunLight.shadow.camera.far = 600; 
+			sunLight.shadow.mapSize.width = SHADOW_SIZE;
+			sunLight.shadow.mapSize.height= SHADOW_SIZE;
+			shadowMaxHeight=100
+			sunLight.position.z=300
+		}break;
+		case 2:{
+			d1 = 120;
+			sunLight.shadow.camera.far = 240; 
+			sunLight.shadow.mapSize.width = SHADOW_SIZE;
+			sunLight.shadow.mapSize.height= SHADOW_SIZE;
+			shadowMaxHeight=40
+			sunLight.position.z=120
 
-	if(factor==1){
-		d1 = 450;
-		sunLight.shadow.camera.far = 600; 
-		sunLight.shadow.mapSize.width = SHADOW_SIZE/2;
-		sunLight.shadow.mapSize.height= SHADOW_SIZE/2;
-	}else{
-		d1 = 150;
-		sunLight.shadow.mapSize.width = SHADOW_SIZE;
-		sunLight.shadow.mapSize.height= SHADOW_SIZE;
-		sunLight.shadow.camera.far = 300; 
+		}break;
+		case 1:{
+			d1 = 75;
+			sunLight.shadow.camera.far = 150;
+			sunLight.shadow.mapSize.width = SHADOW_SIZE;
+			sunLight.shadow.mapSize.height= SHADOW_SIZE;
+			shadowMaxHeight=25
+			sunLight.position.z=75
+		}break;
+		default:{
+			d1 = 30;
+			sunLight.shadow.camera.far = 60;
+			sunLight.shadow.mapSize.width = SHADOW_SIZE;
+			sunLight.shadow.mapSize.height= SHADOW_SIZE;
+			shadowMaxHeight=10
+			sunLight.position.z=30
+		}
 	}
 
 	sunLight.shadow.camera.left = -d1;
@@ -89,32 +123,29 @@ function changeShadowScale(factor){
 	if(debugLightHelper){
 		setTimeout(function(){
 			debugLightHelper.update();
-		},1000)
+		},100)
 		
 	}
-
-
 }
 
 function cycle(){
 
 }
+
 function getWind(){
 	return wind;
 }
 
-
 function animate(){
-
 	tempHeight+=tempD;
     if(tempHeight<0){
         tempHeight=0;
         tempD=-tempD;
-    }else if(tempHeight>40){
-        tempHeight=40;
+    }else if(tempHeight>1){
+        tempHeight=1;
         tempD=-tempD;
     }
-    if(tempHeight>10){
+    if(tempHeight){
         sunLight.color.setHex(0xffffff);
         ambientLight.color.setHex(0x606060);
         Render.setClearColor(0xb0e9fd,1);
@@ -127,8 +158,12 @@ function animate(){
         ambientLight.color.setHex(0x3F2A62);
         Render.setClearColor(0xF86722,1);
     }*/
-    sunLight.position.z=200+tempHeight*4;
-    sunTarget.position.y=sunCenter.y-tempHeight*4;
+
+    //sunLight.position.z=200+tempHeight*4;
+    tempHeight=1;
+    let v=shadowMaxHeight*tempHeight
+    sunTarget.position.y=sunCenter.y-v;
+    sunLight.position.y=sunCenter.y+v;
 }
 
 
@@ -148,9 +183,8 @@ function setShadows(bool){
 }
 function setShadowPos(pos){
 	sunCenter.set(pos.x,pos.y,pos.z)
-sunLight.position.x=pos.x;
-sunLight.position.y=pos.y;
-sunTarget.position.x=pos.x;
+	sunLight.position.x=pos.x;
+	sunTarget.position.x=pos.x;
 }
 
 function setLightHelper(bool){

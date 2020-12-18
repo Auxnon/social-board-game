@@ -71,18 +71,36 @@ function defineOrbital(renderDom, camera) {
 
     orbital.addEventListener('change', function(ev) {
         var zoom = orbital.target.distanceTo(orbital.object.position);
-
+        console.log(zoom)
+        //zoom 30 scale 0
+        //zoom 100 scale 1
+        //zoom 180 scale 2
+        //
+        if(zoom < 30) {
+            if(zoomLevelToggle!=0)
+                Environment.changeShadowScale(0); zoomLevelToggle=0
+        }else if(zoom<100){
+            if(zoomLevelToggle!=1)
+                Environment.changeShadowScale(1); zoomLevelToggle=1
+         }else if(zoom<180){
+            if(zoomLevelToggle!=2)
+                Environment.changeShadowScale(2); zoomLevelToggle=2
+         }else{
+            if(zoomLevelToggle!=3)
+                Environment.changeShadowScale(3); zoomLevelToggle=3
+         }
+/*
         if(zoom > 75) {
             if(zoomLevelToggle != 2) {
                 zoomLevelToggle = 2;
-                Environment.changeShadowScale(1);
+                //Environment.changeShadowScale(1); //DEV
             }
         } else {
             if(zoomLevelToggle != 1) {
                 zoomLevelToggle = 1;
-                Environment.changeShadowScale(0);
+                //Environment.changeShadowScale(0);
             }
-        }
+        }*/
         Environment.setShadowPos(orbital.target)
         //console.log('changed camera '+orbital.object.position.y)
     })
@@ -143,20 +161,20 @@ var vrSession
 
 function enterVR() {
     /*if(controllers && controllers.length){
-    	vrSession =Render.getRenderer().xr.getSession();
-    	if(vrSession){
-    		/*for (let i = 0; i < 2; ++i) {
-    			controllers[i].source=session.inputSources[i]
-    		}*/
+        vrSession =Render.getRenderer().xr.getSession();
+        if(vrSession){
+            /*for (let i = 0; i < 2; ++i) {
+                controllers[i].source=session.inputSources[i]
+            }*/
     /*for(let j=0;j<7;j++){
-    	let bob=Render.cubit(0.1,0.1,0.1, 2+j*0.2, 0.2, 1)
-    	buttonBobs.push(bob)
-    	Render.addModel(bob)
+        let bob=Render.cubit(0.1,0.1,0.1, 2+j*0.2, 0.2, 1)
+        buttonBobs.push(bob)
+        Render.addModel(bob)
     }*/
     /*}
-	}
-	orbital.enabled=false;
-	vrEnabled=true;*/
+    }
+    orbital.enabled=false;
+    vrEnabled=true;*/
 }
 var controllers
 var orbital;
@@ -193,7 +211,7 @@ function mouseup(ev) {
         }
     }
     mdown = false;
-    closeBubbleMenu();
+    endPointer();
 }
 
 function touchstart(ev) {
@@ -213,8 +231,16 @@ function touchend(ev) {
     }
     mdown = false;
     endCircle();
+    endPointer();
+}
+
+function endPointer(){
+    if(landscaping)
+        HexManager.refreshCount()
+
     closeBubbleMenu();
 }
+
 
 function touchmove(ev) {
     let xx = ev.touches[0].clientX;
@@ -316,8 +342,8 @@ var touchOn = false;
 function startCircle(xx, yy) {
     /*let sb=document.querySelector('.bubbleSelector');
     if(!touchOn){
-    	sb.style.visibility='visible';
-    	touchOn=true;
+        sb.style.visibility='visible';
+        touchOn=true;
     }
     sb.style.left=xx+'px';
     sb.style.top=yy+'px';*/
@@ -338,9 +364,9 @@ function contextmenu(ev) {
     ev.preventDefault();
 
     /*if(orbital.enabled){
-    	orbital.enabled=false;
+        orbital.enabled=false;
     }else{
-    	orbital.enabled=true;
+        orbital.enabled=true;
     }*/
 
 
@@ -496,7 +522,7 @@ function moveBubbleSelector(x, y) {
     //let text=bubbles.eq(index).attr('value');
     //console.log(text);
     /*if(text){
-    	$('.selectBubble').children().html(text);
+        $('.selectBubble').children().html(text);
     }*/
 
 }
@@ -523,12 +549,22 @@ function keyup(ev) {
     if(isMenuLocked()) {
         return false;
     } else {
-        if(ev.which == 13) {
-            //Chat.openChat();
-        } else if(ev.which == 192) { //DEV
-            window.pickTarget = Render.pick();
-            if(window.pickTarget)
-                console.log("picked a " + window.pickTarget.type)
+        console.log(ev.which)
+        switch (ev.which) {
+            case 13:
+                break; //Chat.openChat();
+            case 49: Environment.changeShadowScale(0); break;
+            case 50: Environment.changeShadowScale(1); break;
+            case 51: Environment.changeShadowScale(2); break;
+            case 52: Environment.changeShadowScale(3); break;
+            case 53: Environment.changeShadowScale(4); break;
+            case 192:
+                { //DEV
+                    window.pickTarget = Render.pick();
+                    if(window.pickTarget)
+                        console.log("picked a " + window.pickTarget.type)
+                }
+                break;
 
         }
     }

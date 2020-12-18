@@ -56,7 +56,7 @@ Render.loadModel('./assets/models/Hex.glb',m=>{
 
 		mm.material=basicMat
 		mm.receiveShadow =true;
-		if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree"))
+		if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House"))
 			mm.castShadow =true;
 		//Render.addModel(mm)
 		hex[mm.name]=mm;
@@ -460,6 +460,7 @@ function hexCheck(x,y){
 	
 }
 let lastPick={x:0,y:0}
+let hexChangeCount=0;
 function hexPick(x,y){
 	let [x2,y2] = hexCheck(x,y)
 
@@ -473,8 +474,22 @@ function hexPick(x,y){
 		else
 			v=hexType*/
 
+		//if(hexChangeCount==0)
 
-		place(x2,y2,hexType)
+		if(hexChangeCount==0 && grid[x2][y2]==hexType){
+			place(x2,y2,1)
+		}else{
+			place(x2,y2,hexType)
+		}
+		hexChangeCount++;
+
+		/*if((x2==lastPick.x && y2==lastPick.y)){
+
+		}*/
+
+			
+
+		
 		lastPick.x=x2;lastPick.y=y2;
 		if(hexDebounce){
 			clearTimeout(hexDebounce)
@@ -486,6 +501,12 @@ function hexPick(x,y){
 		
 	}
 }
+
+function refreshCount(){
+	hexChangeCount=0;
+	lastPick.x=0;lastPick.y=0;
+}
+
 
 
 
@@ -533,4 +554,4 @@ function updateTerrain(chunk,data){
  
 
 
-export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain,setGrid}
+export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain,setGrid,refreshCount}

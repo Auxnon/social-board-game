@@ -78,9 +78,6 @@ function init() {
                 HexManager.setType(1);
                 break;
         }
-
-
-
     })
     window.addEventListener('keyup', ev => {
         switch (ev.keyCode) {
