@@ -3,6 +3,9 @@ import * as Render from "./Render.js";
 import * as HexManager from "./HexManager.js";
 //import * as AssetManager from "./AssetManager.js";
 import * as Environment from "./Environment.js";
+import * as Online from "./Online.js";
+import * as Physics from "./Physics.js";
+
 //import * as World from "./World.js";
 import {
     OrbitControls
@@ -71,7 +74,7 @@ function defineOrbital(renderDom, camera) {
 
     orbital.addEventListener('change', function(ev) {
         var zoom = orbital.target.distanceTo(orbital.object.position);
-        console.log(zoom)
+        //console.log(zoom)
         //zoom 30 scale 0
         //zoom 100 scale 1
         //zoom 180 scale 2
@@ -289,6 +292,7 @@ function down() {
     return mdown && !orbital.isControl();
 }
 
+var heldPhys=false;
 function setVector(pos) {
     px = pos.x;
     py = pos.y;
@@ -301,6 +305,14 @@ function setVector(pos) {
 
         if(singleTouch || mdown)
             HexManager.hexPick(px, py)
+    }else{
+        if(singleTouch || mdown){
+            Physics.adjustPhys(pos)
+            heldPhys=true
+        }else if(heldPhys){
+            Physics.dropPhys(pos);
+            heldPhys=false;
+        }
     }
 }
 var callback
@@ -558,6 +570,7 @@ function keyup(ev) {
             case 51: Environment.changeShadowScale(2); break;
             case 52: Environment.changeShadowScale(3); break;
             case 53: Environment.changeShadowScale(4); break;
+            case 89: Online.makePhys({x:.5,y:.5,z:.5},2,{x:0,y:0,z:30});break;
             case 192:
                 { //DEV
                     window.pickTarget = Render.pick();

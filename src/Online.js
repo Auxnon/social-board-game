@@ -69,6 +69,7 @@ function initSocket() {
     });
 
 
+
     //socket.emit('init','hi')
 
     socket.on('physUpdate', function(data) {
@@ -205,4 +206,9 @@ function terrain(chunk,data){
 	socket.emit('terrain', PlayerManager.getOwnPlayer().id,chunk,data);
 }
 
-export { login, makePhys, resetPhys, message,terrain }
+function sendPhys(obj){
+	         //physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity])
+	
+	socket.emit('sendPhys',{id:obj.id,position:obj.position});
+}
+export { login, makePhys, resetPhys, message,terrain,sendPhys }

@@ -1,6 +1,8 @@
 import * as Main from "./Main.js";
 import * as Control from "./Control.js";
 import * as Render from "./Render.js";
+import * as Online from "./Online.js";
+
 import * as CANNON from "./lib/cannon.min.js";
 
 var gooProperty;
@@ -14,7 +16,8 @@ var world;
 var playerBody;
 var orientation = 0;
 
-const dt = 1 / 100; //1/20
+const dt = 1 / 30; //1/20
+/// 1/100
 
 function init() {
     let N = 1;
@@ -28,7 +31,7 @@ function init() {
     world.quatNormalizeSkip = 0;
     world.quatNormalizeFast = false;
 
-    //world.gravity.set(0,0,-10);
+    world.gravity.set(0,0,-10);
     world.broadphase = new CANNON.NaiveBroadphase();
 
     // Create boxes
@@ -387,22 +390,25 @@ function syncOnline(data){
 	data.forEach(stuff=>{
 		let p=physArray[stuff[0]];
 		/*interpolate(p.position,stuff[1])
-		interpolate(p.velocity,stuff[3])
 		interpolate(p.angularVelocity,stuff[4])
 		p.quaternion.copy(stuff[2])*/
 
-
-		p.position.copy(stuff[1])
+        interpolate(p.position,stuff[1],4)
+		//p.position.copy(stuff[1])
 		p.quaternion.copy(stuff[2])
-		p.velocity.copy(stuff[3])
+		//p.velocity.copy(stuff[3])
+        interpolate(p.velocity,stuff[3])
+
 		p.angularVelocity.copy(stuff[4])
 	})
 }
-function interpolate(a,b){
+function interpolate(a,b,z){
 	let m={x:a.x-b.x,y:a.y-b.y,z:a.z-b.z}
-	a.x-=m.x/2
-	a.y-=m.y/2
-	a.z-=m.z/2
+    if(!z)
+        z=2
+	a.x-=m.x/z
+	a.y-=m.y/z
+	a.z-=m.z/z
 }
 
 
@@ -418,5 +424,28 @@ function clearPhys(){
 	physIDs=[]
 	physArray=[];
 }
+var adjustDelay=0;
+function adjustPhys(v){
+    let ar=Object.values(physArray)
+    if(ar.length>0){
+        ar[0].position.copy(v)
+        adjustDelay++;
+        if(adjustDelay>10){
+            adjustDelay=0
+            Online.sendPhys(ar[0])
+            console.log('send phys')
+        }
+    }
+}
+function dropPhys(v){
+    let ar=Object.values(physArray)
+    if(ar.length>0){
+        ar[0].position.copy(v)
+        adjustDelay=0
+        Online.sendPhys(ar[0])
+        console.log('send phys NOW')
+        
+    }
 
-export { init,updatePhysics, setPlayer,makePhys,clearPhys,syncOnline }
+}
+export { init,updatePhysics, setPlayer,makePhys,clearPhys,syncOnline,adjustPhys,dropPhys }
