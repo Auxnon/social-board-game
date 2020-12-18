@@ -394,9 +394,9 @@
                      })
                  });
 
-                 socket.on('physMake', function(size, mass, pos) {
-                     let id = addPhys(size, mass, pos);
-                     dandSpace.emit('physMake', id, size, mass, pos)
+                 socket.on('physMake', function(size, mass, pos,type,color,model) {
+                     let id = addPhys(size, mass, pos,type,color,model); 
+                     dandSpace.emit('physMake', id, size, mass, pos,type,color,model)
                      console.log('made obj')
                  });
                  socket.on('physInit', function() {
@@ -483,11 +483,15 @@
      var sleeping
      var physStep=1 / 30;
 
-     function addPhys(size, mass, pos) {
+     function addPhys(size, mass, pos,type,color) {
          let body = new CANNON.Body({ mass: mass });
-         let boxShape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+         let shape;
+         if(type)
+            shape = new CYLINDER.Box( size.x, size.y, size.z,6);
+        else
+          shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
 
-         body.addShape(boxShape);
+         body.addShape(shape);
          body.position.set(pos.x, pos.y, pos.z);
          let id = physCounter;
          body.id = id;
@@ -496,8 +500,7 @@
          world.addBody(body);
          physCounter++;
 
-
-         physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity])
+         physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity,type,color])
          physInits.push([id, size, mass])
          return id;
      }
