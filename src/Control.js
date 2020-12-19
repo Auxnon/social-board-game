@@ -5,6 +5,8 @@ import * as HexManager from "./HexManager.js";
 import * as Environment from "./Environment.js";
 import * as Online from "./Online.js";
 import * as Physics from "./Physics.js";
+import * as BarUI from "./BarUI.js";
+
 
 //import * as World from "./World.js";
 import {
@@ -17,6 +19,18 @@ var vrEnabled;
 var landscaping = false;
 var touchCountDebounce = undefined;
 var singleTouch = false;
+
+var controllers
+var orbital;
+var mdown = false;
+var mx = 0;
+var my = 0;
+var px = 0,
+    py = 0,
+    pz = 0;
+var menuLocked = false;
+
+var velocity={x:0,y:0,z:0};
 
 
 function init() {
@@ -135,6 +149,7 @@ function primaryTouchPan() {
 
 function setLandscaping(val) {
     landscaping = val;
+    HexManager.toggleSelector(landscaping)
 }
 
 function getLandscaping() {
@@ -179,15 +194,6 @@ function enterVR() {
     orbital.enabled=false;
     vrEnabled=true;*/
 }
-var controllers
-var orbital;
-var mdown = false;
-var mx = 0;
-var my = 0;
-var px = 0,
-    py = 0,
-    pz = 0;
-var menuLocked = false;
 
 function mousemove(ev) {
 
@@ -294,6 +300,7 @@ function down() {
 
 var heldPhys=false;
 function setVector(pos) {
+    velocity={x:-10*(px -pos.x),y: -10*(py - pos.y),z:-10*(pz - pos.z)};
     px = pos.x;
     py = pos.y;
     pz = pos.z;
@@ -307,10 +314,10 @@ function setVector(pos) {
             HexManager.hexPick(px, py)
     }else{
         if(singleTouch || mdown){
-            Physics.adjustPhys(pos)
+            Physics.carryPhys(pos)
             heldPhys=true
         }else if(heldPhys){
-            Physics.dropPhys(pos);
+            Physics.dropPhys(pos,velocity);
             heldPhys=false;
         }
     }
@@ -563,15 +570,15 @@ function keyup(ev) {
     } else {
         console.log(ev.which)
         switch (ev.which) {
-            case 13:
-                break; //Chat.openChat();
+            case 13: BarUI.openApp(2);break; 
+            case 27: BarUI.closeApp();break;
             case 49: Environment.changeShadowScale(0); break;
             case 50: Environment.changeShadowScale(1); break;
             case 51: Environment.changeShadowScale(2); break;
             case 52: Environment.changeShadowScale(3); break;
             case 53: Environment.changeShadowScale(4); break;
-            case 84: Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
-            case 89: Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
+            case 84: Online.makePhys({x:2,y:2,z:3},2,{x:px,y:py,z:30},0,0x1200FF);break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
+            case 89: Online.makePhys({x:2,y:2,z:3},2,{x:px,y:py,z:30},1,0x52CB4C);break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
             case 192:
                 { //DEV
                     window.pickTarget = Render.pick();

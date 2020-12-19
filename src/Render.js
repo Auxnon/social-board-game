@@ -10,6 +10,8 @@ import { GLTFLoader } from "./lib/GLTFLoader.js";
 import { EffectComposer } from './lib/EffectComposer.js';
 import { ShaderPass } from './lib/ShaderPass.js';
 import { SSAOPass } from './lib/SSAOPass.js';
+import {CannonDebugRenderer} from './lib/CannonDebugRenderer.js';
+
 //import CannonDebugRenderer
 
 
@@ -172,12 +174,10 @@ function init() {
     },1)
     
     return alphaCanvas
-
-
 }
 
 function pointerInit(){
-    let pointerGeom = new THREE.CircleGeometry( 6, 16 );
+    let pointerGeom = new THREE.CircleGeometry( 3, 8 );
     //pointerGeom.rotateX(-Math.PI/2.0);
     pointerMat = new THREE.MeshBasicMaterial( { color:0x4AE13A } );
     pointerMatOn = new THREE.MeshBasicMaterial( { color:0xEBEE00 } );
@@ -190,9 +190,10 @@ function getAlphaCanvas() {
     return alphaCanvas;
 }
 
-function togglePhysicsDebugger(){
-    if(!physDebugger)
-        physDebugger=Physics.createPhysicsDebugger(scene)
+function togglePhysicsDebugger(bool){
+
+    if(bool && !physDebugger)
+        physDebugger= new CannonDebugRenderer( scene, Physics.world ); //Physics.createPhysicsDebugger(scene)
 }
 
 function loadModel(model, callback, texture, color) {
@@ -299,6 +300,8 @@ function animate(time) {
     applyCursor()
     Environment.animate();
 
+    if(physDebugger)
+        physDebugger.update();
     renderer.render(activeScene, activeCamera);
     //composer.render();
     requestAnimationFrame(animate);
@@ -437,6 +440,9 @@ function cylinder(i,j,k,x,y,z,c){
     else
         c=new THREE.MeshBasicMaterial( { color:c } );
 
+    geometry.rotateX(Math.PI/2)
+    geometry.rotateZ(Math.PI/2)
+
     let cyl = new THREE.Mesh( geometry, c );
     cyl.castShadow=true;
     cyl.position.x=x?x:0;
@@ -474,7 +480,7 @@ function applyCursor() {
 
     pointer.position.x = pos.x;
     pointer.position.y = pos.y
-    pointer.position.z=8;
+    pointer.position.z=2;
    // console.log(pointer.position)
     Control.setVector(pointer.position);
 

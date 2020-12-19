@@ -141,6 +141,7 @@ function pointerInit(){
     g.position.z+=6;
     Render.addModel(g)
     hexSelector=g;
+    hexSelector.visible=false;
 }
 
 function hexLines(){
@@ -551,7 +552,10 @@ function updateTerrain(chunk,data){
 	grid=data
 	processLand();
 }
+function toggleSelector(bool){
+	hexSelector.visible=bool;
+}
  
 
 
-export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain,setGrid,refreshCount}
+export {init,hexCheck,hexPick,toggleType,setType,getModel,updateTerrain,setGrid,refreshCount,toggleSelector}

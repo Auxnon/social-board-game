@@ -7,7 +7,10 @@
  * @param {CANNON.World} world
  * @param {object} [options]
  */
-THREE.CannonDebugRenderer = function(scene, world, options){
+import * as THREE from "./three.module.js";
+import * as CANNON from "./cannon.min.js";
+
+var CannonDebugRenderer = function(scene, world, options){
     options = options || {};
 
     this.scene = scene;
@@ -22,7 +25,7 @@ THREE.CannonDebugRenderer = function(scene, world, options){
     this._cylinderGeometry = new THREE.CylinderGeometry( 1, 1, 10, 10 );
 };
 
-THREE.CannonDebugRenderer.prototype = {
+CannonDebugRenderer.prototype = {
 
     tmpVec0: new CANNON.Vec3(),
     tmpVec1: new CANNON.Vec3(),
@@ -237,3 +240,5 @@ THREE.CannonDebugRenderer.prototype = {
         }
     }
 };
+
+export {CannonDebugRenderer}

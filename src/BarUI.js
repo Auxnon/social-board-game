@@ -14,6 +14,7 @@ var mainTitle;
 var focused;
 var barMove = false;
 var barPos = 1;
+var barTucked = false;
 var appPoints;
 var moveFactor = 0;
 
@@ -29,7 +30,12 @@ var pendingRenderId; //if not undefined, wait for Render to load and then apply 
 
 var resizeDebouncer;
 
+var closeCard;
+
 function init(argument) {
+    closeCard = document.querySelector('#closeCard');
+    closeCard.addEventListener('click', ev => { closeApp() })
+
     let preApps = document.querySelectorAll('.card');
     apps = []
     preApps.forEach(app => { //convert out of a nodelist to an array, it matters trust me
@@ -60,21 +66,37 @@ function init(argument) {
 function openApp(id) {
     let app = apps[id];
     if(app) {
+
         app.classList.add('cardMax')
         app.focused = true;
         app.style.zIndex = 0;
-        Object.values(app.children).forEach(sub=>{
-            sub.style.display='initial';
+        Object.values(app.children).forEach(sub => {
+            if(sub.className == 'card-notifier')
+                sub.remove();
+            else
+                sub.style.display = 'initial';
         })
 
-        if(app.id=='landscapeCard'){
+        if(app.id == 'landscapeCard') {
             Control.secondaryTouchPan()
             Control.setLandscaping(true)
-        }else{
-             Control.primaryTouchPan()
+        } else {
+            Control.primaryTouchPan()
             Control.setLandscaping(false)
-
         }
+        if(app.id == 'chatCard') {
+            Chat.openChat()
+        }
+
+        if(app.spot == -1) {
+            closeCard.style.top = '32px'
+            closeCard.style.left = '32px'
+        } else {
+            closeCard.style.top = app.style.top
+            closeCard.style.left = app.style.left
+        }
+        closeCard.style.opacity = '1';
+        closeCard.style.pointerEvents = 'auto';
 
         /*if(Render) {
             openAppApplyRender(id, app)
@@ -83,9 +105,7 @@ function openApp(id) {
             pendApp(id);
         }*/
         focused = app;
-        if(app.id=='chatCard'){
-            //Chat.openChat()
-        }
+
 
     }
 }
@@ -124,8 +144,11 @@ function closeApp() {
         focused.focused = undefined; //wow why did i name this like this //TODO
         Control.primaryTouchPan()
         Control.setLandscaping(false)
-        Object.values(focused.children).forEach(sub=>{
-            sub.style.display='none';
+        Object.values(focused.children).forEach(sub => {
+            if(sub.className == 'card-notifier')
+                sub.style.display = 'initial'
+            else
+                sub.style.display = 'none';
         })
 
 
@@ -135,6 +158,12 @@ function closeApp() {
             setTimeout(() => { d.style.opacity = 0; }, 1);
             d.style.opacity = 1;
         }*/
+        closeCard.style.opacity = '0';
+        closeCard.style.pointerEvents = 'none';
+    }
+    if(barTucked) {
+        barTucked = false;
+        barAdjust()
     }
 }
 
@@ -178,7 +207,7 @@ function barInit() {
     })
     barHandle.addEventListener('dragstart', ev => { ev.preventDefault() })
     /*barHandle.addEventListener('pointerup',ev=>{
-    	barMove=false;
+        barMove=false;
     })*/
 
     appPoints = [];
@@ -211,7 +240,7 @@ function barCalculate(notate) {
     if(sideWays) {
         bar.style.height = (count > 0 ? count : 1) * 64 + 'px'
         bar.style.width = '82px'
-        
+
     } else {
         bar.style.width = (count > 0 ? count : 1) * 64 + 'px'
         bar.style.height = '82px'
@@ -229,13 +258,13 @@ function barCalculate(notate) {
         ratio = width / (count);
 
     if(!notate) {
-        if(sideWays){
+        if(sideWays) {
             appsInRow.sort(function(a, b) {
                 return parseInt(a.style.top) - parseInt(b.style.top);
             });
             //bar.style.borderWidth="0 6px 0px 6px";
 
-        }else
+        } else
             appsInRow.sort(function(a, b) {
                 return parseInt(a.style.left) - parseInt(b.style.left);
             });
@@ -259,14 +288,14 @@ function barCalculate(notate) {
         _moveEle(appsInRow[i], appPoints[i].x, appPoints[i].y)
     }
     //if(barLineFactor == -1) {
-        let handle = barHandle.getBoundingClientRect();
-        if(sideWays) {
-            let xx = handle.left + handle.width / 2
-            drawSimpleBarLine({ x: xx, y: handle.top }, { x: xx, y: handle.bottom })
-        } else {
-            let yy = handle.top + handle.height / 2
-            drawSimpleBarLine({ x: handle.left, y: yy }, { x: handle.right, y: yy })
-        }
+    let handle = barHandle.getBoundingClientRect();
+    if(sideWays) {
+        let xx = handle.left + handle.width / 2
+        drawSimpleBarLine({ x: xx, y: handle.top }, { x: xx, y: handle.bottom })
+    } else {
+        let yy = handle.top + handle.height / 2
+        drawSimpleBarLine({ x: handle.left, y: yy }, { x: handle.right, y: yy })
+    }
 
     //}
 }
@@ -373,7 +402,7 @@ function drawBarLine(nextVector) {
 function drawSimpleBarLine(one, two) {
     let st = "M" + one.x + ' ' + one.y + "L" + two.x + ' ' + two.y;
     //path.setAttribute('d', st);
-   
+
 }
 
 function mousemove(ev) {
@@ -404,13 +433,14 @@ function mousemove(ev) {
 
         targetMove.style.left = targetMove.pos.x + 'px'
         targetMove.style.top = targetMove.pos.y + 'px'
-    } /*else if(barLineFactor == 0) {
-        if(count > 2) {
-            count = 0;
-            mouseObj = { x: ev.clientX, y: ev.clientY }
-        }
-        count++
-    }*/
+    }
+    /*else if(barLineFactor == 0) {
+           if(count > 2) {
+               count = 0;
+               mouseObj = { x: ev.clientX, y: ev.clientY }
+           }
+           count++
+       }*/
 }
 
 function barMoveHandler(ev) {
@@ -418,14 +448,23 @@ function barMoveHandler(ev) {
         moveFactor++;
         let xx = ev.clientX;
         let yy = ev.clientY;
-        let dx = xx - window.innerWidth / 2;
-        let dy = yy - window.innerHeight / 2;
+        let mx = window.innerWidth / 2;
+        let my = window.innerHeight / 2;
+        let dx = xx - mx;
+        let dy = yy - my;
+        let xtuck = (mx - Math.abs(dx)) < 10
+        let ytuck = (my - Math.abs(dy)) < 10
+
         let r = Math.atan2(dy, dx) / Math.PI;
         let ar = Math.abs(r)
         if(ar < 0.25) { //right
             if(barPos != 2) {
                 barPos = 2;
                 barAdjust()
+            }
+            if(xtuck != barTucked) {
+                barTucked = xtuck;
+                barAdjust();
             }
         } else if(ar < 0.75) { //top or bottom
             if(r < 0) { //top
@@ -439,90 +478,99 @@ function barMoveHandler(ev) {
                     barAdjust()
                 }
             }
+            if(ytuck != barTucked) {
+                barTucked = ytuck;
+                barAdjust();
+            }
         } else { //left
             if(barPos != 0) {
                 barPos = 0;
                 barAdjust()
             }
+            if(xtuck != barTucked) {
+                barTucked = xtuck;
+                barAdjust();
+            }
         }
 
         /*
-        				if(window.innerWidth>window.innerHeight){ //landscape
-        					let half=(window.innerWidth - window.innerHeight)/2
-        					if(xx<half){ //left
-        						bar.style.transform='rotate(90deg)'
-        						barHandle.style.transform='translate(-50%,-200%)'
-        					}else if(xx>window.innerWidth-half){ //right
-        						bar.style.transform='rotate(90deg)'
-        						barHandle.style.transform='translate(-50%,100%)'
-        					}else{
-        						bar.style.transform='rotate(0deg)'
-        						if(yy>window.innerHeight/2){
-        							barHandle.style.transform='translate(-50%,-200%)'
-        						}else{
-        							barHandle.style.transform='translate(-50%,100%)'
-        						}
-        					}
-        				}else{ //portrait
-        					let half=(window.innerHeight - window.innerWidth)/2
-        					if(yy<half){ //top
-        						bar.style.transform='rotate(0deg)'
-        						barHandle.style.transform='translate(-50%,-200%)'
-        					}else if(yy>window.innerHeight-half){ //bottom
-        						bar.style.transform='rotate(0deg)'
-        						barHandle.style.transform='translate(-50%,100%)'
-        					}else{
-        						bar.style.transform='rotate(90deg)'
-        						if(xx>window.innerWidth/2){
-        							barHandle.style.transform='translate(-50%,-200%)'
-        						}else{
-        							barHandle.style.transform='translate(-50%,100%)'
-        						}
-        					}
-        				}*/
+                        if(window.innerWidth>window.innerHeight){ //landscape
+                            let half=(window.innerWidth - window.innerHeight)/2
+                            if(xx<half){ //left
+                                bar.style.transform='rotate(90deg)'
+                                barHandle.style.transform='translate(-50%,-200%)'
+                            }else if(xx>window.innerWidth-half){ //right
+                                bar.style.transform='rotate(90deg)'
+                                barHandle.style.transform='translate(-50%,100%)'
+                            }else{
+                                bar.style.transform='rotate(0deg)'
+                                if(yy>window.innerHeight/2){
+                                    barHandle.style.transform='translate(-50%,-200%)'
+                                }else{
+                                    barHandle.style.transform='translate(-50%,100%)'
+                                }
+                            }
+                        }else{ //portrait
+                            let half=(window.innerHeight - window.innerWidth)/2
+                            if(yy<half){ //top
+                                bar.style.transform='rotate(0deg)'
+                                barHandle.style.transform='translate(-50%,-200%)'
+                            }else if(yy>window.innerHeight-half){ //bottom
+                                bar.style.transform='rotate(0deg)'
+                                barHandle.style.transform='translate(-50%,100%)'
+                            }else{
+                                bar.style.transform='rotate(90deg)'
+                                if(xx>window.innerWidth/2){
+                                    barHandle.style.transform='translate(-50%,-200%)'
+                                }else{
+                                    barHandle.style.transform='translate(-50%,100%)'
+                                }
+                            }
+                        }*/
     }
 }
 
 function barAdjust() {
     if(barPos == 2) { //right
-        bar.style.left = window.innerWidth - 48 + 'px';
+
+        bar.style.left = window.innerWidth - (barTucked ? -32 : 48) + 'px';
         bar.style.top = '50%'; //window.innerHeight/2;
         barCalculate();
         barHandle.style.transform = 'translate(-200%,-50%)'
         barHandle.style.width = '32px';
         barHandle.style.height = '80%';
-        bar.style.borderWidth="0px 0px 0px 6px";
+        bar.style.borderWidth = "0px 0px 0px 6px";
         //mainTitle.style.top = '28px';
         Chat.setSize(false)
     } else if(barPos == 3) { //top
         barHandle.style.transform = 'translate(-50%,100%)'
         bar.style.left = '50%';
-        bar.style.top = '48px' //-196+window.innerWidth/2
+        bar.style.top = (barTucked ? -32 : 48) + 'px';
         //mainTitle.style.top = 'calc(100% - 128px)';
-        
+
         barCalculate();
         barHandle.style.height = '32px';
         barHandle.style.width = '80%';
-        bar.style.borderWidth="0px 0px 6px 0px";
+        bar.style.borderWidth = "0px 0px 6px 0px";
         Chat.setSize(false)
     } else if(barPos == 1) { //bottom
         barHandle.style.transform = 'translate(-50%,-200%)'
         bar.style.left = '50%';
-        bar.style.top = (window.innerHeight - 48) + 'px'; //-196+window.innerWidth/2
+        bar.style.top = window.innerHeight - (barTucked ? -32 : 48) + 'px';
         //mainTitle.style.top = '28px';
         barCalculate();
         barHandle.style.height = '32px';
         barHandle.style.width = '80%';
-        bar.style.borderWidth="6px 0px 0px 0px"
+        bar.style.borderWidth = "6px 0px 0px 0px"
         Chat.setSize(true)
     } else { //left
         barHandle.style.transform = 'translate(100%,-50%)'
-        bar.style.left = '48px';
+        bar.style.left = (barTucked ? -32 : 48) + 'px';
         bar.style.top = '50%'
         barCalculate()
         barHandle.style.width = '32px'
         barHandle.style.height = '80%'
-        bar.style.borderWidth="0px 6px 0px 0px";
+        bar.style.borderWidth = "0px 6px 0px 0px";
         //mainTitle.style.top = '28px';
         Chat.setSize(false)
     }
@@ -635,5 +683,30 @@ function clearPendApp(id) {
         cube.remove()
 }
 
+function hide() {
+    barTucked = true;
+    barAdjust();
+}
 
-export { pendApp, clearPendApp,apps,init,closeApp }
+function setNotifier(id, num) {
+    let target = apps[id];
+    if(!target.focused) {
+        let dom = target.querySelector('.card-notifier');
+        if(!dom) {
+            dom = document.createElement('div')
+            dom.className = 'card-notifier';
+            target.appendChild(dom)
+            dom.innerText = num
+        } else
+            dom.innerText = parseInt(dom.innerText) + num;
+
+        target.style.animation=''
+        void target.offsetWidth;
+        target.style.animation='attention 0.2s';
+
+    }
+
+}
+
+
+export { pendApp, clearPendApp, apps, init, openApp, closeApp, hide,setNotifier }

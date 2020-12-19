@@ -1,567 +1,577 @@
- module.exports = function Game(app, express, server, io, sessionObj) {
+module.exports = function Game(app, express, server, io, sessionObj) {
 
+    const colors = require('colors');
 
+    const crypto = require('crypto');
+    const sqlite3 = require('sqlite3');
+    const passport = require('passport');
+    const passportInit = passport.initialize();
+    const passportSession = passport.session();
+    const LocalStrategy = require('passport-local').Strategy
+
+    //const app = require("https-localhost")()
+    const fs = require("fs");
+
+    var passedArgs = process.argv.slice(2);
+    console.log(passedArgs)
+
+    //var io = require('socket.io')(server)
+    //var passportSocketIo = require('passport.socketio');
+
+
+    //var sharedsession = require("express-socket.io-session");
+
+
+
+
+
+    app.use(passportInit);
+    app.use(passportSession);
+
+    var USERS = [];
+    var possibleUsers = []; //TODO get rid of this lol
+    var lastChats = [];
+    var grid = [];
+
+
+
+    const { Sequelize, Model, DataTypes } = require('sequelize');
+    //const sequelize = new Sequelize('sqlite');
+    const sequelize = new Sequelize('database', 'username', 'password', {
+        host: 'localhost',
+        storage: './database.sqlite',
+        dialect: 'sqlite',
+        // one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' 
+        logging: false,
+    });
+
+    class User extends Model {}
+    User.init({
+        username: DataTypes.STRING,
+        salt: DataTypes.STRING,
+        password: DataTypes.STRING,
+        //birthday: DataTypes.DATE
+        color: DataTypes.STRING,
+        sessionID: DataTypes.STRING,
+        online: false,
+    }, { sequelize, modelName: 'user' });
+
+
+    function makeUser(name, color, pin, callback) {
+        if(name && color && pin != undefined) {
+            User.create({
+                username: name,
+                color: color,
+                pin: pin
+            }).then(() => {
+                callback();
+            }).catch(() => {
+                console.log('Something went wrong with creating user')
+            });
+        } else {
+            console.log('Missing data to create user')
+        }
+    }
+
+    function getUser(id, callback) {
+        User.findOne({ where: { id: id } }).then(user => {
+            callback(user)
+        }).catch(e => {
+
+        });
+    }
+
+    function getUsers(callback) {
+        User.findAll().then(users => {
+            callback(users)
+        }).catch(e => {
+
+        })
+    }
+
+
+    function pullUser(sessionID, callback) {
+        User.findOne({ where: { sessionID: sessionID } }).then(user => {
+            callback(user);
+        })
+    }
+
+
+    (async () => {
+        if(passedArgs[0] == 'purge') {
+            console.log('P U R G I N G  DB'.red)
+            await sequelize.sync({ force: true });
+            let contents = [
+                ['Bingo', '1234', 'salt', '#8F239F'],
+                ['Boingo', '1234', 'salt', '#C25BD2'],
+                ['Bongo', '1234', 'salt', '#7B068D'],
+                ['Bungo', '1234', 'salt', '#8248A3'],
+                ['Bango', '1234', 'salt', '#B804AD'],
+                ['Bilbo', '1234', 'salt', '#7C03D0'],
+                ['Jake', '8008', 'salt', '#FFED24'],
+                ['VA', '9999', 'salt', '#F48A0D'],
+                ['Meg', '4343', 'salt', '#25BDFC'],
+                ['Claire', '7272', 'salt', '#D10054'],
+                ['Emo', '1111', 'salt', '#940818'],
+                ['Jon', '4200', 'salt', '#B234C5'],
+                ['Jack', '1954', 'salt', '#863D0C'],
+                ['Helen', '0005', 'salt', '#B234C5'],
+                ['Greg', '9000', 'salt', '#3442C5'],
+                ['Nick', '8008', 'salt', '#7EBB1D'],
+                ['Heather', '6969', 'salt', '#FF00D8'],
+            ]
+
+            contents.forEach(stuff => {
+                let person = User.create({
+                    username: stuff[0],
+                    //birthday: new Date(1980, 6, 20)
+                    salt: stuff[2],
+                    color: stuff[3],
+                    password: hashPassword(stuff[1], stuff[2])
+                });
+            })
+            await sequelize.sync();
+
+
+        } else {
+            await sequelize.sync();
+        }
+
+
+        const users = await User.findAll();
+        users.forEach(user => {
+            possibleUsers.push({ id: user.id, username: user.username, color: user.color });
+        })
+
+        console.log('[[ USER COUNT %i ]]', users.length)
+        console.log('=====[[ VVV Start VVV ]]===='.underline.bgMagenta)
+
+
+
+    })();
+
+    function hashPassword(password, salt) {
+        var hash = crypto.createHash('sha256');
+        hash.update(password);
+        hash.update(salt);
+        return hash.digest('hex');
+    }
+
+    passport.use(new LocalStrategy({ usernameField: "username", passwordField: "password" }, function(username, password, done) {
+        console.log('? attempt login for ', username)
+        User.findOne({ where: { username: username } }).then(user => {
+            console.log('DEV:hash check::', username, password, user.salt)
+            var hash = hashPassword(password, user.salt);
+            if(user.password == hash) {
+                return done(null, user);
+            }
+            return done(null, false);
+        }).catch(e => {
+            return done(null, false);
+        })
+    }));
 
-     const colors = require('colors');
-
-     const crypto = require('crypto');
-     const sqlite3 = require('sqlite3');
-     const passport = require('passport');
-     const passportInit = passport.initialize();
-     const passportSession = passport.session();
-     const LocalStrategy = require('passport-local').Strategy
-
-     //const app = require("https-localhost")()
-     const fs = require("fs");
-
-     var passedArgs = process.argv.slice(2);
-     console.log(passedArgs)
-
-     //var io = require('socket.io')(server)
-     //var passportSocketIo = require('passport.socketio');
-
-
-     //var sharedsession = require("express-socket.io-session");
-
-
-
-
-
-     app.use(passportInit);
-     app.use(passportSession);
-
-     var USERS = [];
-     var possibleUsers = []; //TODO get rid of this lol
-     var lastChats = [];
-     var grid = [];
-
-
-     const { Sequelize, Model, DataTypes } = require('sequelize');
-     //const sequelize = new Sequelize('sqlite');
-     const sequelize = new Sequelize('database', 'username', 'password', {
-         host: 'localhost',
-         storage: './database.sqlite',
-         dialect: 'sqlite',
-         // one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' 
-         logging: false,
-     });
-
-     class User extends Model {}
-     User.init({
-         username: DataTypes.STRING,
-         salt: DataTypes.STRING,
-         password: DataTypes.STRING,
-         //birthday: DataTypes.DATE
-         color: DataTypes.STRING,
-         sessionID: DataTypes.STRING,
-         online: false,
-     }, { sequelize, modelName: 'user' });
-
-
-     function makeUser(name, color, pin, callback) {
-         if(name && color && pin != undefined) {
-             User.create({
-                 username: name,
-                 color: color,
-                 pin: pin
-             }).then(() => {
-                 callback();
-             }).catch(() => {
-                 console.log('Something went wrong with creating user')
-             });
-         } else {
-             console.log('Missing data to create user')
-         }
-     }
-
-     function getUser(id, callback) {
-         User.findOne({ where: { id: id } }).then(user => {
-             callback(user)
-         }).catch(e => {
-
-         });
-     }
-
-     function getUsers(callback) {
-         User.findAll().then(users => {
-             callback(users)
-         }).catch(e => {
-
-         })
-     }
-
-
-     function pullUser(sessionID, callback) {
-         User.findOne({ where: { sessionID: sessionID } }).then(user => {
-             callback(user);
-         })
-     }
-
-
-     (async () => {
-         if(passedArgs[0] == 'purge') {
-             console.log('P U R G I N G  DB'.red)
-             await sequelize.sync({ force: true });
-             let contents = [
-                 ['Bingo', '1234', 'salt', '#8F239F'],
-                 ['Boingo', '1234', 'salt', '#C25BD2'],
-                 ['Bongo', '1234', 'salt', '#7B068D'],
-                 ['Bungo', '1234', 'salt', '#8248A3'],
-                 ['Bango', '1234', 'salt', '#B804AD'],
-                 ['Bilbo', '1234', 'salt', '#7C03D0'],
-                 ['Jake', '8008', 'salt', '#FFED24'],
-                 ['VA', '9999', 'salt', '#F48A0D'],
-                 ['Meg', '4343', 'salt', '#25BDFC'],
-                 ['Claire', '7272', 'salt', '#D10054'],
-                 ['Emo', '1111', 'salt', '#940818'],
-                 ['Jon', '4200', 'salt', '#B234C5'],
-                 ['Jack', '1954', 'salt', '#863D0C'],
-                 ['Helen', '0005', 'salt', '#B234C5'],
-                 ['Greg', '9000', 'salt', '#3442C5'],
-                 ['Nick', '8008', 'salt', '#7EBB1D'],
-                 ['Heather', '6969', 'salt', '#FF00D8'],
-             ]
-
-             contents.forEach(stuff => {
-                 let person = User.create({
-                     username: stuff[0],
-                     //birthday: new Date(1980, 6, 20)
-                     salt: stuff[2],
-                     color: stuff[3],
-                     password: hashPassword(stuff[1], stuff[2])
-                 });
-             })
-             await sequelize.sync();
-
-
-         } else {
-             await sequelize.sync();
-         }
-
-
-         const users = await User.findAll();
-         users.forEach(user => {
-             possibleUsers.push({ id: user.id, username: user.username, color: user.color });
-         })
-
-         console.log('[[ USER COUNT %i ]]', users.length)
-         console.log('=====[[ VVV Start VVV ]]===='.underline.bgMagenta)
-
-
-
-     })();
-
-     function hashPassword(password, salt) {
-         var hash = crypto.createHash('sha256');
-         hash.update(password);
-         hash.update(salt);
-         return hash.digest('hex');
-     }
-
-     passport.use(new LocalStrategy({ usernameField: "username", passwordField: "password" }, function(username, password, done) {
-         console.log('? attempt login for ', username)
-         User.findOne({ where: { username: username } }).then(user => {
-             console.log('DEV:hash check::', username, password, user.salt)
-             var hash = hashPassword(password, user.salt);
-             if(user.password == hash) {
-                 return done(null, user);
-             }
-             return done(null, false);
-         }).catch(e => {
-             return done(null, false);
-         })
-     }));
-
-
-
-
-     const CANNON = require('./cannon.min')
-
-     app.use(express.static(__dirname + '/public'));
-     //app.use('dev.makeavoy.com', express.static(__dirname + '/public'))
-
-     app.get('/*', function(req, res, next) {
-         res.setHeader('Last-Modified', (new Date()).toUTCString());
-         res.setHeader('Cache-Control', 'no-cache'); //max-age=14400');
-         res.header('Content-Security-Policy', "img-src 'self'");
-         next();
-     });
-
-     app.post('/login', function(req, res, next) {
-         passport.authenticate('local', function(error, user, info) {
-
-             console.log('* session ', req.sessionID)
-             if(user) {
-                 console.log('- login for ', user.username, ':', user.id)
-             } else {
-                 console.log('- bad login'.yellow)
-             }
-
-             if(error) {
-                 res.status(401).send({ message: error });
-             } else if(!user) {
-                 res.status(401).send({ message: info });
-             } else {
-                 user.sessionID = req.sessionID;
-                 user.online = true;
-                 USERS[req.sessionID] = user;
-                 user.save();
-                 res.status(200).send({ id: user.id, message: 'logged in!' });
-                 //next();
-             }
-         })(req, res);
-         //},
-     });
-
-     //function(req, res) {
-     //    res.status(200).send({ message: 'logged in!' });
-     //});
-
-     app.post('/getUsers', function(req, res, next) {
-         console.log('* sending users ', possibleUsers.length)
-         res.send({ users: possibleUsers });
-     })
-     app.post('/lastChats', function(req, res, next) {
-         res.send({ array: lastChats });
-     })
-     app.post('/grid', function(req, res, next) {
-         res.send({ grid: grid });
-     })
-
-
-
-
-
-
-
-
-     const dandSpace = io.of('/dand-dev'); ///'/dand-dev');
-
-     dandSpace.use(function(socket, next) {
-         console.log('* passed session through io socket')
-         sessionObj(socket.request, {}, next); //socket.request.res || {}
-     });
-
-
-     // dandSpace.use((socket, next) => {
-     //     // ensure the user has sufficient rights
-     //     next();
-     // });
-
-
-     // adminNamespace.on('connection', socket => {
-     //   socket.on('delete user', () => {
-
-     //   });
-     // });
-
-
-     var users = [];
-     var sockets = [];
-     var objects = [{ x: 60, y: 0, z: 60, type: 'tree', layer: 0, owner: 0 }];
-     var count = -1;
-     var objCount = 0; //below the current count for lazy indexing reasons
-
-     const version = [0, 16, 10];
-     console.log('_game version ' + version[0] + '.' + version[1] + '.' + version[2]);
-     //createObject({x:20,y:20,z:0,type:'tree',layer:0,owner:0});
-
-
-     var world;
-     var boxBody;
-
-
-     dandSpace.on('connection', function(socket) {
-         console.log('* connecting...');
-         if(!socket.request.session) {
-             console.log("! socket session doesn't exist!".red);
-             return;
-         }
-
-         console.log('socket session id ', socket.request.session.id)
-         evaluateUser(socket.request.session, username => {
-
-             if(!username) {
-                 socket.disconnect('reauth');
-                 console.log('- kicked null user'.yellow)
-             } else {
-                 //socket nodes
-
-                 console.log('-socket connected to user:', username);
-                 let user = USERS[socket.request.session.id];
-
-                 socket.broadcast.emit('join', user ? user.username : 'Unknown');
-
-                 socket.on('disconnect', function() {
-                     if(socket.request.session.id) {
-                         let user = USERS[socket.request.session.id];
-                         user.online = false;
-                         user.save();
-                     }
-                     console.log('lost connection to user')
-                 });
-                 socket.on('message', function(m) {
-                     let userId = getUserId(socket.request.session);
-                     lastChats.push([userId, m]);
-                     if(lastChats.length > 10)
-                         lastChats.shift()
-                     dandSpace.emit('message', userId, m)
-                     /*User.findOne({ which: { username: user } }).then(o => {
-                         console.log('messaged with id ', o ? o.username : undefined, " message: ", m);
-                     })*/
-                 });
-                 socket.on('terrain', function(id, chunk, data) {
-                     grid = data;
-                     socket.broadcast.emit('terrain', id, chunk, data);
-                     console.log('- terrain sync length ', data.length)
-                 })
-                 socket.on('sendPhys', function(obj) {
-                     let target = physArray[obj.id]
-                     if(target) {
-                      target.position.copy(obj.position)
-                      target.velocity.set(0,0,0)
-                      target.wakeUp();
-                     }
-                 })
-
-
-
-
-
-
-
-                 socket.on('init', function(major, minor, partial, data) {
-                     if(data) {
-                         //let versionMatch=(major>=version[0]) && (minor>=version[1]) && (partial>=version[2])
-                         //createUser(socket,data,versionMatch);
-                         socket.broadcast.emit('move', move);
-                     }
-                 });
-                 /*
-                 socket.on('disconnect', function() {
-                     let id = sockets.indexOf(socket);
-                     if(id >= 0) {
-                         let player = users[id];
-                         console.log('user ' + player.name + ' disconnected');
-                         socket.broadcast.emit('disconnected', id);
-                         users[id].dead = true;
-                         sockets[id] = null;
-                     }
-                 });*/
-
-                 socket.on('move', function(move) {
-                     console.log('move ready, player ' + move.id);
-                     if(move.path) {
-                         //console.log('path final x: ' + move.path[move.path.length-1].x);
-                         if(move.id) {
-                             users[move.id].path = move.path;
-                             socket.broadcast.emit('move', move);
-                         }
-                     }
-                 });
-
-                 socket.on('enter', function(id, door) {
-                     socket.broadcast.emit('enter', id, door);
-                 });
-                 socket.on('make', function(obj) {
-                     obj.id = createObject(obj);
-                     dandSpace.emit('make', obj) //io.sockets
-                 });
-
-                 socket.on('chat', function(id, message) {
-                     dandSpace.emit('chat', id, message);
-                 });
-
-                 socket.on('reboot', function(crypt) {
-                     if(crypt == 'dingo') {
-                         console.log('!!! DESTROY THE MAP!!!');
-                         users = [];
-                         objects = [];
-                         dandSpace.emit('reboot')
-                     }
-                 });
-
-
-                 //PHYS
-
-                 socket.on('physReset', function() {
-                     //io.sockets.emit('chat',id,message);
-                     //boxBody.position.set(0,0,100)
-                     //boxBody.velocity.set(0,0,0)
-                     physArray.forEach(o => {
-                         o.position.set(0, 0, 100)
-                         o.velocity.set(0, 0, 0)
-                     })
-                 });
-
-                 socket.on('physMake', function(size, mass, pos,type,color,model) {
-                     let id = addPhys(size, mass, pos,type,color,model); 
-                     dandSpace.emit('physMake', id, size, mass, pos,type,color,model)
-                     console.log('made obj')
-                 });
-                 socket.on('physInit', function() {
-                     console.log('send phys init data')
-                     socket.emit('physInit', physInits)
-                 });
-             }
-         })
-
-     });
-
-     function getUserId(session) {
-         if(session) {
-             let user = USERS[session.id];
-             if(user) {
-                 return user.id
-             }
-         }
-     }
-
-     function getUsername(session) {
-         if(session) {
-             let user = USERS[session.id];
-             if(user) {
-                 return user.username
-             }
-         }
-     }
-
-     function evaluateUser(session, callback) {
-         let username = getUsername(session)
-         if(!username) {
-             pullUser(session.id, result => {
-                 if(result) {
-                     USERS[session.id] = result;
-                     callback(result.username)
-                 } else {
-                     callback(undefined)
-                 }
-             })
-         } else {
-             callback(username)
-         }
-
-     }
-
-     //older method
-     function createUser(channel, player, versionMatch) {
-         count++;
-         player.model = undefined;
-         player.path = undefined;
-         player.id = count;
-         player.layer = 0;
-         /*let obj={
+
+
+
+    const CANNON = require('./cannon.min')
+
+    app.use(express.static(__dirname + '/public'));
+    //app.use('dev.makeavoy.com', express.static(__dirname + '/public'))
+
+    app.get('/*', function(req, res, next) {
+        res.setHeader('Last-Modified', (new Date()).toUTCString());
+        res.setHeader('Cache-Control', 'no-cache'); //max-age=14400');
+        res.header('Content-Security-Policy', "img-src 'self'");
+        next();
+    });
+
+    app.post('/login', function(req, res, next) {
+        passport.authenticate('local', function(error, user, info) {
+
+            console.log('* session ', req.sessionID)
+            if(user) {
+                console.log('- login for ', user.username, ':', user.id)
+            } else {
+                console.log('- bad login'.yellow)
+            }
+
+            if(error) {
+                res.status(401).send({ message: error });
+            } else if(!user) {
+                res.status(401).send({ message: info });
+            } else {
+                user.sessionID = req.sessionID;
+                user.online = true;
+                USERS[req.sessionID] = user;
+                user.save();
+                res.status(200).send({ id: user.id, message: 'logged in!' });
+                //next();
+            }
+        })(req, res);
+        //},
+    });
+
+    //function(req, res) {
+    //    res.status(200).send({ message: 'logged in!' });
+    //});
+
+    app.post('/getUsers', function(req, res, next) {
+        console.log('* sending users ', possibleUsers.length)
+        res.send({ users: possibleUsers });
+    })
+    app.post('/lastChats', function(req, res, next) {
+        res.send({ array: lastChats });
+    })
+    app.post('/grid', function(req, res, next) {
+        res.send({ grid: grid });
+    })
+
+
+
+
+
+
+
+
+    const dandSpace = io.of('/dand-dev'); ///'/dand-dev');
+
+    dandSpace.use(function(socket, next) {
+        console.log('* passed session through io socket')
+        sessionObj(socket.request, {}, next); //socket.request.res || {}
+    });
+
+
+    // dandSpace.use((socket, next) => {
+    //     // ensure the user has sufficient rights
+    //     next();
+    // });
+
+
+    // adminNamespace.on('connection', socket => {
+    //   socket.on('delete user', () => {
+
+    //   });
+    // });
+
+
+    var users = [];
+    var sockets = [];
+    var objects = [{ x: 60, y: 0, z: 60, type: 'tree', layer: 0, owner: 0 }];
+    var count = -1;
+    var objCount = 0; //below the current count for lazy indexing reasons
+
+    const version = [0, 16, 10];
+    console.log('_game version ' + version[0] + '.' + version[1] + '.' + version[2]);
+    //createObject({x:20,y:20,z:0,type:'tree',layer:0,owner:0});
+
+
+    var world;
+    var boxBody;
+
+
+    dandSpace.on('connection', function(socket) {
+        console.log('* connecting...');
+        if(!socket.request.session) {
+            console.log("! socket session doesn't exist!".red);
+            return;
+        }
+
+        console.log('socket session id ', socket.request.session.id)
+        evaluateUser(socket.request.session, username => {
+
+            if(!username) {
+                socket.disconnect('reauth');
+                console.log('- kicked null user'.yellow)
+            } else {
+                //socket nodes
+
+                console.log('-socket connected to user:', username);
+                let user = USERS[socket.request.session.id];
+
+                socket.broadcast.emit('join', user ? user.username : 'Unknown');
+
+                socket.on('disconnect', function() {
+                    if(socket.request.session.id) {
+                        let user = USERS[socket.request.session.id];
+                        user.online = false;
+                        user.save();
+                    }
+                    console.log('lost connection to user')
+                });
+                socket.on('message', function(m) {
+                    let userId = getUserId(socket.request.session);
+                    lastChats.push([userId, m]);
+                    if(lastChats.length > 10)
+                        lastChats.shift()
+                    dandSpace.emit('message', userId, m)
+                    /*User.findOne({ which: { username: user } }).then(o => {
+                        console.log('messaged with id ', o ? o.username : undefined, " message: ", m);
+                    })*/
+                });
+                socket.on('terrain', function(id, chunk, data) {
+                    grid = data;
+                    socket.broadcast.emit('terrain', id, chunk, data);
+                    console.log('- terrain sync length ', data.length)
+                })
+                socket.on('sendPhys', function(obj, floating) {
+                    let target = physArray[obj.id]
+                    if(target) {
+                        target.position.copy(obj.position)
+                        target.quaternion.copy(obj.quaternion)
+
+                        if(floating){
+                            target.sleep();
+                        } else{
+                            target.velocity.copy(obj.velocity)
+                            target.angularVelocity.copy(obj.angularVelocity)
+                            target.wakeUp();
+                        }
+                        socket.broadcast.emit('sendPhys', obj,floating);
+                    }
+                })
+
+                //body.position, body.quaternion, body.velocity, body.angularVelocity,body.sleepObj
+
+
+
+
+
+
+                socket.on('init', function(major, minor, partial, data) {
+                    if(data) {
+                        //let versionMatch=(major>=version[0]) && (minor>=version[1]) && (partial>=version[2])
+                        //createUser(socket,data,versionMatch);
+                        socket.broadcast.emit('move', move);
+                    }
+                });
+                /*
+                socket.on('disconnect', function() {
+                    let id = sockets.indexOf(socket);
+                    if(id >= 0) {
+                        let player = users[id];
+                        console.log('user ' + player.name + ' disconnected');
+                        socket.broadcast.emit('disconnected', id);
+                        users[id].dead = true;
+                        sockets[id] = null;
+                    }
+                });*/
+
+                socket.on('move', function(move) {
+                    console.log('move ready, player ' + move.id);
+                    if(move.path) {
+                        //console.log('path final x: ' + move.path[move.path.length-1].x);
+                        if(move.id) {
+                            users[move.id].path = move.path;
+                            socket.broadcast.emit('move', move);
+                        }
+                    }
+                });
+
+                socket.on('enter', function(id, door) {
+                    socket.broadcast.emit('enter', id, door);
+                });
+                socket.on('make', function(obj) {
+                    obj.id = createObject(obj);
+                    dandSpace.emit('make', obj) //io.sockets
+                });
+
+                socket.on('chat', function(id, message) {
+                    dandSpace.emit('chat', id, message);
+                });
+
+                socket.on('reboot', function(crypt) {
+                    if(crypt == 'dingo') {
+                        console.log('!!! DESTROY THE MAP!!!');
+                        users = [];
+                        objects = [];
+                        dandSpace.emit('reboot')
+                    }
+                });
+
+
+                //PHYS
+
+                socket.on('physReset', function() {
+                    //io.sockets.emit('chat',id,message);
+                    //boxBody.position.set(0,0,100)
+                    //boxBody.velocity.set(0,0,0)
+                    physArray.forEach(o => {
+                        o.position.set(0, 0, 100)
+                        o.velocity.set(0, 0, 0)
+                    })
+                });
+
+                socket.on('physMake', function(size, mass, pos, type, color, model) {
+                    let id = addPhys(size, mass, pos, type, color, model);
+                    dandSpace.emit('physMake', id, size, mass, pos, type, color, model)
+                    console.log('made obj')
+                });
+                socket.on('physInit', function() {
+                    console.log('send phys init data')
+                    socket.emit('physInit', physInits,physData)
+                });
+            }
+        })
+
+    });
+
+    function getUserId(session) {
+        if(session) {
+            let user = USERS[session.id];
+            if(user) {
+                return user.id
+            }
+        }
+    }
+
+    function getUsername(session) {
+        if(session) {
+            let user = USERS[session.id];
+            if(user) {
+                return user.username
+            }
+        }
+    }
+
+    function evaluateUser(session, callback) {
+        let username = getUsername(session)
+        if(!username) {
+            pullUser(session.id, result => {
+                if(result) {
+                    USERS[session.id] = result;
+                    callback(result.username)
+                } else {
+                    callback(undefined)
+                }
+            })
+        } else {
+            callback(username)
+        }
+
+    }
+
+    //older method
+    function createUser(channel, player, versionMatch) {
+        count++;
+        player.model = undefined;
+        player.path = undefined;
+        player.id = count;
+        player.layer = 0;
+        /*let obj={
     path:undefined,
     id:count,
     color:data.color,
     layer:0
     };*/
-         channel.emit('init', versionMatch, count, users, objects);
-         channel.broadcast.emit('join', player);
-         users[count] = player;
-         sockets[count] = channel;
-         console.log('created user ' + player.name + ' and emitted to them');
-         return count;
-     }
+        channel.emit('init', versionMatch, count, users, objects);
+        channel.broadcast.emit('join', player);
+        users[count] = player;
+        sockets[count] = channel;
+        console.log('created user ' + player.name + ' and emitted to them');
+        return count;
+    }
 
-     function createObject(obj) {
-         objCount++;
-         objects[objCount] = obj
-         return objCount;
-     }
+    function createObject(obj) {
+        objCount++;
+        objects[objCount] = obj
+        return objCount;
+    }
 
-     var physIDs = [];
-     var physArray = []
-     var physCounter = 0;
+    var physIDs = [];
+    var physArray = []
+    var physCounter = 0;
 
-     var posArray = [];
-     var physData = []
-     var physInits = []
+    var posArray = [];
+    var physData = []
+    var physInits = []
 
-     var physTick = 0;
+    var physTick = 0;
 
-     var sleeping
-     var physStep=1 / 30;
+    var sleeping
+    var physStep = 1 / 20;
 
-     function addPhys(size, mass, pos,type,color) {
-         let body = new CANNON.Body({ mass: mass });
-         let shape;
-         if(type)
-            shape = new CANNON.Cylinder( size.x, size.y, size.z,6);
+    function addPhys(size, mass, pos, type, color) {
+        let body = new CANNON.Body({ mass: mass });
+        let shape;
+        if(type)
+            shape = new CANNON.Cylinder(size.x, size.y, size.z, 6);
         else
-          shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+            shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
 
-         body.addShape(shape);
-         body.position.set(pos.x, pos.y, pos.z);
-         let id = physCounter;
-         body.id = id;
-         physIDs.push(id)
-         physArray[id] = body;
-         world.addBody(body);
-         physCounter++;
+        body.addShape(shape);
+        body.position.set(pos.x, pos.y, pos.z);
+        body.sleepObj={value:0}
+        let id = physCounter;
+        body.id = id;
+        physIDs.push(id)
+        physArray[id] = body;
+        world.addBody(body);
+        physCounter++;
 
-         physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity,type,color])
-         physInits.push([id, size, mass])
-         return id;
-     }
+        physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity,body.sleepObj])
+        physInits.push([id, size, mass,type, color])
+        return id;
+    }
 
-     function initCannon() {
-         world = new CANNON.World();
-         world.quatNormalizeSkip = 0;
-         world.quatNormalizeFast = false;
-         world.allowSleep = true;
+    function initCannon() {
+        world = new CANNON.World();
+        world.quatNormalizeSkip = 0;
+        world.quatNormalizeFast = false;
+        world.allowSleep = true;
 
-         world.gravity.set(0, 0, -10);
-         world.broadphase = new CANNON.NaiveBroadphase();
+        world.gravity.set(0, 0, -10);
+        world.broadphase = new CANNON.NaiveBroadphase();
 
-         let groundShape = new CANNON.Plane();
-         let groundBody = new CANNON.Body({ mass: 0 });
-         groundBody.addShape(groundShape);
-         world.addBody(groundBody);
-
-
-         /*let boxShape = new CANNON.Box(new CANNON.Vec3(1,1,2));
-                  
-         boxBody = new CANNON.Body({ mass: 2 });
-         boxBody.addShape(boxShape);
-         boxBody.position.set(0,0,60);
-         world.addBody(boxBody);*/
-         setInterval(function() {
-             updatePhysics()
-             if(!sleeping) {
-                 if(physTick >= 10) {
-                     dandSpace.emit('physUpdate', physData);
-                     physTick = 0;
-                 }
-                 physTick++;
-             }
-
-         }, 10)
-
-     }
+        let groundShape = new CANNON.Plane();
+        let groundBody = new CANNON.Body({ mass: 0 });
+        groundBody.addShape(groundShape);
+        world.addBody(groundBody);
 
 
+        /*let boxShape = new CANNON.Box(new CANNON.Vec3(1,1,2));
+                 
+        boxBody = new CANNON.Body({ mass: 2 });
+        boxBody.addShape(boxShape);
+        boxBody.position.set(0,0,60);
+        world.addBody(boxBody);*/
+        setInterval(function() {
+            updatePhysics()
+            if(!sleeping) {
+                if(physTick >= 120) {
+                    dandSpace.emit('physUpdate', physData);
+                    physTick = 0;
+                }
+                physTick++;
+            }
 
-     function updatePhysics() {
-         let array = Object.values(physArray);
-         let awakeCount = 0;
-         array.forEach(obj => {
-             if(obj.sleepState == 0) { //active
-                 awakeCount++;
-             }
-         })
-         //console.log('sleep ',awakeCount)
+        }, 1)
 
-
-         sleeping = awakeCount <= 0
-         /*bodies[0].position.set(point.x,point.y,point.z)
-         bodies[0].velocity.set(0,0,0)
-         bodies[0].angularDamping=1
-         bodies[0].inertia.set(0,0,0)*/
-
-         world.step(physStep);
-     }
-     initCannon();
+    }
 
 
- }
+
+    function updatePhysics() {
+        let array = Object.values(physArray);
+        let awakeCount = 0;
+        array.forEach(obj => {
+            obj.sleepObj.value=obj.sleepState
+            if(obj.sleepState == 0) { //active
+                awakeCount++;
+            }
+        })
+        //console.log('sleep ',awakeCount)
+
+
+        sleeping = awakeCount <= 0
+        /*bodies[0].position.set(point.x,point.y,point.z)
+        bodies[0].velocity.set(0,0,0)
+        bodies[0].angularDamping=1
+        bodies[0].inertia.set(0,0,0)*/
+
+        world.step(physStep);
+    }
+    initCannon();
+
+
+}

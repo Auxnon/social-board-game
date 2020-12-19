@@ -1,6 +1,7 @@
 
 import * as HexManager from "./HexManager.js";
 import * as Environment from "./Environment.js";
+import * as Render from "./Render.js";
 
 let settings;
 function init() {
@@ -99,7 +100,7 @@ function addButton(text, callback, reference, possibleValues) {
     callback(defaultState)
 }
 
-function updateSetings(){
+function updateSettings(){
     
 }
 

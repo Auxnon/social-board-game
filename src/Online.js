@@ -17,7 +17,7 @@ var pendingLogin;
 function initSocket() {
     window.m = m;
     console.log('trying auth...');
-    pendingLogin=UI.systemMessage('attempting communications...','net',true)
+    pendingLogin = UI.systemMessage('attempting communications...', 'net', true)
     socket = io('/dand-dev')
     /*.connect('', { //,{transports: ['websocket'],secure: true}
         reconnection: true,
@@ -25,8 +25,8 @@ function initSocket() {
     });*/
     //socket = io(':443/dand-dev')
 
-    	/*&'makeavoy.com',{
-    	transports: ['websocket','xhr-polling']
+    /*&'makeavoy.com',{
+        transports: ['websocket','xhr-polling']
     });*/
     //.connect('/dand-dev',{ secure: true, transports: [ "flashsocket","polling","websocket" ] });
     //https://makeavoy.com/dand-dev
@@ -39,7 +39,7 @@ function initSocket() {
         console.log('connected')
         socket.emit('physInit')
         pendingLogin.remove();
-        pendingLogin=undefined;
+        pendingLogin = undefined;
     });
 
     socket.on('event', function(data) {});
@@ -60,18 +60,21 @@ function initSocket() {
         Chat.hook(userId, m)
     });
     socket.on('join', function(username) {
-    	Chat.makeDivider(username+' has joined!')
+        Chat.makeDivider(username + ' has joined!')
     });
 
-    socket.on('terrain', function(id,chunk,data) {
-    	//Chat.makeDivider(username+' has joined!')
-    	HexManager.updateTerrain(chunk,data)
+    socket.on('terrain', function(id, chunk, data) {
+        //Chat.makeDivider(username+' has joined!')
+        HexManager.updateTerrain(chunk, data)
     });
 
 
 
     //socket.emit('init','hi')
 
+    socket.on('sendPhys', function(obj,floating) {
+        Physics.remoteAdjustPhys(obj,floating)
+    });
     socket.on('physUpdate', function(data) {
         //Physics.setPlayer()
         if(physReady) {
@@ -81,17 +84,18 @@ function initSocket() {
             console.log('!!!phys IGNORED')
 
     })
-    socket.on('physInit', function(data) {
+    socket.on('physInit', function(inits,data) {
         Physics.clearPhys();
-        data.forEach(item => {
-            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 })
+        inits.forEach((item,i) => {
+            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },item[3],item[4])
         })
+        Physics.syncOnline(data)
         physReady = true;
     })
 
 
-    socket.on('physMake', function(id, size, mass, pos,type,color,model) {
-        Physics.makePhys(id, size, mass, pos,type,color,model)
+    socket.on('physMake', function(id, size, mass, pos, type, color, model) {
+        Physics.makePhys(id, size, mass, pos, type, color, model)
         console.log('made')
     })
 
@@ -99,21 +103,12 @@ function initSocket() {
     getGrid();
 }
 
-function makePhys(size, mass, pos,type,color,model) {
-    socket.emit('physMake', size, mass, pos,type,color,model);
-}
-
-function resetPhys() {
-    socket.emit('physReset');
-}
-
-
 
 /*
 function init(){
-	document.querySelector('#test').disabled=true;
-	document.querySelector('#test').addEventListener('click',sendMessage)
-	document.querySelector('#button').addEventListener('click',onclick)
+    document.querySelector('#test').disabled=true;
+    document.querySelector('#test').addEventListener('click',sendMessage)
+    document.querySelector('#button').addEventListener('click',onclick)
 }init()*/
 
 
@@ -141,8 +136,8 @@ function login(username, pass) {
             initSocket();
         }
     }).catch(e => {
-    	UI.systemMessage(e,'error')
-        console.error('ERROR ',e);
+        UI.systemMessage(e, 'error')
+        console.error('ERROR ', e);
     });
 }
 
@@ -160,13 +155,14 @@ function lastChats() {
             return response.json();
     }).then(function(data) {
         if(data) {
-        	Chat.lastChats(data.array)
+            Chat.lastChats(data.array)
         }
     }).catch(e => {
-    	UI.systemMessage(e,'error')
-        console.error('ERROR ',e);
+        UI.systemMessage(e, 'error')
+        console.error('ERROR ', e);
     });
 }
+
 function getGrid() {
     fetch('/grid', {
         method: 'post',
@@ -181,16 +177,23 @@ function getGrid() {
             return response.json();
     }).then(function(data) {
         if(data) {
-        	if(data.grid.length>0)
-        		HexManager.updateTerrain(0,data.grid)
+            if(data.grid.length > 0)
+                HexManager.updateTerrain(0, data.grid)
         }
     }).catch(e => {
-    	UI.systemMessage(e,'error')
-        console.error('ERROR ',e);
+        UI.systemMessage(e, 'error')
+        console.error('ERROR ', e);
     });
 }
 
 
+function makePhys(size, mass, pos, type, color, model) {
+    socket.emit('physMake', size, mass, pos, type, color, model);
+}
+
+function resetPhys() {
+    socket.emit('physReset');
+}
 
 function message(string) {
     socket.emit('message', string);
@@ -202,13 +205,14 @@ function m(st) {
     socket.emit('message', st);
 }
 
-function terrain(chunk,data){
-	socket.emit('terrain', PlayerManager.getOwnPlayer().id,chunk,data);
+function terrain(chunk, data) {
+    socket.emit('terrain', PlayerManager.getOwnPlayer().id, chunk, data);
 }
 
-function sendPhys(obj){
-	         //physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity])
-	
-	socket.emit('sendPhys',{id:obj.id,position:obj.position});
+function sendPhys(obj, floating) {
+    //physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity])
+
+    socket.emit('sendPhys', { id: obj.id, position: obj.position,velocity:obj.velocity,quaternion:obj.quaternion,angularVelocity:obj.angularVelocity }, floating);
 }
-export { login, makePhys, resetPhys, message,terrain,sendPhys }
+
+export { login, makePhys, resetPhys, message, terrain, sendPhys }

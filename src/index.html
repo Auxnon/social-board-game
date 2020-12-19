@@ -75,7 +75,7 @@
 
 
 
-    .card {
+    .card,#closeCard{
         position: absolute;
         background-color: #4158D0;
         /*background-image: linear-gradient(156deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);*/
@@ -331,10 +331,43 @@
         background-color: #ADF6EE;
         background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>');
     }
+    #closeCard{
+        transition: opacity 0.2s;
+        background-color: #5553;
+         background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
+    }
+
+    .card-notifier{
+        display: block !important;
+        width: 16px;
+        height: 16px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 8px;
+        background-color: orange;
+        color: white;
+        text-align: center;
+        position: absolute;
+        right: 4px;
+        bottom: 4px;
+        content: '1';
+    }
+    @keyframes attention{
+        0%{
+
+        }
+        50%{
+            transform: translate(-50%,-80%);
+        }
+        0%{
+
+        }
+    }
+
 
     
 
-    .settingsPane{
+.settingsPane{
     width: 400px;
     height: 400px;
     background: #fff7;
@@ -770,6 +803,7 @@ form{
         <div id="bar">
             <div id="barHandle"></div>
         </div>
+        
         <div class="card" id="healthCard"></div>
         <div class="card" id="inventoryCard"></div>
         <div class="card" id="chatCard"></div>
@@ -796,6 +830,8 @@ form{
         </div>
         <div class="card" id="npcCard"></div>
         <div class="card" id="weatherCard"></div>
+
+        <div id="closeCard"></div>
         <svg id='navLine' fill="none" stroke-width="6" stroke-linecap="round">
             <path d="M0 0 L 0 2" />
         </svg>

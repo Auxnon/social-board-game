@@ -10,8 +10,6 @@ var chatPane;
 //var chatBlock;
 var chatInput;
 
-
-
 function init(){
 	let mainDom=document.querySelector('#chatCard');
 	//let chatButton=document.createElement('div');
@@ -200,6 +198,7 @@ function hook(id,message){
 	if(!player)
 		player={username: 'Unknown',id:-1,color:'black'}
 	addBubble(message,player);
+	BarUI.setNotifier(2,1)
 	//makeEpic('test')
 }
 function lastChats(chats){
@@ -215,8 +214,7 @@ function openChat(){
 		//chatInput.focus();
 		//Control.lockMenu(true);
 	}
-			chatInput.focus();
-
+	chatInput.focus();
 }
 function closeChat(){
 	//chatBlock.style.left='100%';

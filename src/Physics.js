@@ -30,10 +30,11 @@ function init() {
     world = new CANNON.World();
     world.quatNormalizeSkip = 0;
     world.quatNormalizeFast = false;
+    world.allowSleep = true;
 
     world.gravity.set(0, 0, -10);
     world.broadphase = new CANNON.NaiveBroadphase();
-    
+
 
 
     // Create boxes
@@ -248,7 +249,7 @@ function makeFloor() {
     let groundBody = new CANNON.Body({ mass: 0 });
     groundBody.addShape(groundShape);
     world.addBody(groundBody);
-    
+
 }
 
 function applyQuaternion(v, q) { //ripped from threejs because i didnt feel like converting between cannojs types
@@ -380,7 +381,7 @@ function makePhys(id, size, mass, pos, type, color) {
     body.addShape(shape);
     body.position.set(pos.x, pos.y, pos.z);
     //body.rotation.x=Math.PI/2
-    body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+    //body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
 
     body.id = id;
     physIDs.push(id);
@@ -390,10 +391,11 @@ function makePhys(id, size, mass, pos, type, color) {
 
 
     let mesh;
-    if(type)
-        mesh = Render.cylinder(size.x , size.y , size.z*1.1 , pos.x, pos.y, pos.z,color)
-    else
-        mesh = Render.cubicColored(size.x * 2, size.y * 2, size.z * 2, pos.x, pos.y, pos.z,color)
+    if(type) {
+        mesh = Render.cylinder(size.x, size.y, size.z, pos.x, pos.y, pos.z, color)
+        //mesh.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+    } else
+        mesh = Render.cubicColored(size.x * 2, size.y * 2, size.z * 2, pos.x, pos.y, pos.z, color)
     Render.addModel(mesh);
     meshArray[id] = mesh;
 }
@@ -403,17 +405,28 @@ function makePhys(id, size, mass, pos, type, color) {
 function syncOnline(data) {
     data.forEach(stuff => {
         let p = physArray[stuff[0]];
-        /*interpolate(p.position,stuff[1])
-        interpolate(p.angularVelocity,stuff[4])
-        p.quaternion.copy(stuff[2])*/
+        if(p) {
+            /*interpolate(p.position,stuff[1])
+            interpolate(p.angularVelocity,stuff[4])
+            p.quaternion.copy(stuff[2])*/
 
-        interpolate(p.position, stuff[1], 4)
-        //p.position.copy(stuff[1])
-        p.quaternion.copy(stuff[2])
-        //p.velocity.copy(stuff[3])
-        interpolate(p.velocity, stuff[3])
+            //interpolate(p.position, stuff[1], 4)
+            p.position.copy(stuff[1])
+            p.quaternion.copy(stuff[2])
+            p.velocity.copy(stuff[3])
+            //interpolate(p.velocity, stuff[3])
 
-        p.angularVelocity.copy(stuff[4])
+            p.angularVelocity.copy(stuff[4])
+
+            if(p.sleepState != stuff[5]) {
+                if(stuff[5] == 2) {
+                    p.sleep();
+                } else if(p.sleepState == 2) {
+                    p.wakeUp();
+                }
+                //p.sleepState=stuff[5]
+            }
+        }
     })
 }
 
@@ -441,32 +454,66 @@ function clearPhys() {
 }
 var adjustDelay = 0;
 
-function adjustPhys(v) {
-    let ar = Object.values(physArray)
-    if(ar.length > 0) {
-        ar[0].position.copy(v)
+var carryTarget;
+
+function carryPhys(pos) {
+    if(carryTarget == undefined) {
+
+    } else if(carryTarget != -1) {
+
+
+        let p = carryTarget;
+
+        p.position.copy(pos)
+        p.position.z += 6;
+        p.sleep();
         adjustDelay++;
         if(adjustDelay > 10) {
             adjustDelay = 0
-            Online.sendPhys(ar[0])
+            Online.sendPhys(p, true)
             console.log('send phys')
+        }
+
+    }
+}
+
+function remoteAdjustPhys(obj, floating) {
+    let p = carryTarget;
+    if(p && p != -1) {
+        p.position.copy(obj.position)
+        p.quaternion.copy(obj.quaternion)
+        if(floating) {
+            //p.velocity.copy(obj.velocity)
+            //p.angularVelocity.copy(obj.angularVelocity)
+            p.sleep()
+        } else {
+            p.velocity.copy(obj.velocity)
+            p.angularVelocity.copy(obj.angularVelocity)
+            p.wakeUp();
         }
     }
 }
 
-function dropPhys(v) {
-    let ar = Object.values(physArray)
-    if(ar.length > 0) {
-        ar[0].position.copy(v)
+function dropPhys(pos, vel) {
+    //let ar = Object.values(physArray)
+    //if(ar.length > 0) {
+    let p = physArray[id]
+    if(p) {
+        p.wakeUp();
+        p.position.copy(pos)
+        p.velocity.copy(vel)
+        p.position.z += 6;
         adjustDelay = 0
-        Online.sendPhys(ar[0])
+        Online.sendPhys(p, false)
         console.log('send phys NOW')
-
     }
 
+    //}
 }
-function createPhysicsDebugger(scene){
-    let cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
+
+
+function createPhysicsDebugger(scene) {
+    let cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
     return cannonDebugRenderer
 }
-export { init, updatePhysics, setPlayer, makePhys, clearPhys, syncOnline, adjustPhys, dropPhys,createPhysicsDebugger }
+export { init, updatePhysics, setPlayer, makePhys, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world }

@@ -116,7 +116,7 @@ function init() {
 
      //makeRoom(200,220,80,10)
 
-     Render.addModel(Render.plane(100,100,0))
+     //Render.addModel(Render.plane(100,100,0))
 
 
 
