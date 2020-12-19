@@ -160,7 +160,7 @@ function animate(){
     }*/
 
     //sunLight.position.z=200+tempHeight*4;
-    tempHeight=1;
+    
     let v=shadowMaxHeight*tempHeight
     sunTarget.position.y=sunCenter.y-v;
     sunLight.position.y=sunCenter.y+v;

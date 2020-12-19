@@ -23,7 +23,6 @@ function init() {
 
     window.onError = function(message, source, lineno, colno, error) {
         UI.systemMessage(message,'error')
-
     }
     Physics.init();
 
@@ -116,6 +115,8 @@ function init() {
     Settings.init();
 
      //makeRoom(200,220,80,10)
+
+     Render.addModel(Render.plane(100,100,0))
 
 
 

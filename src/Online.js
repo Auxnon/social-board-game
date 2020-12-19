@@ -90,8 +90,8 @@ function initSocket() {
     })
 
 
-    socket.on('physMake', function(id, size, mass, pos) {
-        Physics.makePhys(id, size, mass, pos)
+    socket.on('physMake', function(id, size, mass, pos,type,color,model) {
+        Physics.makePhys(id, size, mass, pos,type,color,model)
         console.log('made')
     })
 
@@ -99,8 +99,8 @@ function initSocket() {
     getGrid();
 }
 
-function makePhys(size, mass, pos) {
-    socket.emit('physMake', size, mass, pos);
+function makePhys(size, mass, pos,type,color,model) {
+    socket.emit('physMake', size, mass, pos,type,color,model);
 }
 
 function resetPhys() {

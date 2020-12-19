@@ -487,7 +487,7 @@
          let body = new CANNON.Body({ mass: mass });
          let shape;
          if(type)
-            shape = new CYLINDER.Box( size.x, size.y, size.z,6);
+            shape = new CANNON.Cylinder( size.x, size.y, size.z,6);
         else
           shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
 

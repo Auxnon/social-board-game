@@ -556,7 +556,7 @@ function angle(dx, dy) {
     if(theta < 0) theta = Math.PI * 2 + theta; // range [0, 360)
     return theta;
 }
-
+var tempy=0;
 function keyup(ev) {
     if(isMenuLocked()) {
         return false;
@@ -570,7 +570,8 @@ function keyup(ev) {
             case 51: Environment.changeShadowScale(2); break;
             case 52: Environment.changeShadowScale(3); break;
             case 53: Environment.changeShadowScale(4); break;
-            case 89: Online.makePhys({x:.5,y:.5,z:.5},2,{x:0,y:0,z:30});break;
+            case 84: Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
+            case 89: Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
             case 192:
                 { //DEV
                     window.pickTarget = Render.pick();

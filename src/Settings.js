@@ -1,10 +1,14 @@
 
 import * as HexManager from "./HexManager.js";
+import * as Environment from "./Environment.js";
 
 let settings;
 function init() {
 	settings=document.querySelector('.settingsPane')
     addButton('Toggle Hex Grid Lines', HexManager.setGrid);
+    addButton('Toggle Light Helper', Environment.setLightHelper);
+    addButton('Toggle Physics Mesh Helper', Render.togglePhysicsDebugger);
+
 }
 
 
@@ -93,6 +97,10 @@ function addButton(text, callback, reference, possibleValues) {
     row.appendChild(label);
     settings.appendChild(row);
     callback(defaultState)
+}
+
+function updateSetings(){
+    
 }
 
 

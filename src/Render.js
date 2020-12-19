@@ -10,6 +10,8 @@ import { GLTFLoader } from "./lib/GLTFLoader.js";
 import { EffectComposer } from './lib/EffectComposer.js';
 import { ShaderPass } from './lib/ShaderPass.js';
 import { SSAOPass } from './lib/SSAOPass.js';
+//import CannonDebugRenderer
+
 
 
 //import * as Control from "./Control.js?v=16";
@@ -57,6 +59,8 @@ var pointer;
 var hexSelector;
 var pointerMat;
 var pointerMatOn;
+
+var physDebugger;
 
 
 function init() {
@@ -180,12 +184,15 @@ function pointerInit(){
     pointer = new THREE.Mesh(pointerGeom,pointerMat);
     pointer.position.z=0.05;
     scene.add(pointer);
-
-
 }
 
 function getAlphaCanvas() {
     return alphaCanvas;
+}
+
+function togglePhysicsDebugger(){
+    if(!physDebugger)
+        physDebugger=Physics.createPhysicsDebugger(scene)
 }
 
 function loadModel(model, callback, texture, color) {
@@ -415,6 +422,37 @@ function cubic(i,j,k,x,y,z,c){
      cube.position.z=z?z:0;
      return cube;
 }
+function cubicColored(i,j,k,x,y,z,c){
+    if(!c)
+        c=defaultMat
+    else
+        c=new THREE.MeshBasicMaterial( { color:c } );
+
+    return cubic(i,j,k,x,y,z,c)
+}
+function cylinder(i,j,k,x,y,z,c){
+    let geometry = new THREE.CylinderGeometry( i, j, k, 6 );
+    if(!c)
+        c=defaultMat
+    else
+        c=new THREE.MeshBasicMaterial( { color:c } );
+
+    let cyl = new THREE.Mesh( geometry, c );
+    cyl.castShadow=true;
+    cyl.position.x=x?x:0;
+    cyl.position.y=y?y:0;
+    cyl.position.z=z?z:0;
+    return cyl;
+}
+
+function plane(i,j,k){
+    const geometry = new THREE.PlaneBufferGeometry( i, j);
+    const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    const plane = new THREE.Mesh( geometry, material );
+    return plane
+}
+
+
 function getRandomColor() {
     var letters = '0123456789ABCDEF';
     var color = Math.random() > 0.5 ? 0x66B136 : 0x76610E;
@@ -763,4 +801,4 @@ function setClearColor(a,b){
 
 
 export { init, addModel,removeModel,setClearColor,toggleScene,
-    addModel2,cubic,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player }
+    addModel2,cubic,cubicColored,cylinder,plane,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player,togglePhysicsDebugger }

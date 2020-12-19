@@ -25,14 +25,16 @@ function init() {
     meshes = [];
     particles = [];
     bullets = [];
-   
+
     // Setup our world
     world = new CANNON.World();
     world.quatNormalizeSkip = 0;
     world.quatNormalizeFast = false;
 
-    world.gravity.set(0,0,-10);
+    world.gravity.set(0, 0, -10);
     world.broadphase = new CANNON.NaiveBroadphase();
+    
+
 
     // Create boxes
     let mass = 4,
@@ -95,7 +97,7 @@ function init() {
     wallProperty.name = "wallProperty"
 
 
-     makeFloor();
+    makeFloor();
 
 }
 
@@ -246,6 +248,7 @@ function makeFloor() {
     let groundBody = new CANNON.Body({ mass: 0 });
     groundBody.addShape(groundShape);
     world.addBody(groundBody);
+    
 }
 
 function applyQuaternion(v, q) { //ripped from threejs because i didnt feel like converting between cannojs types
@@ -286,13 +289,13 @@ function updatePhysics() {
 
 
     for(var i = 0; i !== bodies.length; i++) {
-    	if(bodies[i].id!=undefined){
-    		let m=meshArray[bodies[i].id]
-    		m.position.copy(bodies[i].position);
-        	m.quaternion.copy(bodies[i].quaternion);
-    	}
-    	
-       
+        if(bodies[i].id != undefined) {
+            let m = meshArray[bodies[i].id]
+            m.position.copy(bodies[i].position);
+            m.quaternion.copy(bodies[i].quaternion);
+        }
+
+
         if(bodies[i].position.z < -100) {
             bodies[i].position.set(Math.random() * 80 - 40, Math.random() * 80 - 40, 100)
 
@@ -362,90 +365,108 @@ function setPlayer(position, quaternion, velocity) {
 
 ///ONLINE
 
-var physIDs=[];
-var physArray=[]
-var meshArray=[]
+var physIDs = [];
+var physArray = []
+var meshArray = []
 
-function makePhys(id,size, mass, pos) {
+function makePhys(id, size, mass, pos, type, color) {
     let body = new CANNON.Body({ mass: mass });
-    let boxShape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+    let shape;
+    if(type)
+        shape = new CANNON.Cylinder(size.x, size.y, size.z, 6);
+    else
+        shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
 
-    body.addShape(boxShape);
+    body.addShape(shape);
     body.position.set(pos.x, pos.y, pos.z);
-    
+    //body.rotation.x=Math.PI/2
+    body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+
     body.id = id;
-    physIDs.push(id)
+    physIDs.push(id);
     physArray[id] = body;
-    bodies.push(body)
+    bodies.push(body);
     world.addBody(body);
 
-    let mesh=Render.cubic(size.x*2,size.y*2,size.z*2,pos.x,pos.y,pos.z)
-    Render.addModel(mesh)
-    meshArray[id]=mesh
+
+    let mesh;
+    if(type)
+        mesh = Render.cylinder(size.x , size.y , size.z*1.1 , pos.x, pos.y, pos.z,color)
+    else
+        mesh = Render.cubicColored(size.x * 2, size.y * 2, size.z * 2, pos.x, pos.y, pos.z,color)
+    Render.addModel(mesh);
+    meshArray[id] = mesh;
 }
 
 
 
-function syncOnline(data){
-	data.forEach(stuff=>{
-		let p=physArray[stuff[0]];
-		/*interpolate(p.position,stuff[1])
-		interpolate(p.angularVelocity,stuff[4])
-		p.quaternion.copy(stuff[2])*/
+function syncOnline(data) {
+    data.forEach(stuff => {
+        let p = physArray[stuff[0]];
+        /*interpolate(p.position,stuff[1])
+        interpolate(p.angularVelocity,stuff[4])
+        p.quaternion.copy(stuff[2])*/
 
-        interpolate(p.position,stuff[1],4)
-		//p.position.copy(stuff[1])
-		p.quaternion.copy(stuff[2])
-		//p.velocity.copy(stuff[3])
-        interpolate(p.velocity,stuff[3])
+        interpolate(p.position, stuff[1], 4)
+        //p.position.copy(stuff[1])
+        p.quaternion.copy(stuff[2])
+        //p.velocity.copy(stuff[3])
+        interpolate(p.velocity, stuff[3])
 
-		p.angularVelocity.copy(stuff[4])
-	})
+        p.angularVelocity.copy(stuff[4])
+    })
 }
-function interpolate(a,b,z){
-	let m={x:a.x-b.x,y:a.y-b.y,z:a.z-b.z}
+
+function interpolate(a, b, z) {
+    let m = { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }
     if(!z)
-        z=2
-	a.x-=m.x/z
-	a.y-=m.y/z
-	a.z-=m.z/z
+        z = 2
+    a.x -= m.x / z
+    a.y -= m.y / z
+    a.z -= m.z / z
 }
 
 
-function clearPhys(){
-	meshArray.forEach(m=>{
-		Render.removeModel(m);
-	})
-	meshArray=[];
-	bodies.forEach(p=>{
-		world.remove(p);
-	})
-	bodies=[]
-	physIDs=[]
-	physArray=[];
+function clearPhys() {
+    meshArray.forEach(m => {
+        Render.removeModel(m);
+    })
+    meshArray = [];
+    bodies.forEach(p => {
+        world.remove(p);
+    })
+    bodies = []
+    physIDs = []
+    physArray = [];
 }
-var adjustDelay=0;
-function adjustPhys(v){
-    let ar=Object.values(physArray)
-    if(ar.length>0){
+var adjustDelay = 0;
+
+function adjustPhys(v) {
+    let ar = Object.values(physArray)
+    if(ar.length > 0) {
         ar[0].position.copy(v)
         adjustDelay++;
-        if(adjustDelay>10){
-            adjustDelay=0
+        if(adjustDelay > 10) {
+            adjustDelay = 0
             Online.sendPhys(ar[0])
             console.log('send phys')
         }
     }
 }
-function dropPhys(v){
-    let ar=Object.values(physArray)
-    if(ar.length>0){
+
+function dropPhys(v) {
+    let ar = Object.values(physArray)
+    if(ar.length > 0) {
         ar[0].position.copy(v)
-        adjustDelay=0
+        adjustDelay = 0
         Online.sendPhys(ar[0])
         console.log('send phys NOW')
-        
+
     }
 
 }
-export { init,updatePhysics, setPlayer,makePhys,clearPhys,syncOnline,adjustPhys,dropPhys }
+function createPhysicsDebugger(scene){
+    let cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
+    return cannonDebugRenderer
+}
+export { init, updatePhysics, setPlayer, makePhys, clearPhys, syncOnline, adjustPhys, dropPhys,createPhysicsDebugger }
