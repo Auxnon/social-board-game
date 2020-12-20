@@ -489,7 +489,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var physTick = 0;
 
     var sleeping
-    var physStep = 1 / 20;
+    var physStep = 1 / 30;
 
     function addPhys(size, mass, pos, type, color) {
         let body = new CANNON.Body({ mass: mass });

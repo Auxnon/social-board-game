@@ -2,6 +2,7 @@
 var users;
 var ownPlayer;
 
+
 function init(data){
 	users=[];
 	data.forEach(user=>{
@@ -21,5 +22,8 @@ function setOwnPlayer(id){
 	if(!ownPlayer)
 		throw new Error("player doesn't exist")
 }
+function getOwnColor(){
+	return parseInt('0x'+ownPlayer.color.substring(1))
+}
 
-export {init,getUser,getOwnPlayer,setOwnPlayer}
+export {init,getUser,getOwnPlayer,setOwnPlayer,getOwnColor}

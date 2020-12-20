@@ -47,12 +47,13 @@ function initSocket() {
         console.log('disconnected ', data)
         if(data.includes('disconnect')) {
             Login.show();
-            socket.io.opts.reconnection = false;
+            //socket.io.opts.reconnection = false;
         } else {
-            socket.connect('', {
+            pendingLogin=UI.systemMessage('lost connection, attempting reconnection...', 'net', true)
+            /*socket.connect('', {
                 reconnection: true,
                 reconnectionAttempts: 10
-            });
+            });*/
         }
     });
 

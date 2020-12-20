@@ -6,7 +6,8 @@ import * as Environment from "./Environment.js";
 import * as Online from "./Online.js";
 import * as Physics from "./Physics.js";
 import * as BarUI from "./BarUI.js";
-
+import * as Helper from "./Helper.js";
+import * as PlayerManager from "./PlayerManager.js";
 
 //import * as World from "./World.js";
 import {
@@ -577,8 +578,8 @@ function keyup(ev) {
             case 51: Environment.changeShadowScale(2); break;
             case 52: Environment.changeShadowScale(3); break;
             case 53: Environment.changeShadowScale(4); break;
-            case 84: Online.makePhys({x:2,y:2,z:3},2,{x:px,y:py,z:30},0,0x1200FF);break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
-            case 89: Online.makePhys({x:2,y:2,z:3},2,{x:px,y:py,z:30},1,0x52CB4C);break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
+            case 84: Online.makePhys({x:2,y:2,z:3},2,{x:px,y:py,z:30},0,PlayerManager.getOwnColor());break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
+            case 89: Online.makePhys({x:2,y:2,z:6},2,{x:px,y:py,z:30},1,PlayerManager.getOwnColor());break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
             case 192:
                 { //DEV
                     window.pickTarget = Render.pick();

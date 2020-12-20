@@ -707,6 +707,13 @@ function setNotifier(id, num) {
     }
 
 }
+function isFocused(id){
+    let app=apps[id]
+    if(app) 
+        return app.focused
+
+    return false;
+}
 
 
 export { pendApp, clearPendApp, apps, init, openApp, closeApp, hide,setNotifier }

@@ -398,6 +398,7 @@ function makePhys(id, size, mass, pos, type, color) {
         mesh = Render.cubicColored(size.x * 2, size.y * 2, size.z * 2, pos.x, pos.y, pos.z, color)
     Render.addModel(mesh);
     meshArray[id] = mesh;
+    mesh.physId = id;
 }
 
 
@@ -458,11 +459,26 @@ var carryTarget;
 
 function carryPhys(pos) {
     if(carryTarget == undefined) {
+        let closest;
+        let distance = 30;
+        meshArray.forEach(mesh => {
+            if(mesh.physId != undefined) {
+                let d = mesh.position.distanceTo(pos);
+                if(d < distance) {
+                    closest = mesh.physId
+                    distance = d;
+                }
+            }
 
+        })
+        if(closest != undefined)
+            carryTarget = physArray[closest]
+        else
+            carryTarget=-1;
     } else if(carryTarget != -1) {
 
-
         let p = carryTarget;
+        p.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1),0);
 
         p.position.copy(pos)
         p.position.z += 6;
@@ -478,8 +494,8 @@ function carryPhys(pos) {
 }
 
 function remoteAdjustPhys(obj, floating) {
-    let p = carryTarget;
-    if(p && p != -1) {
+    let p = physArray[obj.id];
+    if(p) {
         p.position.copy(obj.position)
         p.quaternion.copy(obj.quaternion)
         if(floating) {
@@ -497,18 +513,19 @@ function remoteAdjustPhys(obj, floating) {
 function dropPhys(pos, vel) {
     //let ar = Object.values(physArray)
     //if(ar.length > 0) {
-    let p = physArray[id]
-    if(p) {
-        p.wakeUp();
-        p.position.copy(pos)
-        p.velocity.copy(vel)
-        p.position.z += 6;
-        adjustDelay = 0
-        Online.sendPhys(p, false)
-        console.log('send phys NOW')
+    if(carryTarget && carryTarget!=-1) {
+        let p = carryTarget
+        if(p) {
+            p.wakeUp();
+            p.position.copy(pos)
+            p.velocity.copy(vel)
+            p.position.z += 6;
+            adjustDelay = 0
+            Online.sendPhys(p, false)
+            console.log('send phys NOW')
+        }
     }
-
-    //}
+    carryTarget = undefined
 }
 
 
