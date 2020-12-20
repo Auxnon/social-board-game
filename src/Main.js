@@ -105,7 +105,7 @@ function init() {
 
     let canvas = Render.init();
     HexManager.init();
-    Control.init();
+    //Control.init();
     PictureMaker.init();
 
     BarUI.init();

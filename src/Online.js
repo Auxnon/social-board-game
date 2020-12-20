@@ -7,6 +7,7 @@ import * as Login from "./Login.js";
 import * as Chat from "./Chat.js";
 import * as PlayerManager from "./PlayerManager.js";
 import * as HexManager from "./HexManager.js";
+import * as Control from "./Control.js";
 
 
 var socket;
@@ -102,6 +103,7 @@ function initSocket() {
 
     lastChats();
     getGrid();
+    Control.init();
 }
 
 

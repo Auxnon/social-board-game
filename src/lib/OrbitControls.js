@@ -130,11 +130,11 @@ var OrbitControls = function ( object, domElement ) {
 
 	this.reset = function () {
 
-		scope.target.copy( scope.target0 );
-		scope.object.position.copy( scope.position0 );
-		scope.object.zoom = scope.zoom0;
+		//scope.target.copy( scope.target0 ); //DEV todo ???
+		//scope.object.position.copy( scope.position0 );
+		//scope.object.zoom = scope.zoom0;
 
-		scope.object.updateProjectionMatrix();
+		//scope.object.updateProjectionMatrix();
 		scope.dispatchEvent( changeEvent );
 
 		scope.update();

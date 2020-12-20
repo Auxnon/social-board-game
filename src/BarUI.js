@@ -78,10 +78,8 @@ function openApp(id) {
         })
 
         if(app.id == 'landscapeCard') {
-            Control.secondaryTouchPan()
             Control.setLandscaping(true)
         } else {
-            Control.primaryTouchPan()
             Control.setLandscaping(false)
         }
         if(app.id == 'chatCard') {
@@ -603,8 +601,7 @@ function winMouseUp(ev) {
 
     if(targetMove) {
         targetMove.classList.remove('cardMove')
-        console.log(moveFactor)
-        if(moveFactor < 10) {
+        if(moveFactor < 20) {
             if(focused && focused == targetMove) {
                 targetMove.classList.remove('cardMax')
                 targetMove.focused = undefined;
@@ -612,13 +609,14 @@ function winMouseUp(ev) {
                 targetMove.style.zIndex = 2;
                 //window.history.pushState({}, '', '/');
 
-            } else {
+            }
+            // else {
+                
                 closeApp(true);
-
                 openApp(targetMove.appId);
 
                 //window.history.pushState({ appId: targetMove.appId }, targetMove.name, '?id=' + targetMove.appId + '&app=' + targetMove.id);
-            }
+            //}
         } else {
             barCalculate();
 

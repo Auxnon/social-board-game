@@ -31,6 +31,7 @@ var px = 0,
     pz = 0;
 var menuLocked = false;
 
+var velArray=[];
 var velocity={x:0,y:0,z:0};
 
 
@@ -134,6 +135,8 @@ function defineOrbital(renderDom, camera) {
 }
 
 function secondaryTouchPan() {
+        console.log('p2')
+
     orbital.touches = {
         ONE: 69, //PAN 
         TWO: THREE.TOUCH.DOLLY_PAN //DOLLY_ROTATE
@@ -142,6 +145,7 @@ function secondaryTouchPan() {
 }
 
 function primaryTouchPan() {
+    console.log('p1')
     orbital.touches = {
         ONE: THREE.TOUCH.PAN,
         TWO: THREE.TOUCH.DOLLY_ROTATE
@@ -151,6 +155,10 @@ function primaryTouchPan() {
 function setLandscaping(val) {
     landscaping = val;
     HexManager.toggleSelector(landscaping)
+    if(val)
+        secondaryTouchPan();
+    else
+        primaryTouchPan();
 }
 
 function getLandscaping() {
@@ -299,9 +307,13 @@ function down() {
     return mdown && !orbital.isControl();
 }
 
-var heldPhys=false;
+var heldPhys=0;
 function setVector(pos) {
-    velocity={x:-10*(px -pos.x),y: -10*(py - pos.y),z:-10*(pz - pos.z)};
+    let vel={x:(pos.x-px),y: (pos.y-py),z:(pos.z-pz)};
+    velArray.push(vel);
+    if(velArray.length>6)
+        velArray.shift();
+
     px = pos.x;
     py = pos.y;
     pz = pos.z;
@@ -309,19 +321,38 @@ function setVector(pos) {
         if(!mdown)
             HexManager.hexCheck(px, py)
 
-        //console.log(singleTouch)
 
         if(singleTouch || mdown)
             HexManager.hexPick(px, py)
     }else{
         if(singleTouch || mdown){
-            Physics.carryPhys(pos)
-            heldPhys=true
-        }else if(heldPhys){
-            Physics.dropPhys(pos,velocity);
+            heldPhys=Physics.carryPhys(pos)
+            if(heldPhys==1){
+                //orbital.dispatchEvent(  { type: 'change' } );
+                orbital.reset();
+                //orbital.state=-1;
+                secondaryTouchPan();
+            }
+        }else if(heldPhys>-1){
+            Physics.dropPhys(pos,calcVelocity());
             heldPhys=false;
+            heldPhys=-1;
+            primaryTouchPan();
+
         }
     }
+}
+function calcVelocity(){
+    let vel={x:0,y:0,z:0}
+    velArray.forEach(v=>{
+        vel.x+=v.x;
+        vel.y+=v.y;
+        vel.z+=v.z;
+    })
+    //vel.x/=velArray.length;
+    //vel.y/=velArray.length;
+    //vel.z/=velArray.length;
+    return vel;
 }
 var callback
 

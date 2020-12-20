@@ -370,7 +370,7 @@ var physIDs = [];
 var physArray = []
 var meshArray = []
 
-function makePhys(id, size, mass, pos, type, color) {
+function makePhys(id, size, mass, pos, type, color,model) {
     let body = new CANNON.Body({ mass: mass });
     let shape;
     if(type)
@@ -457,10 +457,13 @@ var adjustDelay = 0;
 
 var carryTarget;
 
+/** first pass, find nearest physical object, if found set carryTarget, return true, next pass move the carryTarget, and update it for remote players
+return true if carrying in first or nth passes, return false if couldnt find object within range, return values indicate controller can opt for carrying controls or normal controls
+**/
 function carryPhys(pos) {
     if(carryTarget == undefined) {
         let closest;
-        let distance = 30;
+        let distance = 6;
         meshArray.forEach(mesh => {
             if(mesh.physId != undefined) {
                 let d = mesh.position.distanceTo(pos);
@@ -471,10 +474,12 @@ function carryPhys(pos) {
             }
 
         })
-        if(closest != undefined)
+        if(closest != undefined){
             carryTarget = physArray[closest]
-        else
+            return 1;
+        }else{
             carryTarget=-1;
+        }
     } else if(carryTarget != -1) {
 
         let p = carryTarget;
@@ -489,8 +494,9 @@ function carryPhys(pos) {
             Online.sendPhys(p, true)
             console.log('send phys')
         }
-
+        return 1;
     }
+    return 0;
 }
 
 function remoteAdjustPhys(obj, floating) {

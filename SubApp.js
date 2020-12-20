@@ -538,7 +538,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         setInterval(function() {
             updatePhysics()
             if(!sleeping) {
-                if(physTick >= 120) {
+                if(physTick >= 360) {
                     dandSpace.emit('physUpdate', physData);
                     physTick = 0;
                 }
