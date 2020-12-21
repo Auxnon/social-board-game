@@ -8,6 +8,9 @@ import * as Physics from "./Physics.js";
 import * as BarUI from "./BarUI.js";
 import * as Helper from "./Helper.js";
 import * as PlayerManager from "./PlayerManager.js";
+import * as MakerMenu from "./MakerMenu.js";
+import * as AssetManager from "./AssetManager.js";
+
 
 //import * as World from "./World.js";
 import {
@@ -18,6 +21,7 @@ import * as THREE from "./lib/three.module.js";
 
 var vrEnabled;
 var landscaping = false;
+var maker = false;
 var touchCountDebounce = undefined;
 var singleTouch = false;
 
@@ -31,8 +35,8 @@ var px = 0,
     pz = 0;
 var menuLocked = false;
 
-var velArray=[];
-var velocity={x:0,y:0,z:0};
+var velArray = [];
+var velocity = { x: 0, y: 0, z: 0 };
 
 
 function init() {
@@ -96,30 +100,34 @@ function defineOrbital(renderDom, camera) {
         //zoom 180 scale 2
         //
         if(zoom < 30) {
-            if(zoomLevelToggle!=0)
-                Environment.changeShadowScale(0); zoomLevelToggle=0
-        }else if(zoom<100){
-            if(zoomLevelToggle!=1)
-                Environment.changeShadowScale(1); zoomLevelToggle=1
-         }else if(zoom<180){
-            if(zoomLevelToggle!=2)
-                Environment.changeShadowScale(2); zoomLevelToggle=2
-         }else{
-            if(zoomLevelToggle!=3)
-                Environment.changeShadowScale(3); zoomLevelToggle=3
-         }
-/*
-        if(zoom > 75) {
-            if(zoomLevelToggle != 2) {
-                zoomLevelToggle = 2;
-                //Environment.changeShadowScale(1); //DEV
-            }
+            if(zoomLevelToggle != 0)
+                Environment.changeShadowScale(0);
+            zoomLevelToggle = 0
+        } else if(zoom < 100) {
+            if(zoomLevelToggle != 1)
+                Environment.changeShadowScale(1);
+            zoomLevelToggle = 1
+        } else if(zoom < 180) {
+            if(zoomLevelToggle != 2)
+                Environment.changeShadowScale(2);
+            zoomLevelToggle = 2
         } else {
-            if(zoomLevelToggle != 1) {
-                zoomLevelToggle = 1;
-                //Environment.changeShadowScale(0);
-            }
-        }*/
+            if(zoomLevelToggle != 3)
+                Environment.changeShadowScale(3);
+            zoomLevelToggle = 3
+        }
+        /*
+                if(zoom > 75) {
+                    if(zoomLevelToggle != 2) {
+                        zoomLevelToggle = 2;
+                        //Environment.changeShadowScale(1); //DEV
+                    }
+                } else {
+                    if(zoomLevelToggle != 1) {
+                        zoomLevelToggle = 1;
+                        //Environment.changeShadowScale(0);
+                    }
+                }*/
         Environment.setShadowPos(orbital.target)
         //console.log('changed camera '+orbital.object.position.y)
     })
@@ -135,7 +143,7 @@ function defineOrbital(renderDom, camera) {
 }
 
 function secondaryTouchPan() {
-        console.log('p2')
+    console.log('p2')
 
     orbital.touches = {
         ONE: 69, //PAN 
@@ -152,17 +160,21 @@ function primaryTouchPan() {
     }
 }
 
-function setLandscaping(val) {
-    landscaping = val;
+function setLandscaping(bool) {
+    landscaping = bool;
     HexManager.toggleSelector(landscaping)
-    if(val)
+    if(bool)
         secondaryTouchPan();
-    else
-        primaryTouchPan();
 }
 
 function getLandscaping() {
     return landscaping;
+}
+
+function setMaker(bool) {
+    maker = bool;
+    if(bool)
+        secondaryTouchPan();
 }
 
 function defineVRControl(renderer) {
@@ -252,7 +264,7 @@ function touchend(ev) {
     endPointer();
 }
 
-function endPointer(){
+function endPointer() {
     if(landscaping)
         HexManager.refreshCount()
 
@@ -307,11 +319,13 @@ function down() {
     return mdown && !orbital.isControl();
 }
 
-var heldPhys=0;
+var heldPhys = 0;
+var lastRot = 0;
+
 function setVector(pos) {
-    let vel={x:(pos.x-px),y: (pos.y-py),z:(pos.z-pz)};
+    let vel = { x: (pos.x - px), y: (pos.y - py), z: (pos.z - pz) };
     velArray.push(vel);
-    if(velArray.length>6)
+    if(velArray.length > 6)
         velArray.shift();
 
     px = pos.x;
@@ -321,38 +335,61 @@ function setVector(pos) {
         if(!mdown)
             HexManager.hexCheck(px, py)
 
-
         if(singleTouch || mdown)
             HexManager.hexPick(px, py)
-    }else{
-        if(singleTouch || mdown){
-            heldPhys=Physics.carryPhys(pos)
-            if(heldPhys==1){
+    } else if(maker) {
+        if(singleTouch || mdown) {
+            let selected = MakerMenu.getSelection();
+            if(selected) {
+                singleTouch = false;
+                mdown = false;
+                calcRot();
+                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz+0.1 }, Physics.calcQuaterion(lastRot), 1, PlayerManager.getOwnPlayer().color, selected);
+                //let m = AssetManager.make(selected)
+                //m.position.set(px, py, pz)
+                //Render.addModel(m)
+            }
+        }
+
+
+    } else {
+        if(singleTouch || mdown) {
+            calcRot();
+            heldPhys = Physics.carryPhys(pos, lastRot)
+            if(heldPhys == 1) {
                 //orbital.dispatchEvent(  { type: 'change' } );
                 orbital.reset();
                 //orbital.state=-1;
                 secondaryTouchPan();
             }
-        }else if(heldPhys>-1){
-            Physics.dropPhys(pos,calcVelocity());
-            heldPhys=false;
-            heldPhys=-1;
+        } else if(heldPhys > -1) {
+            Physics.dropPhys(pos, calcVelocity());
+            heldPhys = false;
+            heldPhys = -1;
             primaryTouchPan();
 
         }
     }
 }
-function calcVelocity(){
-    let vel={x:0,y:0,z:0}
-    velArray.forEach(v=>{
-        vel.x+=v.x;
-        vel.y+=v.y;
-        vel.z+=v.z;
+
+function calcVelocity() {
+    let vel = { x: 0, y: 0, z: 0 }
+    velArray.forEach(v => {
+        vel.x += v.x;
+        vel.y += v.y;
+        vel.z += v.z;
     })
     //vel.x/=velArray.length;
     //vel.y/=velArray.length;
     //vel.z/=velArray.length;
     return vel;
+}
+
+function calcRot() {
+    let vel = calcVelocity();
+    let arc = Math.sqrt(vel.x * vel.x + vel.y * vel.y)
+    if(arc > 0.2)
+        lastRot = Math.PI / 2 + Math.atan2(vel.y, vel.x);
 }
 var callback
 
@@ -595,22 +632,41 @@ function angle(dx, dy) {
     if(theta < 0) theta = Math.PI * 2 + theta; // range [0, 360)
     return theta;
 }
-var tempy=0;
+var tempy = 0;
+
 function keyup(ev) {
     if(isMenuLocked()) {
         return false;
     } else {
         console.log(ev.which)
         switch (ev.which) {
-            case 13: BarUI.openApp(2);break; 
-            case 27: BarUI.closeApp();break;
-            case 49: Environment.changeShadowScale(0); break;
-            case 50: Environment.changeShadowScale(1); break;
-            case 51: Environment.changeShadowScale(2); break;
-            case 52: Environment.changeShadowScale(3); break;
-            case 53: Environment.changeShadowScale(4); break;
-            case 84: Online.makePhys({x:2,y:2,z:3},2,{x:px,y:py,z:30},0,PlayerManager.getOwnColor());break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
-            case 89: Online.makePhys({x:2,y:2,z:6},2,{x:px,y:py,z:30},1,PlayerManager.getOwnColor());break;//Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
+            case 13:
+                BarUI.openApp(2);
+                break;
+            case 27:
+                BarUI.closeApp();
+                break;
+            case 49:
+                Environment.changeShadowScale(0);
+                break;
+            case 50:
+                Environment.changeShadowScale(1);
+                break;
+            case 51:
+                Environment.changeShadowScale(2);
+                break;
+            case 52:
+                Environment.changeShadowScale(3);
+                break;
+            case 53:
+                Environment.changeShadowScale(4);
+                break;
+            case 84:
+                Online.makePhys({ x: 2, y: 2, z: 3 }, 2, { x: px, y: py, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 0, PlayerManager.getOwnPlayer().color, 'rock');
+                break; //Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
+            case 89:
+                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 1, PlayerManager.getOwnPlayer().color, 'man');
+                break; //Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
             case 192:
                 { //DEV
                     window.pickTarget = Render.pick();
@@ -821,5 +877,6 @@ export {
     secondaryTouchPan,
     primaryTouchPan,
     setLandscaping,
-    getLandscaping
+    getLandscaping,
+    setMaker,
 }

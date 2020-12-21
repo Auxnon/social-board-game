@@ -50,7 +50,7 @@ function initSocket() {
             Login.show();
             //socket.io.opts.reconnection = false;
         } else {
-            pendingLogin=UI.systemMessage('lost connection, attempting reconnection...', 'net', true)
+            pendingLogin = UI.systemMessage('lost connection, attempting reconnection...', 'net', true)
             /*socket.connect('', {
                 reconnection: true,
                 reconnectionAttempts: 10
@@ -74,8 +74,8 @@ function initSocket() {
 
     //socket.emit('init','hi')
 
-    socket.on('sendPhys', function(obj,floating) {
-        Physics.remoteAdjustPhys(obj,floating)
+    socket.on('sendPhys', function(obj, floating) {
+        Physics.remoteAdjustPhys(obj, floating)
     });
     socket.on('physUpdate', function(data) {
         //Physics.setPlayer()
@@ -86,18 +86,18 @@ function initSocket() {
             console.log('!!!phys IGNORED')
 
     })
-    socket.on('physInit', function(inits,data) {
+    socket.on('physInit', function(inits, data) {
         Physics.clearPhys();
-        inits.forEach((item,i) => {
-            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },item[3],item[4])
+        inits.forEach((item, i) => {
+            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },{ x: 0, y: 0, z: 0, w:0 }, item[3], item[4], item[5])
         })
         Physics.syncOnline(data)
         physReady = true;
     })
 
 
-    socket.on('physMake', function(id, size, mass, pos, type, color, model) {
-        Physics.makePhys(id, size, mass, pos, type, color, model)
+    socket.on('physMake', function(id, size, mass, pos, quat, type, color, model) {
+        Physics.makePhys(id, size, mass, pos, quat, type, color, model)
         console.log('made')
     })
 
@@ -190,8 +190,8 @@ function getGrid() {
 }
 
 
-function makePhys(size, mass, pos, type, color, model) {
-    socket.emit('physMake', size, mass, pos, type, color, model);
+function makePhys(size, mass, pos, quat, type, color, model) {
+    socket.emit('physMake', size, mass, pos, quat, type, color, model);
 }
 
 function resetPhys() {
@@ -215,7 +215,7 @@ function terrain(chunk, data) {
 function sendPhys(obj, floating) {
     //physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity])
 
-    socket.emit('sendPhys', { id: obj.id, position: obj.position,velocity:obj.velocity,quaternion:obj.quaternion,angularVelocity:obj.angularVelocity }, floating);
+    socket.emit('sendPhys', { id: obj.id, position: obj.position, velocity: obj.velocity, quaternion: obj.quaternion, angularVelocity: obj.angularVelocity }, floating);
 }
 
 export { login, makePhys, resetPhys, message, terrain, sendPhys }

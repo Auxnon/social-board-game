@@ -10,7 +10,7 @@ import { GLTFLoader } from "./lib/GLTFLoader.js";
 import { EffectComposer } from './lib/EffectComposer.js';
 import { ShaderPass } from './lib/ShaderPass.js';
 import { SSAOPass } from './lib/SSAOPass.js';
-import {CannonDebugRenderer} from './lib/CannonDebugRenderer.js';
+import { CannonDebugRenderer } from './lib/CannonDebugRenderer.js';
 
 //import CannonDebugRenderer
 
@@ -63,11 +63,12 @@ var pointerMat;
 var pointerMatOn;
 
 var physDebugger;
+var defaultModel;
 
 
 function init() {
 
-     
+
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
     camera.position.z = 200; //400
@@ -76,7 +77,7 @@ function init() {
 
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    scene= new THREE.Scene();
+    scene = new THREE.Scene();
     activeScene = scene;
 
     alphaCanvas = document.querySelector('.canvasHolder');
@@ -84,10 +85,10 @@ function init() {
 
 
 
-    renderer = new THREE.WebGLRenderer({  antialias: true ,alpha: true,}); //
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, }); //
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping 
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.outputEncoding = THREE.sRGBEncoding
 
     renderer.setClearColor(0xFF7F32, 1); //0xb0e9fd,1);//0xb0e9fd,1)
@@ -100,8 +101,8 @@ function init() {
 
     activeCanvas = alphaCanvas;
 
-    activeScene=scene;
-    activeCamera=camera;
+    activeScene = scene;
+    activeCamera = camera;
 
 
 
@@ -111,24 +112,24 @@ function init() {
     composer = new EffectComposer(renderer);
     //var luminosityPass = new ShaderPass(LuminosityShader);
     //composer.addPass(luminosityPass);
-    let ssaoPass = new SSAOPass( scene, camera, 300, 200);
+    let ssaoPass = new SSAOPass(scene, camera, 300, 200);
     ssaoPass.kernelRadius = 6;
-    ssaoPass.minDistance=0.00015;
-    ssaoPass.maxDistance=0.001;
-    composer.addPass( ssaoPass );
-    window.ssao=ssaoPass
+    ssaoPass.minDistance = 0.00015;
+    ssaoPass.maxDistance = 0.001;
+    composer.addPass(ssaoPass);
+    window.ssao = ssaoPass
 
 
 
-    let material= new THREE.MeshBasicMaterial( {color:0x75D5CE});
+    let material = new THREE.MeshBasicMaterial({ color: 0x75D5CE });
     new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
 
-    wood= new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
-    ground= new THREE.MeshStandardMaterial({ color: 0x5471A5, metalness: 0, roughness: 1.0 });
-    let guyMat= new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 }); 
-    defaultMat= new THREE.MeshStandardMaterial({ color: 0xCF2ADE, metalness: 0, roughness: 1.0 });
-    blood= new THREE.MeshStandardMaterial({ color: 0xB60B0B, metalness: 0, roughness: 1.0 }); 
-    yellow= new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 });
+    wood = new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
+    ground = new THREE.MeshStandardMaterial({ color: 0x5471A5, metalness: 0, roughness: 1.0 });
+    let guyMat = new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 });
+    defaultMat = new THREE.MeshStandardMaterial({ color: 0xCF2ADE, metalness: 0, roughness: 1.0 });
+    blood = new THREE.MeshStandardMaterial({ color: 0xB60B0B, metalness: 0, roughness: 1.0 });
+    yellow = new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 });
 
 
     //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("white")} );
@@ -138,51 +139,59 @@ function init() {
     scene.add( cube );*/
     group = new THREE.Group();
 
-/*
-    group.add(cubic(10,100,50,-50,0,50,wood));
-    group.add(cubic(10,100,50,50,0,50,wood));
-    group.add(cubic(100,10,50,0,50,50,wood));
-    group.add(cubic(100,100,10,0,0,20,ground));*/
+    /*
+        group.add(cubic(10,100,50,-50,0,50,wood));
+        group.add(cubic(10,100,50,50,0,50,wood));
+        group.add(cubic(100,10,50,0,50,50,wood));
+        group.add(cubic(100,100,10,0,0,20,ground));*/
 
-    player=new THREE.Group();
-    let whiteMat= new THREE.MeshBasicMaterial( {color: 0xFFFFFF, side: THREE.FrontSide} );
+    player = new THREE.Group();
+    let whiteMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.FrontSide });
 
-    let blackMat= new THREE.MeshBasicMaterial( {color: 0x321818, side: THREE.FrontSide} );
+    let blackMat = new THREE.MeshBasicMaterial({ color: 0x321818, side: THREE.FrontSide });
 
 
-    let p1=cubic(1,1,2,0,0,0,guyMat);
-    let p2=cubic(1,.2,1,0,.5,.5,whiteMat)
-    let p3=cubic(.3,.2,.3,0,.6,.5,blackMat)
+    let p1 = cubic(1, 1, 2, 0, 0, 0, guyMat);
+    let p2 = cubic(1, .2, 1, 0, .5, .5, whiteMat)
+    let p3 = cubic(.3, .2, .3, 0, .6, .5, blackMat)
 
     player.add(p1)
     player.add(p2)
     player.add(p3)
     group.add(player)
 
-    let referenceCube=cubic(.5,.5,1.5,0.75,0,20,new THREE.MeshBasicMaterial( { color:0xD62B5F } ))
+    let referenceCube = cubic(.5, .5, 1.5, 0.75, 0, 20, new THREE.MeshBasicMaterial({ color: 0xD62B5F }))
     group.add(referenceCube)
 
     scene.add(group)
     pointerInit();
     Environment.init();
-    Control.setRenderer(renderer,alphaCanvas,camera,false)
+    Control.setRenderer(renderer, alphaCanvas, camera, false)
+
+    let l = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    let r = new THREE.MeshBasicMaterial({ color: 0xff8800 });
+    let f = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    let b = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    let u = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    let d = new THREE.MeshBasicMaterial({ color: 0x8800ff });
+    let cub = new THREE.BoxBufferGeometry(1, 1, 1);
+    defaultModel = new THREE.Mesh(cub, [l, r, f, b, u, d]);
 
 
-    
-    setTimeout(function(){
+    setTimeout(function() {
         animate();
-    },1)
-    
+    }, 1)
+
     return alphaCanvas
 }
 
-function pointerInit(){
-    let pointerGeom = new THREE.CircleGeometry( 3, 8 );
+function pointerInit() {
+    let pointerGeom = new THREE.CircleGeometry(3, 8);
     //pointerGeom.rotateX(-Math.PI/2.0);
-    pointerMat = new THREE.MeshBasicMaterial( { color:0x4AE13A } );
-    pointerMatOn = new THREE.MeshBasicMaterial( { color:0xEBEE00 } );
-    pointer = new THREE.Mesh(pointerGeom,pointerMat);
-    pointer.position.z=0.05;
+    pointerMat = new THREE.MeshBasicMaterial({ color: 0x4AE13A });
+    pointerMatOn = new THREE.MeshBasicMaterial({ color: 0xEBEE00 });
+    pointer = new THREE.Mesh(pointerGeom, pointerMat);
+    pointer.position.z = 0.05;
     scene.add(pointer);
 }
 
@@ -190,10 +199,10 @@ function getAlphaCanvas() {
     return alphaCanvas;
 }
 
-function togglePhysicsDebugger(bool){
+function togglePhysicsDebugger(bool) {
 
     if(bool && !physDebugger)
-        physDebugger= new CannonDebugRenderer( scene, Physics.world ); //Physics.createPhysicsDebugger(scene)
+        physDebugger = new CannonDebugRenderer(scene, Physics.world); //Physics.createPhysicsDebugger(scene)
 }
 
 function loadModel(model, callback, texture, color) {
@@ -212,7 +221,7 @@ function loadModel(model, callback, texture, color) {
                         if(color)
                             child.material = new THREE.MeshStandardMaterial({ color: color, metalness: 0, roughness: 1.0 }); // 
                         else
-                            child.material = new THREE.MeshStandardMaterial({ vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0}); // 
+                            child.material = new THREE.MeshStandardMaterial({ vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0 }); // 
 
                         child.material.needsUpdate = true;
                         //child.material.skinning=true;
@@ -245,7 +254,7 @@ function loadModel(model, callback, texture, color) {
 
 
                         // }
-                        action = mixer.clipAction(animation);
+                        let action = mixer.clipAction(animation);
                         //action.setEffectiveTimeScale(200);
                         //action.timeScale=0.002;
                         action.timeScale = 0.002;
@@ -271,11 +280,11 @@ function loadModel(model, callback, texture, color) {
 function resize() {
     //Math.max(window.screen.width, window.innerWidth)
     //Math.max(window.screen.height, window.innerHeight)
-    if(window.screen.width> window.innerWidth){
-        docWidth =  window.innerWidth
+    if(window.screen.width > window.innerWidth) {
+        docWidth = window.innerWidth
         docHeight = window.innerHeight
-    }else{
-        docWidth =  window.screen.width
+    } else {
+        docWidth = window.screen.width
         docHeight = window.screen.height
     }
 
@@ -284,18 +293,19 @@ function resize() {
     camera.aspect = docWidth / docHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setPixelRatio(0.5);//window.devicePixelRatio / SIZE_DIVIDER);
+    renderer.setPixelRatio(0.5); //window.devicePixelRatio / SIZE_DIVIDER);
     renderer.setSize(docWidth, docHeight);
 }
 
-var dir=1;
+var dir = 1;
+
 function animate(time) {
-	Physics.updatePhysics();
+    Physics.updatePhysics();
     //group.rotation.z+=0.002*dir;
-    if(group.rotation.z>Math.PI/16)
-    	dir=-1;
-    else if(group.rotation.z<-Math.PI/16)
-    	dir=1;
+    if(group.rotation.z > Math.PI / 16)
+        dir = -1;
+    else if(group.rotation.z < -Math.PI / 16)
+        dir = 1;
 
     applyCursor()
     Environment.animate();
@@ -313,22 +323,22 @@ function dumpImage(img) {
         dom.setAttribute('src', img);
 }
 
-function bufferPrint(sc,cam) {
+function bufferPrint(sc, cam) {
     //renderer.setPixelRatio(0.2)
     //_grabImage=true;
-    
+
     //renderer.setPixelRatio(0.5)
 
     renderer.setSize(256, 256);
-    renderer.setClearColor(0xffffff,0)
+    renderer.setClearColor(0xffffff, 0)
 
-    if(sc && cam){
-        renderer.render(sc,cam);
-    }else    
+    if(sc && cam) {
+        renderer.render(sc, cam);
+    } else
         renderer.render(getScene(), camera);
     //dumpImage(renderer.domElement.toDataURL());
-     //renderer.setPixelRatio(0.5)
-    let m=renderer.domElement.toDataURL()
+    //renderer.setPixelRatio(0.5)
+    let m = renderer.domElement.toDataURL()
     renderer.setSize(docWidth, docHeight);
     return m;
 }
@@ -402,59 +412,64 @@ function createModel(index) {
     modelsIndexed[index] = model;
     return model;
 }
-function addModel(model){
-	group.add(model)
-}
-function addModel2(model){
-	scene.add(model)
-}
-function removeModel(model){
-	group.remove(model)
+
+function addModel(model) {
+    group.add(model)
 }
 
-function cubic(i,j,k,x,y,z,c){
-     let geometry = new THREE.BoxBufferGeometry( i,j,k );
-     if(!c)
-    	c=defaultMat
-
-    let cube = new THREE.Mesh( geometry, c );
-    cube.castShadow=true;
-
-     cube.position.x=x?x:0;
-     cube.position.y=y?y:0;
-     cube.position.z=z?z:0;
-     return cube;
+function addModel2(model) {
+    scene.add(model)
 }
-function cubicColored(i,j,k,x,y,z,c){
+
+function removeModel(model) {
+    group.remove(model)
+}
+
+function cubic(i, j, k, x, y, z, c) {
+    let geometry = new THREE.BoxBufferGeometry(i, j, k);
     if(!c)
-        c=defaultMat
-    else
-        c=new THREE.MeshBasicMaterial( { color:c } );
+        c = defaultMat
 
-    return cubic(i,j,k,x,y,z,c)
+    let cube = new THREE.Mesh(geometry, c);
+    cube.castShadow = true;
+
+    cube.position.x = x ? x : 0;
+    cube.position.y = y ? y : 0;
+    cube.position.z = z ? z : 0;
+    return cube;
 }
-function cylinder(i,j,k,x,y,z,c){
-    let geometry = new THREE.CylinderGeometry( i, j, k, 6 );
+
+function cubicColored(i, j, k, x, y, z, c) {
     if(!c)
-        c=defaultMat
+        c = defaultMat
     else
-        c=new THREE.MeshBasicMaterial( { color:c } );
+        c = new THREE.MeshBasicMaterial({ color: c });
 
-    geometry.rotateX(Math.PI/2)
-    geometry.rotateZ(Math.PI/2)
+    return cubic(i, j, k, x, y, z, c)
+}
 
-    let cyl = new THREE.Mesh( geometry, c );
-    cyl.castShadow=true;
-    cyl.position.x=x?x:0;
-    cyl.position.y=y?y:0;
-    cyl.position.z=z?z:0;
+function cylinder(i, j, k, x, y, z, c) {
+    let geometry = new THREE.CylinderGeometry(i, j, k, 6);
+    if(!c)
+        c = defaultMat
+    else
+        c = new THREE.MeshBasicMaterial({ color: c });
+
+    geometry.rotateX(Math.PI / 2)
+    geometry.rotateZ(Math.PI / 2)
+
+    let cyl = new THREE.Mesh(geometry, c);
+    cyl.castShadow = true;
+    cyl.position.x = x ? x : 0;
+    cyl.position.y = y ? y : 0;
+    cyl.position.z = z ? z : 0;
     return cyl;
 }
 
-function plane(i,j,k){
-    const geometry = new THREE.PlaneBufferGeometry( i, j);
-    const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-    const plane = new THREE.Mesh( geometry, material );
+function plane(i, j, k) {
+    const geometry = new THREE.PlaneBufferGeometry(i, j);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+    const plane = new THREE.Mesh(geometry, material);
     return plane
 }
 
@@ -480,8 +495,8 @@ function applyCursor() {
 
     pointer.position.x = pos.x;
     pointer.position.y = pos.y
-    pointer.position.z=2;
-   // console.log(pointer.position)
+    pointer.position.z = 2;
+    // console.log(pointer.position)
     Control.setVector(pointer.position);
 
 }
@@ -716,13 +731,14 @@ void main() {
 
 
 }
-function toggleScene(sc,cam){
-    if(cam && sc){
-        activeCamera=cam;
-        activeScene=sc;
-    }else{
-        activeScene=scene;
-        activeCamera=camera;
+
+function toggleScene(sc, cam) {
+    if(cam && sc) {
+        activeCamera = cam;
+        activeScene = sc;
+    } else {
+        activeScene = scene;
+        activeCamera = camera;
     }
 }
 
@@ -799,12 +815,38 @@ function getScene() {
 
 ///////////////
 
-function setClearColor(a,b){
-    renderer.setClearColor(a,b);
+function setClearColor(a, b) {
+    renderer.setClearColor(a, b);
+}
+
+function makeGroup() {
+    return new THREE.Group();
 }
 
 
 
 
-export { init, addModel,removeModel,setClearColor,toggleScene,
-    addModel2,cubic,cubicColored,cylinder,plane,wood,ground,blood,yellow, getAlphaCanvas, bufferPrint, loadModel, resize,player,togglePhysicsDebugger }
+export {
+    init,
+    addModel,
+    removeModel,
+    setClearColor,
+    toggleScene,
+    defaultModel,
+    makeGroup,
+    addModel2,
+    cubic,
+    cubicColored,
+    cylinder,
+    plane,
+    wood,
+    ground,
+    blood,
+    yellow,
+    getAlphaCanvas,
+    bufferPrint,
+    loadModel,
+    resize,
+    player,
+    togglePhysicsDebugger
+}

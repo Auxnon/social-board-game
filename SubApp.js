@@ -320,14 +320,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                         target.position.copy(obj.position)
                         target.quaternion.copy(obj.quaternion)
 
-                        if(floating){
+                        if(floating) {
                             target.sleep();
-                        } else{
+                        } else {
                             target.velocity.copy(obj.velocity)
                             target.angularVelocity.copy(obj.angularVelocity)
                             target.wakeUp();
                         }
-                        socket.broadcast.emit('sendPhys', obj,floating);
+                        socket.broadcast.emit('sendPhys', obj, floating);
                     }
                 })
 
@@ -402,14 +402,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     })
                 });
 
-                socket.on('physMake', function(size, mass, pos, type, color, model) {
-                    let id = addPhys(size, mass, pos, type, color, model);
-                    dandSpace.emit('physMake', id, size, mass, pos, type, color, model)
+                socket.on('physMake', function(size, mass, pos, quat, type, color, model) {
+                    let id = addPhys(size, mass, pos, quat, type, color, model);
+                    dandSpace.emit('physMake', id, size, mass, pos, quat, type, color, model)
                     console.log('made obj')
                 });
                 socket.on('physInit', function() {
                     console.log('send phys init data')
-                    socket.emit('physInit', physInits,physData)
+                    socket.emit('physInit', physInits, physData)
                 });
             }
         })
@@ -491,7 +491,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var sleeping
     var physStep = 1 / 30;
 
-    function addPhys(size, mass, pos, type, color) {
+    function addPhys(size, mass, pos, quat, type, color, model) {
         let body = new CANNON.Body({ mass: mass });
         let shape;
         if(type)
@@ -501,7 +501,12 @@ module.exports = function Game(app, express, server, io, sessionObj) {
 
         body.addShape(shape);
         body.position.set(pos.x, pos.y, pos.z);
-        body.sleepObj={value:0}
+        if(quat)
+            body.quaternion.copy(quat)
+
+        console.log(quat)
+
+        body.sleepObj = { value: 0 }
         let id = physCounter;
         body.id = id;
         physIDs.push(id)
@@ -509,8 +514,8 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         world.addBody(body);
         physCounter++;
 
-        physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity,body.sleepObj])
-        physInits.push([id, size, mass,type, color])
+        physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity, body.sleepObj])
+        physInits.push([id, size, mass, type, color, model])
         return id;
     }
 
@@ -555,7 +560,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         let array = Object.values(physArray);
         let awakeCount = 0;
         array.forEach(obj => {
-            obj.sleepObj.value=obj.sleepState
+            obj.sleepObj.value = obj.sleepState
             if(obj.sleepState == 0) { //active
                 awakeCount++;
             }

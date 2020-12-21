@@ -292,7 +292,7 @@
         background-color: #80F149;
         background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z"/></svg>');
     }
-    .cardMax#landscapeCard{
+    .cardMax#landscapeCard,.cardMax#npcCard{
         background-color: transparent;
         pointer-events: none;
         background-image:none;
@@ -309,6 +309,32 @@
         transform: translate(-50%,-50%);
         bottom: 100px;
         pointer-events: auto;
+    }
+    #makerBar{
+        width: 100%;
+        max-width: 620px;
+        height: 200px;
+        background-color: #ffffff55;
+        position: absolute;
+        border-radius: 16px;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        bottom: 100px;
+        pointer-events: auto;
+        overflow-y: scroll;
+    }
+
+    .makerIcon{
+        position: relative;
+        width: 56px;
+        height: 56px;
+        background-color: white;
+        border-radius: 8px;
+        display: inline-block;
+        margin: 8px;
+    }
+    .makerIcon *{
+        pointer-events: none;
     }
 
     
@@ -779,4 +805,4 @@ form{
 }
 .switchOn{
     background-image: url("../assets/round-toggle_on-24px.svg") !important;
-}</style></head><body><div id="main"><div class="canvasHolder"></div><div id="bar"><div id="barHandle"></div></div><div class="card" id="healthCard"></div><div class="card" id="inventoryCard"></div><div class="card" id="chatCard"></div><div class="card" id="settingsCard"><div class="settingsPane"></div></div><div class="card" id="landscapeCard"><div id="landscapeBar"><div class="hexRow"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div><div class="hexRow"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div></div></div><div class="card" id="npcCard"></div><div class="card" id="weatherCard"></div><div id="closeCard"></div><svg id="navLine" fill="none" stroke-width="6" stroke-linecap="round"><path d="M0 0 L 0 2"/></svg><div id="login-menu"><div id="login-junk"><input type="password" size="4" maxlength="4"></div></div></div><script src="runtime.c48959f4242416a9d829.js"></script><script src="libs.d47d1200d3814530266b.js"></script><script src="main.4a30e07bf200da4b19ab.js"></script></body></html>
+}</style></head><body><div id="main"><div class="canvasHolder"></div><div id="bar"><div id="barHandle"></div></div><div class="card" id="healthCard"></div><div class="card" id="inventoryCard"></div><div class="card" id="chatCard"></div><div class="card" id="settingsCard"><div class="settingsPane"></div></div><div class="card" id="landscapeCard"><div id="landscapeBar"><div class="hexRow"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div><div class="hexRow"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div></div></div><div class="card" id="npcCard"><div id="makerBar"></div></div><div class="card" id="weatherCard"></div><div id="closeCard"></div><svg id="navLine" fill="none" stroke-width="6" stroke-linecap="round"><path d="M0 0 L 0 2"/></svg><div id="login-menu"><div id="login-junk"><input type="password" size="4" maxlength="4"></div></div></div><script src="runtime.c48959f4242416a9d829.js"></script><script src="libs.3c9dd63e93f700ab4a5d.js"></script><script src="main.9496064f81e37c3bf725.js"></script></body></html>

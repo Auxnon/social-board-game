@@ -11,7 +11,8 @@ import * as BarUI from "./BarUI.js";
 import * as Login from "./Login.js";
 import * as Chat from "./Chat.js";
 import * as Settings from "./Settings.js";
-
+import * as MakerMenu from "./MakerMenu.js";
+import * as AssetManager from "./AssetManager.js";
 
 
 var mainDom;
@@ -113,6 +114,8 @@ function init() {
     
     Chat.init();
     Settings.init();
+    MakerMenu.init();
+    AssetManager.init();
 
      //makeRoom(200,220,80,10)
 

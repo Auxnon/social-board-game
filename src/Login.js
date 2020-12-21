@@ -24,6 +24,9 @@ function init() {
     //login.id = 'login-junk'
     //
     input = login.querySelector('input')
+    if(detectmob()) {
+        input.setAttribute('readonly', 'readonly')
+    }
     //let input = document.createElement('input')
     //input.setAttribute('type', 'password')
     //input.setAttribute('size', '4')
@@ -46,7 +49,7 @@ function init() {
         return response.json();
     }).then(function(data) {
         if(data) {
-        	PlayerManager.init(data.users)
+            PlayerManager.init(data.users)
             data.users.forEach(user => {
                 let dom = document.createElement('div');
                 dom.className = 'list-item';
@@ -234,7 +237,7 @@ function initSheet() {
             overflow-y: scroll;
         }
         .list *{
-        	user-select: none;
+            user-select: none;
         }
         .list-portrait{
             left: 8px;
@@ -301,11 +304,28 @@ function initSheet() {
     document.body.appendChild(sheet);
 }
 
-function hide(){
-    document.querySelector('#login-menu').style.display='none';
-}
-function show(){
-        document.querySelector('#login-menu').style.display='block';
+function hide() {
+    document.querySelector('#login-menu').style.display = 'none';
 }
 
-export { init,hide,show }
+function show() {
+    document.querySelector('#login-menu').style.display = 'block';
+}
+
+
+function detectmob() {
+    if(navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPad/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/BlackBerry/i) ||
+        navigator.userAgent.match(/Windows Phone/i)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export { init, hide, show }

@@ -2,6 +2,8 @@ import * as Main from "./Main.js";
 import * as Control from "./Control.js";
 import * as Render from "./Render.js";
 import * as Online from "./Online.js";
+import * as AssetManager from "./AssetManager.js";
+
 
 import * as CANNON from "./lib/cannon.min.js";
 
@@ -370,7 +372,7 @@ var physIDs = [];
 var physArray = []
 var meshArray = []
 
-function makePhys(id, size, mass, pos, type, color,model) {
+function makePhys(id, size, mass, pos,quat, type, color,model) {
     let body = new CANNON.Body({ mass: mass });
     let shape;
     if(type)
@@ -380,6 +382,8 @@ function makePhys(id, size, mass, pos, type, color,model) {
 
     body.addShape(shape);
     body.position.set(pos.x, pos.y, pos.z);
+    if(quat)
+        body.quaternion.copy(quat);
     //body.rotation.x=Math.PI/2
     //body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
 
@@ -391,7 +395,18 @@ function makePhys(id, size, mass, pos, type, color,model) {
 
 
     let mesh;
-    if(type) {
+    if(model){
+        let inner=AssetManager.make(model,color)
+        mesh=Render.makeGroup();
+        inner.position.z=-size.z/2;
+        inner.rotation.x=Math.PI/2;
+        mesh.add(inner)
+        //mesh.up.set(0,0,1)
+        /*if(mesh.children && mesh.children.length>1)
+            if(mesh.children[0].geometry){
+                mesh.children[0].geometry.rotateX(Math.PI/2)
+            }*/
+    }else if(type) {
         mesh = Render.cylinder(size.x, size.y, size.z, pos.x, pos.y, pos.z, color)
         //mesh.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
     } else
@@ -460,7 +475,7 @@ var carryTarget;
 /** first pass, find nearest physical object, if found set carryTarget, return true, next pass move the carryTarget, and update it for remote players
 return true if carrying in first or nth passes, return false if couldnt find object within range, return values indicate controller can opt for carrying controls or normal controls
 **/
-function carryPhys(pos) {
+function carryPhys(pos,rot) {
     if(carryTarget == undefined) {
         let closest;
         let distance = 6;
@@ -483,7 +498,7 @@ function carryPhys(pos) {
     } else if(carryTarget != -1) {
 
         let p = carryTarget;
-        p.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1),0);
+        p.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1),rot);
 
         p.position.copy(pos)
         p.position.z += 6;
@@ -539,4 +554,10 @@ function createPhysicsDebugger(scene) {
     let cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world);
     return cannonDebugRenderer
 }
-export { init, updatePhysics, setPlayer, makePhys, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world }
+
+function calcQuaterion(rot){
+    let quat=new CANNON.Quaternion(0,0,0,0)
+    quat.setFromAxisAngle(new CANNON.Vec3(0,0,1),rot);
+    return quat;
+}
+export { init, updatePhysics, setPlayer, makePhys, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion }

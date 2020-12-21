@@ -82,8 +82,15 @@ function openApp(id) {
         } else {
             Control.setLandscaping(false)
         }
+
         if(app.id == 'chatCard') {
             Chat.openChat()
+        }
+
+        if(app.id == 'npcCard') {
+            Control.setMaker(true)
+        } else {
+            Control.setMaker(false)
         }
 
         if(app.spot == -1) {
@@ -142,6 +149,7 @@ function closeApp() {
         focused.focused = undefined; //wow why did i name this like this //TODO
         Control.primaryTouchPan()
         Control.setLandscaping(false)
+        Control.setMaker(false)
         Object.values(focused.children).forEach(sub => {
             if(sub.className == 'card-notifier')
                 sub.style.display = 'initial'
@@ -611,11 +619,11 @@ function winMouseUp(ev) {
 
             }
             // else {
-                
-                closeApp(true);
-                openApp(targetMove.appId);
 
-                //window.history.pushState({ appId: targetMove.appId }, targetMove.name, '?id=' + targetMove.appId + '&app=' + targetMove.id);
+            closeApp(true);
+            openApp(targetMove.appId);
+
+            //window.history.pushState({ appId: targetMove.appId }, targetMove.name, '?id=' + targetMove.appId + '&app=' + targetMove.id);
             //}
         } else {
             barCalculate();
@@ -698,20 +706,21 @@ function setNotifier(id, num) {
         } else
             dom.innerText = parseInt(dom.innerText) + num;
 
-        target.style.animation=''
+        target.style.animation = ''
         void target.offsetWidth;
-        target.style.animation='attention 0.2s';
+        target.style.animation = 'attention 0.2s';
 
     }
 
 }
-function isFocused(id){
-    let app=apps[id]
-    if(app) 
+
+function isFocused(id) {
+    let app = apps[id]
+    if(app)
         return app.focused
 
     return false;
 }
 
 
-export { pendApp, clearPendApp, apps, init, openApp, closeApp, hide,setNotifier }
+export { pendApp, clearPendApp, apps, init, openApp, closeApp, hide, setNotifier }
