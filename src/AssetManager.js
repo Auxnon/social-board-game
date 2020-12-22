@@ -96,7 +96,7 @@ function init(){
                     personAnimations[anim.name]=anim;
             });
         }
-         
+        
 
         readColors(m,[1,0.2541521191596985,0.022173885256052017],[0,0,1])
 
@@ -107,8 +107,6 @@ function init(){
         personShader.skinning=true;
 
         MODELS['man']=manModel;
-
-
 
 
         personShader.onBeforeCompile = shader=> {
@@ -162,6 +160,23 @@ function init(){
             Render.addModel(lady);
 
         });*/
+    });
+
+    load('assets/models/gran.gltf',(m,animations)=>{
+        m=m.children[0]
+        m.castShadow = true;
+        m.receiveShadow = true;
+        m.scale.set(2,2,2);
+
+        /*if(animations){
+            animations.forEach(anim=>{
+                if(anim.name)
+                    personAnimations[anim.name]=anim;
+            });
+        }*/
+        readColors(m,[0.42869052290916443,0.262250691652298,0.4677838087081909],[0,0,1])
+        let val={value: new THREE.Vector3(0,0,1)};
+        MODELS['gran']=m;
     });
 }
 function load(model,callback){
@@ -411,7 +426,7 @@ function make(s,color){
     if(m){
         if(Array.isArray(m)){
             m=m[Math.floor(Math.random()*m.length)]
-        }else if(s=='man' && color){
+        }else if((s=='man' || s=='gran') && color){
             m=SkeletonUtils.clone(m);
             let colors=Helper.hexToRGBFloat(color);
             
@@ -422,8 +437,10 @@ function make(s,color){
                 if(obj && obj.type=="SkinnedMesh"){
                     obj.castShadow = true;
                     obj.receiveShadow = true;
-                    if(obj.name=="Woman" || obj.name=="Man" ){//|| obj.name=="Scarf"){ //DEV
+                    if(obj.name=="Gran" || obj.name=="Man" ){//|| obj.name=="Scarf"){ //DEV
                             obj.material=personShader.clone();
+                            obj.material.skinning=true;
+                            obj.material.needsUpdate = true;
                             obj.material.uniforms.shirt= m.userData.shirt;
                             //obj.material.uniforms.wind= model.userData.wind;
                     }

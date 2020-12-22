@@ -23,6 +23,9 @@ door #67483C
 window #67483C
 #703212*/
 
+var chunks=[];
+
+
 
 var hex = []
 var landBits = []

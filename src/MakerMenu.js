@@ -6,7 +6,8 @@ var selected;
 var stuff = [
     'man',
     'pot',
-    'rock'
+    'rock',
+    'gran',
 ]
 
 function init() {

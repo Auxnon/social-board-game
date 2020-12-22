@@ -100,8 +100,11 @@ function openApp(id) {
             closeCard.style.top = app.style.top
             closeCard.style.left = app.style.left
         }
-        closeCard.style.opacity = '1';
-        closeCard.style.pointerEvents = 'auto';
+        setTimeout(()=>{
+            closeCard.style.opacity = '1';
+            closeCard.style.pointerEvents = 'auto';
+        },100)
+        
 
         /*if(Render) {
             openAppApplyRender(id, app)
@@ -143,7 +146,9 @@ function openAppApplyRender(id, app) {
 }
 
 function closeApp() {
+    console.log('close called')
     if(focused) {
+        console.log('focused close called')
         focused.classList.remove('cardMax')
         focused.style.zIndex = 2;
         focused.focused = undefined; //wow why did i name this like this //TODO
