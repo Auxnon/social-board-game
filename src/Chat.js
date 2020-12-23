@@ -4,11 +4,13 @@ import * as Online from "./Online.js";
 import * as BarUI from "./BarUI.js";
 import * as Helper from "./Helper.js";
 import * as PlayerManager from "./PlayerManager.js";
+import * as Drawer from "./Drawer.js"; 
 //import * as Mail from "./Mail.js";
 
 var chatPane;
 //var chatBlock;
 var chatInput;
+var chatBottom;
 
 function init(){
 	let mainDom=document.querySelector('#chatCard');
@@ -27,20 +29,23 @@ function init(){
 	
 
 
-	let bottom=document.createElement('div');
-	bottom.classList.add('chat-bottom');
+	chatBottom=document.createElement('div');
+	chatBottom.classList.add('chat-bottom');
 
 	chatInput=document.createElement('input');
 	let color="0xffff55";//World.getOwnPlayer().color
 	color='#'+color.substring(2,color.length);
 	chatInput.style.border=color+" 6px solid"
-	bottom.appendChild(chatInput);
+	chatBottom.appendChild(chatInput);
+
+
+	Drawer.makeButton(chatBottom,'chat')
 
 	//let toggle=document.createElement('div');
 	//toggle.classList.add('chatToggle');
 	//bottom.appendChild(toggle);
 
-	mainDom.appendChild(bottom)
+	mainDom.appendChild(chatBottom)
 
 	//chatBlock.style.left='100%';
 
@@ -56,15 +61,21 @@ function init(){
 	})
 */
 	chatInput.addEventListener('keyup',function(ev){
+
 		if(ev.which==13){
-			if(chatInput.value.length>0){
+			if(chatInput.value.length>0 || Drawer.getState()=='chat'){
 				//World.socket.emit('chat',World.getOwnPlayer().id,chatInput.value);
-				Online.message(chatInput.value)
+				let message='';
+				if(Drawer.getState()=='chat'){
+					message+=Drawer.getData()+'#'
+					Drawer.close();
+				}
+				message+=chatInput.value;
+				Online.message(message)
 				chatInput.value=''
 			}else{
 				setTimeout(closeChat,20);
 			}
-			
 		}else if(ev.which==27){
 			closeChat();
 		}
@@ -108,6 +119,21 @@ function addBubble(s,player,model){
     chatBubble.style.color = bool ? '#000000' : '#FFFFFF';
     chatBubble.style.textShadow = '1px 1px 2px ' + (bool ? '#FFFFFF' : '#000000');
 
+    let imageIndex=s.indexOf('data:image')
+    if(imageIndex>-1){
+    	let lastIndex=s.indexOf('#',imageIndex);
+    	if(lastIndex>-1){
+    		let imgString=s.substring(imageIndex,lastIndex)
+    		console.log(imgString)
+    		let img=new Image();
+    		img.className='stretch-image'
+    		img.src=imgString;
+    		chatBubble.appendChild(img)
+    		s=s.substring(lastIndex+1)
+    	}
+    }
+    
+
 	/*let stt=s.split('');
 	stt.forEach((c,i)=>{
 		let sp=document.createElement('span');
@@ -120,7 +146,7 @@ function addBubble(s,player,model){
 	setTimeout(function(){
 		chatBubble.innerHTML=s;
 	},(s.length*0.03+2)*1000)*/
-	chatBubble.innerHTML=s;
+	chatBubble.innerHTML+=s;
 
 	if(model){
 		chatBubble.classList.add('chat-world-bubble');
@@ -246,10 +272,10 @@ function makeEpic(message){
 function setSize(bool){
 	if(bool){
 		chatPane.style.height='calc(100vh - 100px)';
-		document.querySelector('.chat-bottom').style.bottom='100px'
+		chatBottom.style.bottom='100px'
 	}else{
 		chatPane.style.height='calc(100vh - 64px)';
-		document.querySelector('.chat-bottom').style.bottom='0px'
+		chatBottom.style.bottom='0px'
 	}
 }
 

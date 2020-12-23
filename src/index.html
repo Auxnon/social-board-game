@@ -664,8 +664,9 @@ form{
     display: block;
     bottom: 0px;
     position: absolute;
-    width: 100%;
-    left: 0px;
+    width:360px;
+    transform: translate(-50%,0);
+    left: 50%;
 }
 .chat-bottom input{
     position: absolute;
@@ -675,6 +676,7 @@ form{
     left: 50%;
     transform: translate(-50%,0);
     bottom: 0;
+    margin:0 16px 0 16px;
 }
 .chat-bottom input:focus{
     outline: none;
@@ -875,6 +877,12 @@ form{
                 <input type="submit" value="Log In"/>
             </div>
         </form>-->
+        <div class="drawer-group" style='display: none'>
+
+            <canvas class='drawer'></canvas>
+            <div class="drawer-top"></div>
+        </div>
+
         <div id="login-menu">
             <div id="login-junk">
                 <input type="password" size="4" maxlength="4">

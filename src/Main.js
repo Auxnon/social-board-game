@@ -13,7 +13,7 @@ import * as Chat from "./Chat.js";
 import * as Settings from "./Settings.js";
 import * as MakerMenu from "./MakerMenu.js";
 import * as AssetManager from "./AssetManager.js";
-
+import * as Drawer from "./Drawer.js";
 
 var mainDom;
 
@@ -116,6 +116,7 @@ function init() {
     Settings.init();
     MakerMenu.init();
     AssetManager.init();
+    Drawer.init();
 
      //makeRoom(200,220,80,10)
 

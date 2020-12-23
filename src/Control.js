@@ -39,6 +39,9 @@ var velArray = [];
 var velocity = { x: 0, y: 0, z: 0 };
 
 
+var state;
+
+
 function init() {
     //window.addEventListener('click',animationControl)
     let target = document.querySelector('.canvasHolder');
@@ -849,6 +852,12 @@ function getVRPointer() {
 
 function moveLock() {
 
+}
+function setState(st){
+    state=st;
+}
+function getState(){
+    return state;
 }
 
 
