@@ -7,10 +7,57 @@
     <title>Document</title>
 </head>
 <style>
-@font-face {
+    @font-face {
     font-family: 'foont';
     src: url(ClearSans-Bold.woff);
     /* Pretty Modern Browsers */
+}
+
+
+::-webkit-scrollbar-track
+{
+    background-color: none;
+    /*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+     #F5F5F5;*/
+}
+
+::-webkit-scrollbar
+{
+    width: 18px;
+    /*background-color: #F5F5F5;*/
+    border-radius: 10px;
+    margin: 10px;
+    box-shadow: inset 0 0 10px 10px #6666;
+    border: solid 6px transparent;
+}
+
+::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    border: solid 6px transparent;
+    -webkit-box-shadow: inset 0 0 6px black;
+    background-color: none;
+}
+
+[contenteditable="true"]:active,
+[contenteditable="true"]:focus{
+  border:none;
+  outline:none;
+}
+
+[contenteditable="true"]::before{
+    color:#5555;
+content:"::";
+}
+[contenteditable="true"]::after{
+    color:#5555;
+    text-align: right;
+content:"::";
+}
+
+[type="checkbox"]{
+    margin:0 !important;
 }
 
 input::-webkit-outer-spin-button,
@@ -28,7 +75,7 @@ body {
     background-color: #E3C0A3;
     margin: 0;
     font-family: 'foont';
-    touch-action: none;
+    touch-action: pan-y;
     user-select: none;
 }
 
@@ -54,15 +101,25 @@ body {
     box-shadow: 6px 6px 1px #0005;
     flex: 3 1 1;
     margin: 16px;
+    min-height: 96px;
 }
 .section *{
-	border-radius: 16px;
+    border-radius: 16px;
 }
 .section-banner{
-	position: relative;
-	font-size: 24px;
-	background-color: inherit;
-	box-shadow: inherit;
+    text-align: center;
+    position: relative;
+    font-size: 24px;
+    background-color: inherit;
+    box-shadow: inherit;
+    border-radius: 4px;
+    padding: 8px;
+    letter-spacing: 6px;
+    width: 100%;
+    left: 50%;
+    border: 6px outset gray;
+    border-style: none groove none groove;
+    transform: translate(-50%);
 }
 
 .section-item {
@@ -71,7 +128,6 @@ body {
     padding: 16px;
     position: relative;
     background-color: #83D943;
-    margin: 16px;
 }
 
 .number {
@@ -126,7 +182,7 @@ body {
     background-color: #FFA3A3 !important;
     color: #8800AF !important;
 }
-
+/*
 .skill-link-row {
     bottom: -18px;
     position: absolute;
@@ -144,7 +200,7 @@ body {
     z-index: 10;
     margin-right: 2px;
 }
-
+*/
 .section-item-saving-throw {
     border: white solid 3px;
     width: 64px;
@@ -160,12 +216,23 @@ body {
 }
 
 .section-item-saving-throw::before {
-	line-height: 102px;
-	top: -10px;
+    line-height: 102px;
+    top: -10px;
     color: white;
     font-size: 16px;
     content: 'S.T.\A'
 }
+
+.section-group{
+    border-radius: 16px;
+    background-color: #5555;
+    margin: 16px;
+
+}
+ .section-group *{
+    pointer-events: none;
+}
+
 
 
 
@@ -173,15 +240,18 @@ body {
 .section-skills {}
 .section-stats {}
 .section-status *{
-	margin: 8px;
+    margin: 8px;
 }
 .section-character{
 
 }
-.section-spells{
+.section-traits{
 
 }
-.section-equipment{
+.section-personality{
+
+}
+.section-other{
 
 }
 
@@ -208,8 +278,8 @@ body {
 }
 
 .skill-item .number {
-	position: absolute;
-	right: 32px;
+    position: absolute;
+    right: 32px;
 }
 
 .skill-item-label {
@@ -217,6 +287,107 @@ body {
     margin-left: 48px;
     content: 'hello'
 }
+
+/**********/
+.section-group-mini .skill-item{
+    width: 64px;
+    display: inline-block;
+    margin:4px;
+}
+.section-group-mini .skill-item-label{
+    display: none;
+}
+.section-group-mini .number{
+    right:0;
+}
+/*********/
+
+
+.feature{
+    max-height: 96px;
+    overflow-y: scroll;
+    background-color: #B6E0D1;
+   padding: 1px 16px 16px 16px;
+   margin: 8px;
+   color: gray;
+   position: relative;
+}
+.feature p{
+    margin: 0 16px 0 16px;
+}
+
+.feature-name{
+    font-size: 22px;
+    display: inline-block;
+    font-style: italic;
+    color: black;
+    margin: 0 8px 0 8px;
+}
+.feature-middle{
+    font-size: 18px;
+    font-style: italic;
+    text-align: center;
+    color: gray;
+}
+
+
+.feature-tag{
+    border-radius: 16px;
+    background-color: lightgreen;
+    font-weight: bold;
+    display: inline-block;
+    padding: 0 16px 0 16px;
+    box-sizing: border-box;
+    border: solid white 2px;
+}
+.trait{
+    background-color: #8BBDEB
+}
+
+.spell{
+    background-color: #E3C5E3
+}
+
+.feature input{
+    position: absolute;
+    right: 12px;
+    top: 12px;
+
+}
+.feature input::after{
+    color: gray;
+    font-size: 10px;
+    content: 'spell?';
+    position: relative;
+    left: -28px;
+    top: -6px;
+}
+
+.feature-add,.lil-add{
+        position: relative;
+        width:36px;
+        height:36px;
+        background-color: #FAFABC;
+        border-radius: 28px;
+        margin:18px 0 18px 0;
+        cursor: pointer;
+        pointer-events: auto;
+        left: 50%;
+        transform: translate(-50%);
+
+        background-image: url("data:image/svg+xml,<svg width='36' height='36' stroke='black' stroke-width='6' stroke-linecap='round' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'><path d='m9 18 h 18M18 9v18'/></svg>");
+        
+    }
+    .lil-add{
+        width:24px;
+        height:24px;
+        background-size: cover;
+        left: auto;
+        transform: none;
+    }
+
+
+/************/
 
 .floater-number-input {
     position: absolute;
@@ -251,30 +422,30 @@ body {
 }
 
 /*.floater-arrow::after{
-			content: '';
-			background-color: red;
-			width: 16px;
-			height: 16px;
-			display: block;
-			position: absolute;
-			left: 48px;
-			top: 50%;
-			border-radius: 8px;
-			transform: translate(0,-50%);
-		}
+            content: '';
+            background-color: red;
+            width: 16px;
+            height: 16px;
+            display: block;
+            position: absolute;
+            left: 48px;
+            top: 50%;
+            border-radius: 8px;
+            transform: translate(0,-50%);
+        }
 
-		.floater-arrow::before{
-			width: 48px;
-			height: 2px;
-			border-radius: 8px;
-			content: '';
-			display: block;
-			background-color: green;
-			position: absolute;
-			left: 24px;
-			top: 50%;
-			transform: translate(0,-50%);
-		}*/
+        .floater-arrow::before{
+            width: 48px;
+            height: 2px;
+            border-radius: 8px;
+            content: '';
+            display: block;
+            background-color: green;
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translate(0,-50%);
+        }*/
 
 @keyframes blinker {
     0% {
@@ -352,8 +523,8 @@ body {
 }
 
 .status-hitpoints{
-	height: 64px;
-	background-color: #EE9A9A;
+    height: 64px;
+    background-color: #EE9A9A;
     background-position: left center;
     background-repeat: no-repeat;
     background-size: 64px;
@@ -387,39 +558,44 @@ body {
 }
 
 .status-dice{
-	background-color: #8CEB8C;
-	height: 64px;
+    background-color: #8CEB8C;
+    height: 64px;
     background-size: 64px;
     background-position: center center;
     background-position: left center;
     background-repeat: no-repeat;
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" fill="white" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 3h-4.18H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6 15h-2v-2h2v2zm0-5c0 .55-.45 1-1 1s-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v4zm-1-8c-.55"/></svg>');
 }
+.saving-row{
+
+    position: relative;
+    text-align: right;
+}
 
 /*************/
 .character-picture{
-	width:212px;
-	height: 256px;
-	background-color: #17D1FF;
+    width:212px;
+    height: 256px;
+    background-color: #17D1FF;
 }
 
 .character-proficiency{
-	display: inline-block;
-	width:64px;
-	height: 64px;
-	position: relative;
-	left: 0;
-	top: 0;
-	background-color: purple;
+    display: inline-block;
+    width:64px;
+    height: 64px;
+    position: relative;
+    left: 0;
+    top: 0;
+    background-color: purple;
 }
 .character-inspiration{
-	display: inline-block;
-	width:64px;
-	height: 64px;
-	position: relative;
-	right: 0;
-	top: 0;
-	background-color: purple;
+    display: inline-block;
+    width:64px;
+    height: 64px;
+    position: relative;
+    right: 0;
+    top: 0;
+    background-color: purple;
 }
 /***********************/
 
@@ -430,26 +606,56 @@ body {
 
 <body>
     <div id="main">
-        <div class="sheet"> 
-            <div class="section section-stats">
-            </div>
-            <div class="section section-skills">
-            </div>
+        <div class="sheet">
+            
             <div class="section section-status">
+                <div class="status-row"></div>
+                <div class="status-hitpoints"></div>
+                <div class="status-dice">
+                    <div class="saving-row">
+                        <span>Success</span>
+                        <input type="checkbox">
+                        <input type="checkbox">
+                        <input type="checkbox">
+                    </div>
+                    <div class="saving-row">
+                        <span>Fail</span>
+                        <input type="checkbox">
+                        <input type="checkbox">
+                        <input type="checkbox">
+                    </div>
+                </div>
             </div>
             <div class="section section-character">
-            	<div class="character-picture">
-            		<div class="character-proficiency"></div>
-            		<div class="character-inspiration"></div>
-            	</div>
-            	
+                <div class="character-picture">
+                    <div class="character-proficiency"></div>
+                    <div class="character-inspiration"></div>
+                </div>
+            </div>
+            <div class="section section-traits">
+                <div class="section-banner">Traits & Spells</div>
+                <div class="feature spell">
+                    <div class="feature-name">Exploder</div>
+                    <div class="feature-tag">Big</div>
+                    <div class="feature-tag">Kewl</div>
+                    <p>It definitely explodes people</p>
+                </div>
+                <div class="feature">h</div>
+                <div class="feature-add"></div>
+            </div>
+            <div class="section section-personality">
+                <div class="section-banner">Personality</div>
+                <div class="feature"><div class="feature-middle">Personality</div><p></p></div>
+                <div class="feature"><div class="feature-middle">Ideals</div><p></p></div>
+                <div class="feature"><div class="feature-middle">Bonds</div><p></p></div>
+                <div class="feature"><div class="feature-middle">Flaws</div><p></p></div>
+            </div>
+            <div class="section section-other">
+                <div class="section-banner">Proficiencies</div>
+                <div class="feature-add"></div>
             </div>
 
-            <div class="section section-spells">
-            	h
-            </div>
-             <div class="section section-equipment">
-            	h
+            <div class="section section-stats">
             </div>
         </div>
     </div>
@@ -457,7 +663,6 @@ body {
 <script>
 const SKILLS = [
     ['STR', 'Athletics', 'athletics.png'],
-
     ['DEX', 'Acrobatics', 'acrobatics.png'],
     ['DEX', 'Sleight of Hand', 'sleight.png'],
     ['DEX', 'Stealth', 'stealth.png'],
@@ -483,12 +688,26 @@ const SKILLS = [
 
 var testToggle = false;
 var main;
-var skillList;
+var editing = false;
+
+
+var sectionStatus;
+var sectionStats;
+var sectionPersonality;
+var sectionOther;
+var sectionTraits;
+
 
 function init() {
     main = document.querySelector('#main')
 
-    let dom = document.querySelectorAll('.section')
+
+    let stats = main.querySelector('.section-stats')
+    sectionStats=stats;
+    sectionOther=main.querySelector('.section-other');
+    sectionTraits=main.querySelector('.section-traits');
+    sectionPersonality=main.querySelector('.section-personality');
+    sectionStatus=main.querySelector('.section-status');
 
     let strDom = makeStat('STR', 'Strength', 5)
     let dexDom = makeStat('DEX', 'Dexterity', 5)
@@ -496,23 +715,66 @@ function init() {
     let intDom = makeStat('INT', 'Intelligence', 5)
     let wisDom = makeStat('WIS', 'Wisdom', 5)
     let chrDom = makeStat('CHR', 'Charisma', 5)
-    dom[0].appendChild(strDom)
-    dom[0].appendChild(dexDom)
-    dom[0].appendChild(conDom)
-    dom[0].appendChild(intDom)
-    dom[0].appendChild(wisDom)
-    dom[0].appendChild(chrDom)
 
-    skillList = dom[1]
+    let strg = d('section-group section-group-mini')
+    let dexg = d('section-group section-group-mini')
+    let cong = d('section-group section-group-mini')
+    let intg = d('section-group section-group-mini')
+    let wisg = d('section-group section-group-mini')
+    let chrg = d('section-group section-group-mini')
+
+    strg.appendChild(strDom)
+    dexg.appendChild(dexDom)
+    cong.appendChild(conDom)
+    intg.appendChild(intDom)
+    wisg.appendChild(wisDom)
+    chrg.appendChild(chrDom)
+
+    stats.appendChild(strg)
+    stats.appendChild(dexg)
+    stats.appendChild(cong)
+    stats.appendChild(intg)
+    stats.appendChild(wisg)
+    stats.appendChild(chrg)
+
 
     SKILLS.forEach((i, n) => {
-        skillList.appendChild(makeSkill(n, i[0], i[1], i[2], (n < 5)));
+        let skill = makeSkill(n, i[0], i[1], i[2]);
+        switch (i[0]) {
+            case 'STR':
+                strg.appendChild(skill);
+                break;
+            case 'DEX':
+                dexg.appendChild(skill);
+                break;
+            case 'CON':
+                cong.appendChild(skill);
+                break;
+            case 'INT':
+                intg.appendChild(skill);
+                break;
+            case 'WIS':
+                wisg.appendChild(skill);
+                break;
+                ddefault: chrg.appendChild(skill);
+        }
+        //skillList.appendChild(
     })
+
+
+    strg.addEventListener('click', toggleMini);
+    dexg.addEventListener('click', toggleMini);
+    cong.addEventListener('click', toggleMini);
+    intg.addEventListener('click', toggleMini);
+    wisg.addEventListener('click', toggleMini);
+    chrg.addEventListener('click', toggleMini);
+
+
 
     //
     window.addEventListener('keyup', ev => {
-        if(ev.keyCode == 32) {
-
+        //console.log(ev.keyCode )
+        if(ev.keyCode == 27) {
             if(testToggle)
                 enableEdit()
             else
@@ -525,9 +787,21 @@ function init() {
     //dom[1].appendChild(makeSkill(0,'CHR','Hello',null,2));
     makeStatus();
 
-    createSimpleAdjuster(main)
+    //createSimpleAdjuster(main)
+    
 
-    enableEdit();
+    let otherAdd=sectionOther.querySelector('.feature-add');
+    let traitsAdd=sectionTraits.querySelector('.feature-add');
+
+    otherAdd.addEventListener('click',ev=>{
+        let dom=makeOther();
+        sectionOther.insertBefore(dom,otherAdd)
+    })
+
+    traitsAdd.addEventListener('click',ev=>{
+        let dom=makeTrait();
+        sectionTraits.insertBefore(dom,traitsAdd)
+    })
 
 }
 init()
@@ -537,7 +811,7 @@ init()
 function makeStat(type, label) {
     let item = d('section-item ' + type);
     let labelDom = d('section-item-label')
-    let num=input(0,30)
+    let num = input(0, 30)
     //num.disabled=true;
     labelDom.innerText = label
     item.appendChild(labelDom)
@@ -564,13 +838,10 @@ function makeStat(type, label) {
     return item;
 }
 
-function makeSkill(id, type, label, icon, on) {
+function makeSkill(id, type, label, icon) {
     let item = d('skill-item');
     item.classList.add(type)
     item.type = type;
-
-    if(!on)
-        item.style.display = 'none'
 
 
     let iconDom = d('skill-item-icon');
@@ -609,10 +880,48 @@ function makeInputNumber(parent) {
 
     parent.parentElement.appendChild(input)
 }
+function makeOther(){
+    let dom=d('feature')
+    let p=document.createElement('p')
+    p.setAttribute('contenteditable',true)
+    dom.appendChild(p)
+    return dom;
+}
+
+function makeTrait(obj){
+    let dom=d('feature')
+    let name=d('feature-name')
+    let tag=d('feature-tag')
+    
+    let p=document.createElement('p')
+    
+
+    let check=document.createElement('input')
+    check.setAttribute('type','checkbox')
+
+    if(obj){
+
+    }else{
+         name.setAttribute('contenteditable',true)
+        tag.setAttribute('contenteditable',true)
+        p.setAttribute('contenteditable',true)
+    }
+   
+
+
+    dom.appendChild(name)
+    dom.appendChild(tag)
+    dom.appendChild(p)
+    dom.appendChild(check)
+    return dom;
+}
 
 function enableEdit() {
-
-    let skills = skillList.querySelectorAll('.skill-item')
+    editing = true;
+    main.querySelectorAll('.section-group-mini').forEach(dom => {
+        dom.classList.remove('section-group-mini')
+    })
+    /*let skills = skillList.querySelectorAll('.skill-item')
     skillList.appendChild(d('section-dashed-line'))
     skills.forEach(skill => {
         if(skill.style.display == 'none') {
@@ -623,17 +932,54 @@ function enableEdit() {
             skill.classList.add('selected')
         }
         skill.addEventListener('click', skillSelect)
-    })
+    })*/
 
-    let numbers = document.querySelectorAll('.number')
+    let numbers = main.querySelectorAll('.number')
     numbers.forEach(number => {
         number.disabled = false;
         makeInputNumber(number)
     })
+
+    let list=Object.values(main.querySelectorAll('p'))
+
+    //list = list.concat(Object.values(sectionTraits.querySelectorAll('.feature-name')))
+    //list = list.concat(Object.values(sectionTraits.querySelectorAll('.feature-tag')))
+    list.forEach(p=>{
+        p.setAttribute('contenteditable',true)
+    })
+
+    let features=sectionTraits.querySelectorAll('.feature');
+    features.forEach(ft=>{
+        let inp=ft.querySelector('input')
+        if(inp)
+            inp.style.display='initial'
+        let name=ft.querySelector('.feature-name')
+        let text=ft.querySelector('p')
+        if(name)
+            name.setAttribute('contenteditable',true)
+        if(text)
+            text.setAttribute('contenteditable',true)
+        let tags=ft.querySelectorAll('.feature-tag')
+        tags.forEach(tag=>{
+            tag.setAttribute('contenteditable',true)
+        })
+        
+    })
+
+    main.querySelectorAll('.feature-add').forEach(adder=>{
+        adder.style.display='block'
+    })
+    window.scrollTo(0,0)
+   
 }
 
 function disableEdit() {
-    let bar = skillList.querySelector('.section-dashed-line')
+    editing = false;
+    main.querySelectorAll('.section-group').forEach(dom => {
+        dom.classList.add('section-group-mini')
+    })
+    let tempObj={};
+    /*let bar = skillList.querySelector('.section-dashed-line')
     if(bar)
         bar.remove();
     let stats = document.querySelector('.section-stats')
@@ -659,23 +1005,99 @@ function disableEdit() {
             skill.style.display = 'none'
         }
 
-    })
+    })*/
 
-    let doms = document.querySelectorAll('.editable-number')
+    let doms = main.querySelectorAll('.editable-number')
     doms.forEach(input => {
         input.removeEventListener('touchstart', numberStartAdjust);
         input.removeEventListener('touchmove', numberMoveAdjust);
         input.removeEventListener('touchend', numberEndAdjust);
         input.addEventListener('mouseup', numberClick);
         input.remove();
-
     })
-    let numbers = document.querySelectorAll('.number')
+    let numbers = main.querySelectorAll('.number')
     numbers.forEach(number => {
         number.disabled = true;
     })
 
+    /*let list=Object.values(main.querySelectorAll('p'))
+    list.forEach(p=>{
+        p.setAttribute('contenteditable',undefined)
+    })*/
 
+    tempObj.traits=[];
+
+    let features=sectionTraits.querySelectorAll('.feature');
+    features.forEach(ft=>{
+        let obj={};
+        let name=ft.querySelector('.feature-name')
+        let text=ft.querySelector('p')
+        if(!(name || text) || (name.innerText.length==0 && text.innerText.length==0)){
+            ft.remove();
+        }else{
+            obj.name=name.innerText;
+            obj.text=text.innerText;
+            obj.tags=[];
+            let tags=ft.querySelectorAll('.feature-tag')
+            tags.forEach(tag=>{
+                tag.setAttribute('contenteditable',undefined)
+                if(tag.innerText.length>0){
+                    obj.tags.push(tag.innerText)
+                }else
+                    tag.remove();
+            })
+            let inp=ft.querySelector('input')
+            if(inp){
+                if(inp.checked ){
+                    obj.spell=true;
+                    ft.classList.remove('trait')
+                    ft.classList.add('spell')
+                }else{
+                    ft.classList.add('trait')
+                    ft.classList.remove('spell')
+                }
+                inp.style.display='none'
+            }
+            name.setAttribute('contenteditable',undefined)
+            text.setAttribute('contenteditable',undefined)
+            tempObj.traits.push(obj)
+        }
+    })
+
+    ///
+    tempObj.personality=[];
+    let pers=sectionPersonality.querySelectorAll('p');
+    pers.forEach(p=>{
+        tempObj.personality.push(p.innerText)
+    })
+    ///
+    tempObj.proficiencies=[];
+    let pros=sectionOther.querySelectorAll('p');
+    pros.forEach(p=>{
+        tempObj.proficiencies.push(p.innerText)
+    })
+
+    ///
+    tempObj.abilities=[]
+    let stats=sectionStats.querySelectorAll('.section-item')
+    stats.forEach(p=>{
+        let nums=p.querySelectorAll('.number')
+        tempObj.abilities.push([nums[0].value,nums[1].value])
+    })
+    tempObj.skills=[]
+    let skills=sectionStats.querySelectorAll('.skill-item')
+    skills.forEach(p=>{
+        tempObj.skills.push(p.querySelector('input').value)
+    })
+    
+    ///
+
+
+    main.querySelectorAll('.feature-add').forEach(adder=>{
+        adder.style.display='none'
+    })
+    window.scrollTo(0,0)
+    console.log(tempObj)
 }
 
 var simpleAdjuster
@@ -801,10 +1223,11 @@ function skillSelect(ev) {
 function d(c) {
     let dom = document.createElement('div')
     if(c)
-    dom.className = c;
+        dom.className = c;
     return dom
 }
-function input(start,end){
+
+function input(start, end) {
     let num = document.createElement('input');
     num.className = 'number';
     num.value = 0
@@ -815,41 +1238,54 @@ function input(start,end){
 
 }
 
-function makeStatus(){
-	let status=document.querySelector('.section-status');
-	let armor=d('status-armor')
-	let initiative=d('status-initiative')
-	let speed=d('status-speed')
-    let speedNumber=input(0,10);
-    let armorNumber=input(0,10);
-    let initiNumber=input(0,10);
+function makeStatus() {
+    let status = main.querySelector('.section-status');
+    let armor = d('status-armor')
+    let initiative = d('status-initiative')
+    let speed = d('status-speed')
+    let speedNumber = input(0, 10);
+    let armorNumber = input(0, 10);
+    let initiNumber = input(0, 10);
 
-    speedNumber.innerText=10;
-    initiNumber.innerText=10;
-    armorNumber.innerText=10;
+    speedNumber.innerText = 10;
+    initiNumber.innerText = 10;
+    armorNumber.innerText = 10;
     armor.appendChild(armorNumber)
     speed.appendChild(speedNumber)
     initiative.appendChild(initiNumber)
 
-	let row=d();
-	row.appendChild(armor);
-	row.appendChild(initiative);
-	row.appendChild(speed);
-	status.appendChild(row)
 
-	let hitpoints=d('status-hitpoints')
-    let 
-	status.appendChild(hitpoints);
+    let row = main.querySelector('.status-row')
+    row.appendChild(armor);
+    row.appendChild(initiative);
+    row.appendChild(speed);
 
-	let hitDice=d('status-dice')
-	status.appendChild(hitDice);
+
+    let hitpoints=sectionStatus.querySelector('.status-hitpoints')
+    let num1=input(0,30)
+    let num2=input(0,30)
+    hitpoints.appendChild(num1)
+    hitpoints.appendChild(num2)
+    //let hitDice=d('status-dice')
+    //status.appendChild(hitDice);
+
+
 
 }
 
+function toggleMini(ev) {
+    if(editing)
+        return;
+    let doms = main.querySelectorAll('.section-group')
+    doms.forEach(obj => {
+        if(ev.target != obj)
+            obj.classList.add('section-group-mini')
+    })
+    if(ev) {
 
-
-
-
+        ev.target.classList.toggle('section-group-mini')
+    }
+}
 </script>
 
 </html>
