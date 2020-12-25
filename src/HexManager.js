@@ -105,17 +105,17 @@ function init() {
         }
 
         let doms = document.querySelectorAll('.hex')
-        doms[0].appendChild(PictureMaker.make(getModel('Grass_O1')));
+        doms[0].appendChild(PictureMaker.generate(getModel('Grass_O1')));
         clik(doms[0], 1);
-        doms[1].appendChild(PictureMaker.make(getModel('Tree_N'), 75, -75));
+        doms[1].appendChild(PictureMaker.generate(getModel('Tree_N'), 75, -75));
         clik(doms[1], 4);
-        doms[2].appendChild(PictureMaker.make(getModel('Grass_P1')));
+        doms[2].appendChild(PictureMaker.generate(getModel('Grass_P1')));
         clik(doms[2], 2);
-        doms[3].appendChild(PictureMaker.make(getModel('Mount_N'), 90));
+        doms[3].appendChild(PictureMaker.generate(getModel('Mount_N'), 90));
         clik(doms[3], 3);
-        doms[4].appendChild(PictureMaker.make(getModel('Water_N')));
+        doms[4].appendChild(PictureMaker.generate(getModel('Water_N')));
         clik(doms[4], 0);
-        doms[5].appendChild(PictureMaker.make(getModel('House_N')));
+        doms[5].appendChild(PictureMaker.generate(getModel('House_N')));
         clik(doms[5], 5);
 
         clearLand()

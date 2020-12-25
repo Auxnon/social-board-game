@@ -89,16 +89,20 @@ function initSocket() {
     socket.on('physInit', function(inits, data) {
         Physics.clearPhys();
         inits.forEach((item, i) => {
-            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },{ x: 0, y: 0, z: 0, w:0 }, item[3], item[4], item[5])
+            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },{ x: 0, y: 0, z: 0, w:0 }, item[3], item[4])
         })
         Physics.syncOnline(data)
         physReady = true;
     })
 
 
-    socket.on('physMake', function(id, size, mass, pos, quat, type, color, model) {
-        Physics.makePhys(id, size, mass, pos, quat, type, color, model)
+    socket.on('physMake', function(id, size, mass, pos, quat, type,meta) {
+        Physics.makePhys(id, size, mass, pos, quat, type, meta)
         console.log('made')
+    })
+    socket.on('physDel', function(id) {
+        Physics.physDel(id)
+        console.log('deleted')
     })
 
     lastChats();
@@ -190,8 +194,8 @@ function getGrid() {
 }
 
 
-function makePhys(size, mass, pos, quat, type, color, model) {
-    socket.emit('physMake', size, mass, pos, quat, type, color, model);
+function makePhys(size, mass, pos, quat, type,meta) {
+    socket.emit('physMake', size, mass, pos, quat, type, meta);
 }
 
 function resetPhys() {
@@ -218,4 +222,8 @@ function sendPhys(obj, floating) {
     socket.emit('sendPhys', { id: obj.id, position: obj.position, velocity: obj.velocity, quaternion: obj.quaternion, angularVelocity: obj.angularVelocity }, floating);
 }
 
-export { login, makePhys, resetPhys, message, terrain, sendPhys }
+function delPhys(id) {
+    socket.emit('delPhys',id);
+}
+
+export { login, makePhys, resetPhys, message, terrain, sendPhys,delPhys }

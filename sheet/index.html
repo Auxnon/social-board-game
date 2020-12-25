@@ -87,7 +87,7 @@ body {
     border-radius: 16px;
     background-color: white;
     box-shadow: 6px 6px 1px #0005;
-    margin: 32px;
+    margin: 0 32px;
     flex-flow: row wrap;
     align-items: flex-start;
     align-content: flex-start;
@@ -599,15 +599,72 @@ body {
 }
 /***********************/
 
+.sheet-nav{
+    position: relative;
+    height: 96px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: calc(100% - 88px);
+    transform: translate(-50%);
+    left: 50%;
+    white-space: nowrap;
+}
+.sheet-user{
+    position: relative;
+    display: inline-block;
+    border-radius: 28px;
+    background-color: green;
+    height: 56px;
+    width: 56px;
+    top: 0;
+    margin: 8px 8px 0 8px;
+}
+.sheet-user span{
+    border-radius: 16px;
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translate(-50%);
+    background-color: #fff5;
+}
 
+.sheet-selected::before{
+    position: absolute;
+    display: block;
+    background-color: white;
+    top: -10px;
+    height: 112px;
+    width: 64px;
+    border-radius: 16px;
+    content: '';
+    z-index: -1;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+.sheet-holder{
+
+}
 
 
 </style>
 
 <body>
     <div id="main">
+        <div class="sheet-nav">
+            <div class="sheet-user sheet-selected"><span>Nicholas</span></div>
+            <div class="sheet-user"><span>Beep</span></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+            <div class="sheet-user"></div>
+        </div>
         <div class="sheet">
-            
             <div class="section section-status">
                 <div class="status-row"></div>
                 <div class="status-hitpoints"></div>
@@ -1235,7 +1292,6 @@ function input(start, end) {
     num.min = start;
     num.max = end;
     return num;
-
 }
 
 function makeStatus() {

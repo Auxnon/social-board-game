@@ -10,7 +10,7 @@ import * as CANNON from "./lib/cannon.min.js";
 var gooProperty;
 var wallProperty;
 
-var bodies;
+
 var meshes;
 var particles;
 var bullets;
@@ -23,7 +23,6 @@ const dt = 1 / 30; //1/20
 
 function init() {
     let N = 1;
-    bodies = [];
     meshes = [];
     particles = [];
     bullets = [];
@@ -125,7 +124,7 @@ function makeBullet() {
         let boxShape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
         boxBody = new CANNON.Body({ mass: 2 });
         boxBody.addShape(boxShape);
-        bodies.push(boxBody);
+        //bodies.push(boxBody);
 
         boxBody.bullet = true;
 
@@ -190,7 +189,7 @@ function makeBlood(p, v) {
         let boxShape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
         boxBody = new CANNON.Body({ mass: 0.01, material: gooProperty });
         boxBody.addShape(boxShape);
-        bodies.push(boxBody);
+        //bodies.push(boxBody);
 
         particles.push(boxBody)
 
@@ -223,7 +222,7 @@ function makeMan() {
     let boxShape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
     let boxBody = new CANNON.Body({ mass: 8 });
     boxBody.addShape(boxShape);
-    bodies.push(boxBody);
+    //bodies.push(boxBody);
     boxBody.angularDamping = 1
     boxBody.position.set(Control.x(), Control.y(), 20)
 
@@ -290,7 +289,7 @@ function updatePhysics() {
     world.step(dt);
 
 
-
+    let bodies=Object.values(physArray)
     for(var i = 0; i !== bodies.length; i++) {
         if(bodies[i].id != undefined) {
             let m = meshArray[bodies[i].id]
@@ -298,14 +297,14 @@ function updatePhysics() {
             m.quaternion.copy(bodies[i].quaternion);
         }
 
-
+/*
         if(bodies[i].position.z < -100) {
             bodies[i].position.set(Math.random() * 80 - 40, Math.random() * 80 - 40, 100)
 
             bodies[i].velocity.set(0, 0, 0)
             bodies[i].collisionResponse = false;
             bodies[i].sleep();
-        }
+        }*/
 
     }
 
@@ -368,11 +367,10 @@ function setPlayer(position, quaternion, velocity) {
 
 ///ONLINE
 
-var physIDs = [];
 var physArray = []
 var meshArray = []
 
-function makePhys(id, size, mass, pos,quat, type, color,model) {
+function makePhys(id, size, mass, pos,quat, type, meta) {
     let body = new CANNON.Body({ mass: mass });
     let shape;
     if(type)
@@ -388,15 +386,15 @@ function makePhys(id, size, mass, pos,quat, type, color,model) {
     //body.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
 
     body.id = id;
-    physIDs.push(id);
+    body.meta=meta;
+    //physIDs.push(id);
     physArray[id] = body;
-    bodies.push(body);
     world.addBody(body);
 
 
     let mesh;
-    if(model){
-        let inner=AssetManager.make(model,color)
+    if(meta && meta.model){
+        let inner=AssetManager.make(meta.model,meta.color)
         mesh=Render.makeGroup();
         inner.position.z=-size.z/2;
         inner.rotation.x=Math.PI/2;
@@ -407,15 +405,21 @@ function makePhys(id, size, mass, pos,quat, type, color,model) {
                 mesh.children[0].geometry.rotateX(Math.PI/2)
             }*/
     }else if(type) {
-        mesh = Render.cylinder(size.x, size.y, size.z, pos.x, pos.y, pos.z, color)
+        mesh = Render.cylinder(size.x, size.y, size.z, pos.x, pos.y, pos.z, meta.color)
         //mesh.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
     } else
-        mesh = Render.cubicColored(size.x * 2, size.y * 2, size.z * 2, pos.x, pos.y, pos.z, color)
+        mesh = Render.cubicColored(size.x * 2, size.y * 2, size.z * 2, pos.x, pos.y, pos.z, meta.color)
     Render.addModel(mesh);
     meshArray[id] = mesh;
     mesh.physId = id;
 }
 
+function delPhys(id){
+    Render.removeModel(meshArray[id])
+    delete meshArray[id];
+    world.remove(physArray[id])
+    delete physArray[id];
+}
 
 
 function syncOnline(data) {
@@ -461,11 +465,11 @@ function clearPhys() {
         Render.removeModel(m);
     })
     meshArray = [];
+    let bodies=Object.values(physArray)
     bodies.forEach(p => {
         world.remove(p);
     })
-    bodies = []
-    physIDs = []
+
     physArray = [];
 }
 var adjustDelay = 0;
@@ -507,7 +511,7 @@ function carryPhys(pos,rot) {
         if(adjustDelay > 10) {
             adjustDelay = 0
             Online.sendPhys(p, true)
-            console.log('send phys')
+            console.log('send phys ',p.id,JSON.stringify(p.meta))
         }
         return 1;
     }
@@ -560,4 +564,10 @@ function calcQuaterion(rot){
     quat.setFromAxisAngle(new CANNON.Vec3(0,0,1),rot);
     return quat;
 }
-export { init, updatePhysics, setPlayer, makePhys, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion }
+function getCarry(){
+    if(carryTarget==-1)
+        return undefined
+
+    return carryTarget
+}
+export { init, updatePhysics, setPlayer, makePhys,delPhys,getCarry, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion }

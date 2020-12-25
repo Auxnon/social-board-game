@@ -329,7 +329,7 @@ function bufferPrint(sc, cam) {
 
     //renderer.setPixelRatio(0.5)
 
-    renderer.setSize(256, 256);
+    renderer.setSize(128, 128);
     renderer.setClearColor(0xffffff, 0)
 
     if(sc && cam) {

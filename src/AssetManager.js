@@ -437,7 +437,8 @@ function make(s,color){
                 if(obj && obj.type=="SkinnedMesh"){
                     obj.castShadow = true;
                     obj.receiveShadow = true;
-                    if(obj.name=="Gran" || obj.name=="Man" ){//|| obj.name=="Scarf"){ //DEV
+                    if(obj.name=="Gran" || obj.name=="Man" || obj.name=="GranHead" ){//|| obj.name=="Scarf"){ //DEV
+                        console.log('skinned ',obj.name)
                             obj.material=personShader.clone();
                             obj.material.skinning=true;
                             obj.material.needsUpdate = true;

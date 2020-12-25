@@ -1,10 +1,13 @@
 import * as THREE from "./lib/three.module.js";
 
 import * as Render from "./Render.js";
+import * as AssetManager from "./AssetManager.js";
 
 var scene;
 var camera;
 var testToggle=true;
+var cached=[];
+
 
 function init(){
 	scene=new THREE.Scene();
@@ -20,7 +23,6 @@ function init(){
 
     //let m=Render.cubic(100,100,1)
     //scene.add(m)
-    
 }
 
 function make(m,size,offset){
@@ -35,13 +37,18 @@ function make(m,size,offset){
         m.position.set(0,0,-30)
 
     scene.add(m)
-	let pic= document.createElement('img');
-    pic.className='hexPortrait'
-    pic.setAttribute('src', Render.bufferPrint(scene,camera));
+	let val=Render.bufferPrint(scene,camera)
     //document.querySelector('#main').appendChild(pic);
 
     scene.remove(m)
+    return val;
+}
+function generate(m,size,offset){
+    let pic= document.createElement('img');
+    pic.className='hexPortrait'
+    pic.setAttribute('src', make(m,size,offset));
     return pic;
+    //document.querySelector('#main').appendChild(pic);
 }
 function test(){
 	if(testToggle)
@@ -49,10 +56,18 @@ function test(){
 	else
 		Render.toggleScene();
 	testToggle=!testToggle;
-
 }
 
+function get(m,size,offset){
+    let result=cached[m]
+    if(result){
+        return result
+    }else{
+        let model=AssetManager.make(m)
+        result=make(model,size,offset)
+        cached[m]=result
+        return result
+    }
+}
 
-
-
-export {init,make,test}
+export {init,make,get,generate,test}

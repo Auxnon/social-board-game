@@ -40,18 +40,19 @@ var velocity = { x: 0, y: 0, z: 0 };
 
 
 var state;
+var heldPhys = 0;
+var lastRot = 0;
 
 
 function init() {
     //window.addEventListener('click',animationControl)
     let target = document.querySelector('.canvasHolder');
-    target.addEventListener('mousemove', mousemove);
+    target.addEventListener('pointermove', pointermove);
     target.addEventListener('mousedown', mousedown);
     target.addEventListener('mouseup', mouseup);
 
     target.addEventListener('touchstart', touchstart);
     target.addEventListener('touchend', touchend);
-    target.addEventListener('touchmove', touchmove);
 
     window.addEventListener('contextmenu', contextmenu);
     window.addEventListener('keyup', keyup);
@@ -219,10 +220,6 @@ function enterVR() {
     vrEnabled=true;*/
 }
 
-function mousemove(ev) {
-
-    bubbleCheck(ev.clientX, ev.clientY)
-}
 
 function mousedown(ev) {
     if(ev.which !== 1) { //2 mid and 3 right
@@ -251,7 +248,7 @@ function touchstart(ev) {
     mdown = true;
     mx = ev.touches[0].clientX;
     my = ev.touches[0].clientY;
-    startCircle(mx, my);
+    //startCircle(mx, my);
     return true;
 }
 
@@ -263,23 +260,19 @@ function touchend(ev) {
         }
     }
     mdown = false;
-    endCircle();
+    //endCircle();
     endPointer();
+}
+function pointermove(ev){
+    mx = ev.clientX;
+    my = ev.clientY;
 }
 
 function endPointer() {
     if(landscaping)
         HexManager.refreshCount()
 
-    closeBubbleMenu();
-}
-
-
-function touchmove(ev) {
-    let xx = ev.touches[0].clientX;
-    let yy = ev.touches[0].clientY;
-    startCircle(xx, yy);
-    bubbleCheck(xx, yy);
+    //closeBubbleMenu();
 }
 
 function getCursor() {
@@ -322,8 +315,7 @@ function down() {
     return mdown && !orbital.isControl();
 }
 
-var heldPhys = 0;
-var lastRot = 0;
+
 
 function setVector(pos) {
     let vel = { x: (pos.x - px), y: (pos.y - py), z: (pos.z - pz) };
@@ -347,7 +339,8 @@ function setVector(pos) {
                 singleTouch = false;
                 mdown = false;
                 calcRot();
-                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz+0.1 }, Physics.calcQuaterion(lastRot), 1, PlayerManager.getOwnPlayer().color, selected);
+                let name=selected.charAt(0).toUpperCase() + selected.slice(1)
+                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz+0.1 }, Physics.calcQuaterion(lastRot), 1, {name:name,color:PlayerManager.getOwnPlayer().color, model:selected});
                 //let m = AssetManager.make(selected)
                 //m.position.set(px, py, pz)
                 //Render.addModel(m)
@@ -367,9 +360,7 @@ function setVector(pos) {
             }
         } else if(heldPhys > -1) {
             Physics.dropPhys(pos, calcVelocity());
-            heldPhys = false;
-            heldPhys = -1;
-            primaryTouchPan();
+            cancelCarry()
 
         }
     }
@@ -402,7 +393,7 @@ function onClick(f) {
 
 var radialCallbacks = [];
 var radialIndex = -1;
-
+/*
 function initRadial(array) {
     let circle = document.createElement('div');
     circle.classList.add('bubbleSelector');
@@ -427,26 +418,16 @@ function initRadial(array) {
     overtext.classList.add('overtext');
     overtext.style.visibility = 'hidden';
     mainDom.appendChild(overtext);
-}
+}*/
 var touchOn = false;
-
-function startCircle(xx, yy) {
-    /*let sb=document.querySelector('.bubbleSelector');
-    if(!touchOn){
-        sb.style.visibility='visible';
-        touchOn=true;
-    }
-    sb.style.left=xx+'px';
-    sb.style.top=yy+'px';*/
-}
-
+/*
 function endCircle() {
     if(touchOn) {
         let sb = document.querySelector('.bubbleSelector');
         sb.style.visibility = 'hidden'
         touchOn = false;
     }
-}
+}*/
 
 var bubbleMenu;
 var tempToggleCamera
@@ -511,7 +492,7 @@ function getAngle() {
     return orbital.object.rotation.z;
 
 }
-
+/*
 function closeBubbleMenu() {
     if(bubbleMenu) {
         bubbleMenu = undefined;
@@ -612,22 +593,10 @@ function moveBubbleSelector(x, y) {
 
     //let text=bubbles.eq(index).attr('value');
     //console.log(text);
-    /*if(text){
-        $('.selectBubble').children().html(text);
-    }*/
 
-}
 
-function menu1() {
-    let bm = document.querySelector('.buttonMenu');
-    if(bm.style.visibility == 'hidden') {
-        bm.style.visibility = 'visible'
-        lockMenu(true);
-    } else {
-        bm.style.visibility = 'hidden'
-        lockMenu(false);
-    }
-}
+}*/
+
 
 function angle(dx, dy) {
     let theta = Math.atan2(dx, -dy); // range (-PI, PI]
@@ -665,10 +634,10 @@ function keyup(ev) {
                 Environment.changeShadowScale(4);
                 break;
             case 84:
-                Online.makePhys({ x: 2, y: 2, z: 3 }, 2, { x: px, y: py, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 0, PlayerManager.getOwnPlayer().color, 'rock');
+                //Online.makePhys({ x: 2, y: 2, z: 3 }, 2, { x: px, y: py, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 0, PlayerManager.getOwnPlayer().color, 'rock');
                 break; //Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},0);tempy++;break;
             case 89:
-                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 1, PlayerManager.getOwnPlayer().color, 'man');
+                //Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 1, PlayerManager.getOwnPlayer().color, 'man');
                 break; //Physics.makePhys(tempy,{x:2,y:2,z:3},2,{x:px,y:py,z:30},1);tempy++;break; //Physics.makePhys(tempy,{x:.5,y:.5,z:.5},2,{x:0,y:0,z:30},1);
             case 192:
                 { //DEV
@@ -859,6 +828,13 @@ function setState(st){
 function getState(){
     return state;
 }
+function cancelCarry(){
+    heldPhys = -1;
+    mdown=false;
+    singleTouch=false;
+    primaryTouchPan();
+
+}
 
 
 export {
@@ -873,8 +849,6 @@ export {
     setVector,
     screenX,
     screenY,
-    initRadial,
-    menu1,
     defineOrbital,
     isMenuLocked,
     lockMenu,
@@ -885,7 +859,9 @@ export {
     getVRPointer,
     secondaryTouchPan,
     primaryTouchPan,
+    cancelCarry,
     setLandscaping,
     getLandscaping,
     setMaker,
+
 }

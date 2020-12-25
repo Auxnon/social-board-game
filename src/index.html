@@ -300,7 +300,7 @@
         background-color: #80F149;
         background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z"/></svg>');
     }
-    .cardMax#landscapeCard,.cardMax#npcCard{
+    .cardMax#landscapeCard,.cardMax#npcCard,.cardMax#inventoryCard{
         background-color: transparent;
         pointer-events: none;
         background-image:none;
@@ -832,7 +832,10 @@ form{
             <div id="barHandle"></div>
         </div>
         <div class="card" id="healthCard"></div>
-        <div class="card" id="inventoryCard"></div>
+        <div class="card" id="inventoryCard">
+            <div id="equipment-bar"></div>
+            <div id="pseduo-dragger"></div>
+        </div>
         <div class="card" id="chatCard"></div>
         <div class="card" id="settingsCard">
             <div class="settingsPane"></div>

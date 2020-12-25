@@ -172,8 +172,6 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     }));
 
 
-
-
     const CANNON = require('./cannon.min')
 
     app.use(express.static(__dirname + '/public'));
@@ -402,10 +400,15 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     })
                 });
 
-                socket.on('physMake', function(size, mass, pos, quat, type, color, model) {
-                    let id = addPhys(size, mass, pos, quat, type, color, model);
-                    dandSpace.emit('physMake', id, size, mass, pos, quat, type, color, model)
+                socket.on('physMake', function(size, mass, pos, quat, type, meta) {
+                    let id = addPhys(size, mass, pos, quat, type, meta);
+                    dandSpace.emit('physMake', id, size, mass, pos, quat, type, meta)
                     console.log('made obj')
+                });
+                socket.on('physDel', function(id) {
+                    delPhys(id);
+                    dandSpace.emit('physDel', id)
+                    console.log('delete obj')
                 });
                 socket.on('physInit', function() {
                     console.log('send phys init data')
@@ -478,20 +481,19 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         return objCount;
     }
 
-    var physIDs = [];
-    var physArray = []
-    var physCounter = 0;
+    
+    var physCounter = 0; //determines ids
 
-    var posArray = [];
-    var physData = []
-    var physInits = []
+    var physArray = [] //hold actual objects
+    var physData = [] //quick access data array full of POINTERS i.e. json 
+    var physInits = [] //basic initializers to send on first connection
 
     var physTick = 0;
 
     var sleeping
     var physStep = 1 / 30;
 
-    function addPhys(size, mass, pos, quat, type, color, model) {
+    function addPhys(size, mass, pos, quat, type, meta) {
         let body = new CANNON.Body({ mass: mass });
         let shape;
         if(type)
@@ -509,14 +511,25 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         body.sleepObj = { value: 0 }
         let id = physCounter;
         body.id = id;
-        physIDs.push(id)
         physArray[id] = body;
         world.addBody(body);
         physCounter++;
 
         physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity, body.sleepObj])
-        physInits.push([id, size, mass, type, color, model])
+        physInits.push([id, size, mass, type, meta])
         return id;
+    }
+    function delPhys(id){
+
+        delete physArray[id];
+        for(let i=0;i<physInits.length;i++){
+            if(physInits[i][0]==id){
+                physData.splice(i,1)
+                physInits.splice(i,1)
+                return;
+            }
+            
+        }
     }
 
     function initCannon() {

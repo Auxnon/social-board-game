@@ -14,6 +14,7 @@ import * as Settings from "./Settings.js";
 import * as MakerMenu from "./MakerMenu.js";
 import * as AssetManager from "./AssetManager.js";
 import * as Drawer from "./Drawer.js";
+import * as Equipment from "./Equipment.js";
 
 var mainDom;
 
@@ -116,7 +117,17 @@ function init() {
     Settings.init();
     MakerMenu.init();
     AssetManager.init();
+
     Drawer.init();
+
+    let loop=setInterval(function(){
+        if(AssetManager.getPending()<=0){
+            Equipment.init();
+            clearInterval(loop)
+        }
+    },1000)
+
+    
 
      //makeRoom(200,220,80,10)
 
