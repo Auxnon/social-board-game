@@ -1,4 +1,4 @@
-//import io from "socket.io-client"
+ //import io from "socket.io-client"
 import * as io from './lib/socket.io.js';
 import * as Main from "./Main.js";
 import * as Physics from "./Physics.js";
@@ -8,7 +8,7 @@ import * as Chat from "./Chat.js";
 import * as PlayerManager from "./PlayerManager.js";
 import * as HexManager from "./HexManager.js";
 import * as Control from "./Control.js";
-
+import * as Character from "./Character.js";
 
 var socket;
 
@@ -104,9 +104,14 @@ function initSocket() {
         Physics.physDel(id)
         console.log('deleted')
     })
+    socket.on('updateSheet', function(id,obj) {
+        Character.updateSheet(id,obj)
+        console.log('deleted')
+    })
 
     lastChats();
     getGrid();
+    getSheets();
     Control.init();
 }
 
@@ -194,6 +199,29 @@ function getGrid() {
 }
 
 
+function getSheets() {
+    fetch('/getSheets', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        //body: JSON.stringify({ username: username, password: pass })
+    }).then(function(response) {
+        if(!response.ok) {
+            return undefined;
+        } else
+            return response.json();
+    }).then(function(data) {
+        if(data) {
+            Character.applyUsers(data.array)
+        }
+    }).catch(e => {
+        UI.systemMessage(e, 'error')
+        console.error('ERROR ', e);
+    });
+}
+
+
 function makePhys(size, mass, pos, quat, type,meta) {
     socket.emit('physMake', size, mass, pos, quat, type, meta);
 }
@@ -225,5 +253,7 @@ function sendPhys(obj, floating) {
 function delPhys(id) {
     socket.emit('delPhys',id);
 }
-
-export { login, makePhys, resetPhys, message, terrain, sendPhys,delPhys }
+function updateSheet(id,obj) {
+    socket.emit('updateSheet',id,obj);
+}
+export { login, makePhys, resetPhys, message, terrain, sendPhys,delPhys,updateSheet }

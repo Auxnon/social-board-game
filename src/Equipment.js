@@ -8,56 +8,77 @@ var main;
 var dragger;
 var menu;
 var held;
-var items=[] //name:,description:,model:
+var items = [] //name:,description:,model:
 
 function init() {
     initSheet();
-    main = document.querySelector('#inventoryCard')
+    main = document.querySelector('#equipmentCard')
     menu = main.querySelector('#equipment-bar')
     dragger = main.querySelector('#pseduo-dragger')
 
-    window.addEventListener('pointermove',ev=>{ //DEV TODO todo
-        if(held){
+    window.addEventListener('pointermove', ev => { //DEV TODO todo
+        if(held) {
             moveDragger(ev)
         }
     })
 
-    menu.addEventListener('pointerup', ev => {
-        if(!held){
-            let target=Physics.getCarry()
-            if(target){
-                makeItem(target.meta.name,target.meta.description,target.meta.model)
-                Physics.delPhys(target.id)
-                Control.cancelCarry();
-            }
-        }
-    })
+    /* menu.addEventListener('pointerup', ev => {
+         if(!held){
+             let target=Physics.getCarry()
+             if(target){
+                 makeItem(target.meta.name,target.meta.description,target.meta.model)
+                 Physics.delPhys(target.id)
+                 Control.cancelCarry();
+             }
+         }
+     })*/
+
     /*main.addEventListener('contextmenu',ev=>{
-    	ev.preventDefault();
+        ev.preventDefault();
     })*/
 
     window.addEventListener('pointerup', ev => {
-        if(held) {
-            held.classList.remove('equipment-item-selected')
-            if(dragger.children.length)
-                dragger.children[0].remove()
 
-            held.style.display = 'none'
-            let obj=scrapItem(held)
-            if(obj){
-                let pos=Control.pos();
-                obj.color=PlayerManager.getOwnPlayer().color
-                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: pos.x, y: pos.y, z: 30 }, Physics.calcQuaterion(Math.PI / 2), 1, obj);
-            }
-            held = undefined
-        }
     })
-    
-    makeItem('A Man','Good boi','man')
-    makeItem('Cool Rock',"It's a cool rock",'rock')
-    makeItem('Pot',"420",'pot')
+
+    makeItem('A Man', 'Good boi', 'man')
+    makeItem('Cool Rock', "It's a cool rock", 'rock')
+    makeItem('Pot', "420", 'pot')
 }
-function moveDragger(ev){
+
+function pointerUp(mx, my) {
+    if(held) {
+        held.classList.remove('equipment-item-selected')
+        if(dragger.children.length)
+            dragger.children[0].remove()
+
+        held.style.display = 'none'
+        let obj = scrapItem(held)
+        if(obj) {
+            let pos = Control.pos();
+            obj.color = PlayerManager.getOwnPlayer().color
+            Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: pos.x, y: pos.y, z: 10 }, Physics.calcQuaterion(Math.PI / 2), 1, obj);
+        }
+        held = undefined
+    } else {
+        let target = Physics.getCarry()
+        if(target) {
+            let dom = document.elementFromPoint(mx, my)
+            if(dom) {
+                dom = dom.closest('#equipment-bar')
+                if(dom) {
+                    makeItem(target.meta.name, target.meta.description, target.meta.model)
+                    Physics.delPhys(target.id)
+                    Control.cancelCarry();
+                }
+
+
+            }
+        }
+    }
+}
+
+function moveDragger(ev) {
     dragger.style.left = ev.clientX + 'px'
     dragger.style.top = ev.clientY + 'px'
 }
@@ -76,7 +97,7 @@ function makeItem(name, description, model) {
         p.innerText = 'stuff'
 
     let icon = document.createElement('img')
-    icon.className='equipment-icon'
+    icon.className = 'equipment-icon'
     if(model) {
         dom.setAttribute('data', model)
         icon.setAttribute('src', PictureMaker.get(model));
@@ -114,17 +135,17 @@ function makeItem(name, description, model) {
     menu.appendChild(dom)
 }
 
-function scrapItem(item){
-    let obj={};
-    let name=item.querySelector('h4')
-    let description=item.querySelector('p')
-    let model=item.getAttribute('data')
+function scrapItem(item) {
+    let obj = {};
+    let name = item.querySelector('h4')
+    let description = item.querySelector('p')
+    let model = item.getAttribute('data')
     if(name)
-        obj.name=name.innerText
+        obj.name = name.innerText
     if(description)
-        obj.description=description.innerText
+        obj.description = description.innerText
     if(model)
-        obj.model=model
+        obj.model = model
     return obj;
 }
 
@@ -144,58 +165,58 @@ function d(c) {
 function initSheet() {
     var sheet = document.createElement('style')
     sheet.innerHTML = `
-	#equipment-bar{
-		position: absolute;
-		border-radius: 16px;
-		background-color: #fff5;
-		border-radius: 16px;
-		min-height: 128px;
+    #equipment-bar{
+        position: absolute;
+        border-radius: 16px;
+        background-color: #fff5;
+        border-radius: 16px;
+        min-height: 128px;
         max-height: 60%;
-		width: 512px;
-		bottom: 96px;
-		left: 50%;
-		transform: translate(-50%);
-		overflow-x: hidden;
-		overflow-y: auto;
-		touch-action: none;
+        width: 512px;
+        bottom: 96px;
+        left: 50%;
+        transform: translate(-50%);
+        overflow-x: hidden;
+        overflow-y: auto;
+        touch-action: none;
         pointer-events:auto;
-	}
-	.equipment-item{
-		user-select: none;
-		border-radius: 8px;
-		background-color: white;
-		display: inline-block;
-		min-height: 16px;
-		min-width: 16px;
+    }
+    .equipment-item{
+        user-select: none;
+        border-radius: 8px;
+        background-color: white;
+        display: inline-block;
+        min-height: 16px;
+        min-width: 16px;
         max-width: 200px;
-		margin: 8px;
-		box-sizing: border-box;
-	}
-	.equipment-item-selected{
-		border: dashed white 3px;
-		opacity: 0.5;
-	}
-	.equipment-item h4{
+        margin: 8px;
+        box-sizing: border-box;
+    }
+    .equipment-item-selected{
+        border: dashed white 3px;
+        opacity: 0.5;
+    }
+    .equipment-item h4{
         display:block;
         margin:6px;
-	}
-	.equipment-item p{
-		display: inline-block;
-		margin: 16px;
-	}
-	.equipment-icon{
-		min-width: 48px;
-		min-height: 48px;
-		border-radius: 8px;
-		background-color: gray;
-		display: inline-block;
-	}
-	#pseduo-dragger{
-		position: absolute;
-		pointer-events: none;
-	}`
+    }
+    .equipment-item p{
+        display: inline-block;
+        margin: 16px;
+    }
+    .equipment-icon{
+        min-width: 48px;
+        min-height: 48px;
+        border-radius: 8px;
+        background-color: gray;
+        display: inline-block;
+    }
+    #pseduo-dragger{
+        position: absolute;
+        pointer-events: none;
+    }`
     document.body.appendChild(sheet)
 
 }
 
-export {init}
+export { init, pointerUp }

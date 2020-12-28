@@ -32,6 +32,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var possibleUsers = []; //TODO get rid of this lol
     var lastChats = [];
     var grid = [];
+    var sheets=[];
 
 
 
@@ -224,6 +225,10 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     app.post('/grid', function(req, res, next) {
         res.send({ grid: grid });
     })
+     app.post('/getSheets', function(req, res, next) {
+        console.log('* sending sheets ')
+        res.send({ array: sheets });
+    })
 
 
 
@@ -327,6 +332,11 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                         }
                         socket.broadcast.emit('sendPhys', obj, floating);
                     }
+                })
+                socket.on('updateSheet', function(id, obj) {
+                    sheets[''+id]=obj;
+                    console.log('updating sheet')
+                    socket.broadcast.emit('updateSheet', id, obj);
                 })
 
                 //body.position, body.quaternion, body.velocity, body.angularVelocity,body.sleepObj

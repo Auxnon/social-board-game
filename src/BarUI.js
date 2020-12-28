@@ -34,6 +34,7 @@ var closeCard;
 
 function init(argument) {
     closeCard = document.querySelector('#closeCard');
+    closeCard.spot=-1;
     closeCard.addEventListener('click', ev => { closeApp() })
 
     let preApps = document.querySelectorAll('.card');
@@ -77,21 +78,11 @@ function openApp(id) {
                 sub.style.display = 'initial';
         })
 
-        if(app.id == 'landscapeCard') {
-            Control.setLandscaping(true)
-        } else {
-            Control.setLandscaping(false)
-        }
-
         if(app.id == 'chatCard') {
             Chat.openChat()
         }
-
-        if(app.id == 'npcCard') {
-            Control.setMaker(true)
-        } else {
-            Control.setMaker(false)
-        }
+        
+        Control.setState(app.id)
 
         if(app.spot == -1) {
             closeCard.style.top = '32px'
@@ -100,6 +91,7 @@ function openApp(id) {
             closeCard.style.top = app.style.top
             closeCard.style.left = app.style.left
         }
+        closeCard.spot=app.spot
         setTimeout(()=>{
             closeCard.style.opacity = '1';
             closeCard.style.pointerEvents = 'auto';
@@ -152,9 +144,7 @@ function closeApp() {
         focused.classList.remove('cardMax')
         focused.style.zIndex = 2;
         focused.focused = undefined; //wow why did i name this like this //TODO
-        Control.primaryTouchPan()
-        Control.setLandscaping(false)
-        Control.setMaker(false)
+        Control.setState(undefined)
         Object.values(focused.children).forEach(sub => {
             if(sub.className == 'card-notifier')
                 sub.style.display = 'initial'
@@ -171,6 +161,7 @@ function closeApp() {
         }*/
         closeCard.style.opacity = '0';
         closeCard.style.pointerEvents = 'none';
+        closeCard.spot=-1;
     }
     if(barTucked) {
         barTucked = false;
@@ -296,7 +287,13 @@ function barCalculate(notate) {
             apps[i].spot = i;
             appPoints[i].app = appsInRow[i]
         }
+        if(closeCard.spot!=-1){
+            if(appsInRow[i].spot==closeCard.spot)
+                _moveEle(closeCard, appPoints[i].x, appPoints[i].y)
+        }
+
         _moveEle(appsInRow[i], appPoints[i].x, appPoints[i].y)
+        
     }
     //if(barLineFactor == -1) {
     let handle = barHandle.getBoundingClientRect();

@@ -32,6 +32,12 @@ function init(){
     //defaultLoad('man');
     defaultLoad('pot');
     defaultLoad('rock');
+    defaultLoad('goblin','glb');
+    defaultLoad('hedgehog','glb');
+    defaultLoad('werewolf','glb');
+    defaultLoad('vampire','glb');
+    defaultLoad('zombie','glb');
+
 /*
 	load('assets/person.gltf',m=>{
         m.position.z+=55;
@@ -186,8 +192,10 @@ function load(model,callback){
 		callback(m,anim);
 	});
 }
-function defaultLoad(s){
-    load('assets/models/'+s+'.gltf',m=>{
+function defaultLoad(s,type){
+    if(!type)
+        type='gltf'
+    load('assets/models/'+s+'.'+type,m=>{
         m.scale.set(2,2,2);
         m.castShadow = true; //default is false
         m.receiveShadow = true; //default

@@ -26,4 +26,4 @@ function getOwnColor(){
 	return parseInt('0x'+ownPlayer.color.substring(1))
 }
 
-export {init,getUser,getOwnPlayer,setOwnPlayer,getOwnColor}
+export {init,getUser,getOwnPlayer,setOwnPlayer,getOwnColor,users}

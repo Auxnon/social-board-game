@@ -41,6 +41,12 @@ function init(){
 
 	Drawer.makeButton(chatBottom,'chat')
 
+	let sendButton=document.createElement('div')
+	sendButton.className='chat-send-button'
+	sendButton.addEventListener('click',submit)
+	chatBottom.appendChild(sendButton)
+	
+
 	//let toggle=document.createElement('div');
 	//toggle.classList.add('chatToggle');
 	//bottom.appendChild(toggle);
@@ -65,14 +71,7 @@ function init(){
 		if(ev.which==13){
 			if(chatInput.value.length>0 || Drawer.getState()=='chat'){
 				//World.socket.emit('chat',World.getOwnPlayer().id,chatInput.value);
-				let message='';
-				if(Drawer.getState()=='chat'){
-					message+=Drawer.getData()+'#'
-					Drawer.close();
-				}
-				message+=chatInput.value;
-				Online.message(message)
-				chatInput.value=''
+				submit();
 			}else{
 				setTimeout(closeChat,20);
 			}
@@ -202,6 +201,18 @@ function addBubble(s,player,model){
 		return chatBubble;
 	}
 	
+}
+function submit(){
+	if(chatInput.value.length>0 || Drawer.getState()=='chat'){ //redundant
+		let message='';
+		if(Drawer.getState()=='chat'){
+			message+=Drawer.getData()+'#'
+			Drawer.close();
+		}
+		message+=chatInput.value;
+		Online.message(message)
+		chatInput.value=''
+	}
 }
 function hook(id,message){
 	let player=PlayerManager.getUser(id)//World.getPlayer(id);

@@ -8,6 +8,11 @@ var stuff = [
     'pot',
     'rock',
     'gran',
+    'goblin',
+    'hedgehog',
+    'werewolf',
+    'vampire',
+    'zombie',
 ]
 
 function init() {

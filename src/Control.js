@@ -10,6 +10,8 @@ import * as Helper from "./Helper.js";
 import * as PlayerManager from "./PlayerManager.js";
 import * as MakerMenu from "./MakerMenu.js";
 import * as AssetManager from "./AssetManager.js";
+import * as Equipment from "./Equipment.js";
+
 
 
 //import * as World from "./World.js";
@@ -20,8 +22,7 @@ import * as THREE from "./lib/three.module.js";
 
 
 var vrEnabled;
-var landscaping = false;
-var maker = false;
+
 var touchCountDebounce = undefined;
 var singleTouch = false;
 
@@ -47,12 +48,14 @@ var lastRot = 0;
 function init() {
     //window.addEventListener('click',animationControl)
     let target = document.querySelector('.canvasHolder');
-    target.addEventListener('pointermove', pointermove);
-    target.addEventListener('mousedown', mousedown);
-    target.addEventListener('mouseup', mouseup);
+    window.addEventListener('pointermove', pointermove);
+    //target.addEventListener('mousedown', mousedown);
+    //target.addEventListener('mouseup', mouseup);
 
-    target.addEventListener('touchstart', touchstart);
-    target.addEventListener('touchend', touchend);
+    //target.addEventListener('touchstart', touchstart);
+    //target.addEventListener('touchend', touchend);
+    target.addEventListener('pointerdown', pointerdown);
+    window.addEventListener('pointerup', pointerup);
 
     window.addEventListener('contextmenu', contextmenu);
     window.addEventListener('keyup', keyup);
@@ -164,22 +167,6 @@ function primaryTouchPan() {
     }
 }
 
-function setLandscaping(bool) {
-    landscaping = bool;
-    HexManager.toggleSelector(landscaping)
-    if(bool)
-        secondaryTouchPan();
-}
-
-function getLandscaping() {
-    return landscaping;
-}
-
-function setMaker(bool) {
-    maker = bool;
-    if(bool)
-        secondaryTouchPan();
-}
 
 function defineVRControl(renderer) {
     /*
@@ -220,7 +207,7 @@ function enterVR() {
     vrEnabled=true;*/
 }
 
-
+/*
 function mousedown(ev) {
     if(ev.which !== 1) { //2 mid and 3 right
         return false;
@@ -241,7 +228,7 @@ function mouseup(ev) {
         }
     }
     mdown = false;
-    endPointer();
+    endPointer(ev);
 }
 
 function touchstart(ev) {
@@ -261,16 +248,30 @@ function touchend(ev) {
     }
     mdown = false;
     //endCircle();
-    endPointer();
+    endPointer(ev);
 }
-function pointermove(ev){
+*/
+function pointerdown(ev){
+    if(ev.button==0){
+        mdown=true
+    }
+    mx=ev.clientX
+    my=ev.clientY
+}
+function pointerup(ev){
+    mdown = false;
+    endPointer(ev);
+}
+function pointermove(ev) {
     mx = ev.clientX;
     my = ev.clientY;
 }
 
 function endPointer() {
-    if(landscaping)
+    if(state == 'landscapeCard')
         HexManager.refreshCount()
+    else if(state =='equipmentCard')
+        Equipment.pointerUp(mx,my)
 
     //closeBubbleMenu();
 }
@@ -315,8 +316,6 @@ function down() {
     return mdown && !orbital.isControl();
 }
 
-
-
 function setVector(pos) {
     let vel = { x: (pos.x - px), y: (pos.y - py), z: (pos.z - pz) };
     velArray.push(vel);
@@ -326,44 +325,47 @@ function setVector(pos) {
     px = pos.x;
     py = pos.y;
     pz = pos.z;
-    if(landscaping) {
-        if(!mdown)
-            HexManager.hexCheck(px, py)
+    switch (state) {
+        case "landscapeCard":
+            if(!mdown)
+                HexManager.hexCheck(px, py)
 
-        if(singleTouch || mdown)
-            HexManager.hexPick(px, py)
-    } else if(maker) {
-        if(singleTouch || mdown) {
-            let selected = MakerMenu.getSelection();
-            if(selected) {
-                singleTouch = false;
-                mdown = false;
+            if(singleTouch || mdown)
+                HexManager.hexPick(px, py)
+
+            break;
+        case "makerCard":
+
+            if(singleTouch || mdown) {
+                let selected = MakerMenu.getSelection();
+                if(selected) {
+                    singleTouch = false;
+                    mdown = false;
+                    calcRot();
+                    let name = selected.charAt(0).toUpperCase() + selected.slice(1)
+                    Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 1, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
+                    //let m = AssetManager.make(selected)
+                    //m.position.set(px, py, pz)
+                    //Render.addModel(m)
+                }
+            }
+            break;
+        default:
+            if(singleTouch || mdown) {
                 calcRot();
-                let name=selected.charAt(0).toUpperCase() + selected.slice(1)
-                Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz+0.1 }, Physics.calcQuaterion(lastRot), 1, {name:name,color:PlayerManager.getOwnPlayer().color, model:selected});
-                //let m = AssetManager.make(selected)
-                //m.position.set(px, py, pz)
-                //Render.addModel(m)
+                heldPhys = Physics.carryPhys(pos, lastRot)
+                if(heldPhys == 1) {
+                    //orbital.dispatchEvent(  { type: 'change' } );
+                    orbital.reset();
+                    //orbital.state=-1;
+                    secondaryTouchPan();
+                }
+            } else if(heldPhys > -1) {
+                Physics.dropPhys(pos, calcVelocity());
+                cancelCarry()
             }
-        }
-
-
-    } else {
-        if(singleTouch || mdown) {
-            calcRot();
-            heldPhys = Physics.carryPhys(pos, lastRot)
-            if(heldPhys == 1) {
-                //orbital.dispatchEvent(  { type: 'change' } );
-                orbital.reset();
-                //orbital.state=-1;
-                secondaryTouchPan();
-            }
-        } else if(heldPhys > -1) {
-            Physics.dropPhys(pos, calcVelocity());
-            cancelCarry()
-
-        }
     }
+
 }
 
 function calcVelocity() {
@@ -385,7 +387,7 @@ function calcRot() {
     if(arc > 0.2)
         lastRot = Math.PI / 2 + Math.atan2(vel.y, vel.x);
 }
-var callback
+/*var callback
 
 function onClick(f) {
     callback = f;
@@ -393,7 +395,7 @@ function onClick(f) {
 
 var radialCallbacks = [];
 var radialIndex = -1;
-/*
+
 function initRadial(array) {
     let circle = document.createElement('div');
     circle.classList.add('bubbleSelector');
@@ -822,17 +824,36 @@ function getVRPointer() {
 function moveLock() {
 
 }
-function setState(st){
-    state=st;
+
+function setState(st) {
+    state = st;
+    switch (st) {
+        case 'makerCard':
+            secondaryTouchPan();
+            break;
+        case 'landscapeCard':
+            HexManager.toggleSelector(true)
+            secondaryTouchPan();
+            break;
+
+        default:
+            primaryTouchPan()
+    }
+
+    if(st != 'landscapeCard')
+        HexManager.toggleSelector(false)
 }
-function getState(){
+
+function getState() {
     return state;
 }
-function cancelCarry(){
+
+function cancelCarry() {
     heldPhys = -1;
-    mdown=false;
-    singleTouch=false;
+    mdown = false;
+    singleTouch = false;
     primaryTouchPan();
+    Physics.cancelCarry();
 
 }
 
@@ -845,7 +866,6 @@ export {
     pos,
     down,
     animate,
-    onClick,
     setVector,
     screenX,
     screenY,
@@ -860,7 +880,6 @@ export {
     secondaryTouchPan,
     primaryTouchPan,
     cancelCarry,
-    setLandscaping,
-    getLandscaping,
-    setMaker,
+    setState,
+    getState,
 }

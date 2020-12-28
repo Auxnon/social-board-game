@@ -55,8 +55,7 @@ function init() {
                 reader.onload = function(event) {
                     var img = new Image;
                     img.onload = function(){
-                    	ctx.fillStyle = "rgba(255, 255, 255, 0)";
-					  	ctx.drawImage(img,0,0,32,32); // Or at whatever offset you like
+                    	setData(img)
 					};
                     img.src = event.target.result;
                 }; // data url!
@@ -137,6 +136,14 @@ function getData(){
 function move(target){
     target.appendChild(main)
 }
+function setData(img){
+    ctx.clearRect(0,0,32,32)
+    if(!img.src.includes('undefined')){
+        ctx.fillStyle = "rgba(255, 255, 255, 0)";
+        ctx.drawImage(img,0,0,32,32);
+    }
+
+}
 
 function d(c){
 	let dom=document.createElement('div')
@@ -145,7 +152,7 @@ function d(c){
 	return dom
 }
 
-function makeButton(target,status){
+function makeButton(target,status,callback){
     let dom=d('drawer-opener')
     dom.setAttribute('status',status)
     dom.addEventListener('click',ev=>{
@@ -154,13 +161,26 @@ function makeButton(target,status){
         if(group && group.style.display=='initial'){
             group.style.display='none'
             state=undefined;
+            if(callback)
+            callback(false);
         }else{
             main.style.display='initial'
-            target.appendChild(main)
             state=ev.target.getAttribute('status')
+            if(state=='character'){
+                main.style.left='-72px'
+                main.style.top='64px'
+            }else{
+                main.style.top='-100px';
+                main.style.left='50%';
+            }
+           
+            target.appendChild(main)
+            if(callback)
+            callback(true);
         }
     })
    target.appendChild(dom);
+   return dom;
 }
 function getState(){
     return state;
@@ -181,7 +201,7 @@ var sheet = document.createElement('style')
     top: -204px;
     width: 128px;
     left: 50%;
-    transform: translate(-50%,0);
+    transform: translate(-50%,-50%);
 }
 .drawer {
     display:block;
@@ -192,11 +212,13 @@ var sheet = document.createElement('style')
     border: gray solid 1px;
     image-rendering: pixelated;
     touch-action: none;
+    background-color: #5555;
 }
 
 .drawer-top{
 position: relative;
 pointer-events: none;
+width: 156px;
 }
 .drawer-top *{
     pointer-events: initial;
@@ -229,14 +251,13 @@ pointer-events: none;
 .drawer-opener{
     width:48px;
     height: 48px;
-    border-radius:24px;
+    border-radius:24px !important;
     background-color: white;
     position: relative;
     display: inline-block;
     background-size: 32px;
     background-position: center center;
     background-repeat: no-repeat;
-
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.9 13.98l2.1 2.53 3.1-3.99c.2-.26.6-.26.8.01l3.51 4.68c.25.33.01.8-.4.8H6.02c-.42 0-.65-.48-.39-.81L8.12 14c.19-.26.57-.27.78-.02z"/></svg>');
 }
 .stretch-image{
@@ -248,4 +269,4 @@ document.body.appendChild(sheet)
 }
 
 
-export { init,makeButton,getState,getData,close}
+export { init,makeButton,getState,getData,setData,close}

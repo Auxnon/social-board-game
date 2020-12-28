@@ -83,12 +83,20 @@ body {
     display: flex;
     position: absolute;
     width: calc(100% - 64px);
-    height: calc(100% - 64px);
     border-radius: 16px;
     background-color: white;
     box-shadow: 6px 6px 1px #0005;
     margin: 0 32px;
-    flex-flow: row wrap;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+.sub-section{
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
     align-content: flex-start;
 }
@@ -140,12 +148,10 @@ body {
     padding: 0;
     text-align: center;
     max-width: 64px;
-}
-
-
-.section-item .number {
     font-size: 32px;
 }
+
+
 
 .section-item-label {
     position: absolute;
@@ -182,25 +188,7 @@ body {
     background-color: #FFA3A3 !important;
     color: #8800AF !important;
 }
-/*
-.skill-link-row {
-    bottom: -18px;
-    position: absolute;
-}
 
-.skill-link {
-    width: 32px;
-    height: 32px;
-    border-radius: 16px;
-    background-color: black;
-    position: relative;
-    display: inline-block;
-    box-sizing: border-box;
-    background-size: 32px;
-    z-index: 10;
-    margin-right: 2px;
-}
-*/
 .section-item-saving-throw {
     border: white solid 3px;
     width: 64px;
@@ -234,11 +222,9 @@ body {
 }
 
 
-
-
-
 .section-skills {}
-.section-stats {}
+.section-stats {
+}
 .section-status *{
     margin: 8px;
 }
@@ -264,7 +250,9 @@ body {
     background-color: #8DA4EE;
     margin: 16px;
 }
-
+.skill-item .number{
+    font-size: initial;
+}
 .skill-item-icon {
     border-radius: 16px 8px 8px 16px;
     width: 40px;
@@ -577,6 +565,13 @@ body {
     width:212px;
     height: 256px;
     background-color: #17D1FF;
+    display: inline-block;
+}
+.character-column{
+    width:64px;
+    display: inline-block;
+    position: absolute;
+
 }
 
 .character-proficiency{
@@ -596,6 +591,14 @@ body {
     right: 0;
     top: 0;
     background-color: purple;
+}
+.character-class{
+    display: block;
+    margin: 6px;
+    position: relative;
+    text-align: center;
+    font-size: 18px;
+    color: gray;
 }
 /***********************/
 
@@ -642,8 +645,25 @@ body {
     transform: translate(-50%);
 }
 
-.sheet-holder{
+#sheet-edit-button{
+     position: fixed;
+        width:56px;
+        height:56px;
+        background-color: #FAFABC;
+        border-radius: 28px;
+        cursor: pointer;
+        pointer-events: auto;
+        right: 102px;
+        bottom: 108px;
+        background-size: 48px;
+        background-position: center center;
+        box-shadow: 6px 6px 1px #0005;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>');
+}
+#sheet-edit-button.toggled{
+    background-color: #16FF16;
 
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.17L5.53 12.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L9 16.17z"/></svg>');
 }
 
 
@@ -665,6 +685,22 @@ body {
             <div class="sheet-user"></div>
         </div>
         <div class="sheet">
+            <div class="section section-stats">
+            </div>
+            <div class="sub-section">
+            
+            <div class="section section-character">
+                <div class="section-banner">Character dfsd fsd fsdf dsf</div>
+                <p class="character-class">Bard</p>
+                <div class="character-picture">
+                    
+                </div>
+                <div class="character-column">
+                    <div class="character-proficiency"></div>
+                    <img class="character-inspiration"/>
+                </div>
+                
+            </div>
             <div class="section section-status">
                 <div class="status-row"></div>
                 <div class="status-hitpoints"></div>
@@ -681,12 +717,6 @@ body {
                         <input type="checkbox">
                         <input type="checkbox">
                     </div>
-                </div>
-            </div>
-            <div class="section section-character">
-                <div class="character-picture">
-                    <div class="character-proficiency"></div>
-                    <div class="character-inspiration"></div>
                 </div>
             </div>
             <div class="section section-traits">
@@ -711,10 +741,10 @@ body {
                 <div class="section-banner">Proficiencies</div>
                 <div class="feature-add"></div>
             </div>
-
-            <div class="section section-stats">
             </div>
+            
         </div>
+        <div id="sheet-edit-button"></div>
     </div>
 </body>
 <script>
@@ -743,7 +773,7 @@ const SKILLS = [
 
 ]
 
-var testToggle = false;
+var testToggle = true;
 var main;
 var editing = false;
 
@@ -751,8 +781,12 @@ var editing = false;
 var sectionStatus;
 var sectionStats;
 var sectionPersonality;
+var sectionCharacter;
 var sectionOther;
 var sectionTraits;
+
+var traitsAdd
+var otherAdd;
 
 
 function init() {
@@ -765,6 +799,7 @@ function init() {
     sectionTraits=main.querySelector('.section-traits');
     sectionPersonality=main.querySelector('.section-personality');
     sectionStatus=main.querySelector('.section-status');
+    sectionCharacter=main.querySelector('.section-character');
 
     let strDom = makeStat('STR', 'Strength', 5)
     let dexDom = makeStat('DEX', 'Dexterity', 5)
@@ -847,8 +882,8 @@ function init() {
     //createSimpleAdjuster(main)
     
 
-    let otherAdd=sectionOther.querySelector('.feature-add');
-    let traitsAdd=sectionTraits.querySelector('.feature-add');
+    otherAdd=sectionOther.querySelector('.feature-add');
+    traitsAdd=sectionTraits.querySelector('.feature-add');
 
     otherAdd.addEventListener('click',ev=>{
         let dom=makeOther();
@@ -859,6 +894,24 @@ function init() {
         let dom=makeTrait();
         sectionTraits.insertBefore(dom,traitsAdd)
     })
+
+    let prof=sectionCharacter.querySelector('.character-proficiency')
+    let cent=d('centered')
+    cent.appendChild(input(2,6))
+    prof.appendChild(cent)
+
+
+    main.querySelector('#sheet-edit-button').addEventListener('click',ev=>{
+        if(testToggle){
+                enableEdit()
+                ev.target.classList.add('toggled')
+            }else{
+                disableEdit()
+                ev.target.classList.remove('toggled')
+            }
+            testToggle = !testToggle
+    })
+    disableEdit();
 
 }
 init()
@@ -948,7 +1001,7 @@ function makeOther(){
 function makeTrait(obj){
     let dom=d('feature')
     let name=d('feature-name')
-    let tag=d('feature-tag')
+    let tag;
     
     let p=document.createElement('p')
     
@@ -957,9 +1010,20 @@ function makeTrait(obj){
     check.setAttribute('type','checkbox')
 
     if(obj){
+        check.checked=obj.spell
+        check.style.display='none'
+        name.innerText=obj.name;
+        p.innerText=obj.description
+        tag=[];
+        obj.tags.forEach(t=>{
+            let dom=d('feature-tag')
+            dom.innerText=t
+            tag.push(dom)
+        })
 
     }else{
-         name.setAttribute('contenteditable',true)
+        tag=d('feature-tag')
+        name.setAttribute('contenteditable',true)
         tag.setAttribute('contenteditable',true)
         p.setAttribute('contenteditable',true)
     }
@@ -967,7 +1031,11 @@ function makeTrait(obj){
 
 
     dom.appendChild(name)
-    dom.appendChild(tag)
+    if(obj)
+        tag.forEach(t=>{dom.appendChild(t)})
+    else
+        dom.appendChild(tag)
+
     dom.appendChild(p)
     dom.appendChild(check)
     return dom;
@@ -1023,6 +1091,7 @@ function enableEdit() {
         
     })
 
+
     main.querySelectorAll('.feature-add').forEach(adder=>{
         adder.style.display='block'
     })
@@ -1036,33 +1105,7 @@ function disableEdit() {
         dom.classList.add('section-group-mini')
     })
     let tempObj={};
-    /*let bar = skillList.querySelector('.section-dashed-line')
-    if(bar)
-        bar.remove();
-    let stats = document.querySelector('.section-stats')
-    stats.querySelectorAll('.skill-link-row').forEach(row => {
-        row.innerHTML = ''
-    })
 
-
-    let skills = skillList.querySelectorAll('.skill-item')
-    skills.forEach(skill => {
-        if(skill.classList.contains('selected')) {
-            skill.classList.remove('selected')
-            let stat = stats.querySelector('.' + skill.type)
-            if(stat) {
-                let row = stat.querySelector('.skill-link-row')
-                let icon = d('skill-link')
-                icon.style.backgroundImage = skill.querySelector('.skill-item-icon').style.backgroundImage
-                row.appendChild(icon)
-            }
-            skill.removeEventListener('click', skillSelect)
-
-        } else {
-            skill.style.display = 'none'
-        }
-
-    })*/
 
     let doms = main.querySelectorAll('.editable-number')
     doms.forEach(input => {
@@ -1076,11 +1119,6 @@ function disableEdit() {
     numbers.forEach(number => {
         number.disabled = true;
     })
-
-    /*let list=Object.values(main.querySelectorAll('p'))
-    list.forEach(p=>{
-        p.setAttribute('contenteditable',undefined)
-    })*/
 
     tempObj.traits=[];
 
@@ -1125,6 +1163,7 @@ function disableEdit() {
     tempObj.personality=[];
     let pers=sectionPersonality.querySelectorAll('p');
     pers.forEach(p=>{
+        p.setAttribute('contenteditable',undefined)
         tempObj.personality.push(p.innerText)
     })
     ///
@@ -1146,6 +1185,17 @@ function disableEdit() {
     skills.forEach(p=>{
         tempObj.skills.push(p.querySelector('input').value)
     })
+
+    tempObj.character=[]
+    let characterName=sectionCharacter.querySelector('.section-banner')
+    let characterType=sectionCharacter.querySelector('.character-class')
+    let proficiency=sectionCharacter.querySelector('.number')
+    let inspiration=sectionCharacter.querySelector('img')
+    tempObj.character.name=characterName.innerText
+    tempObj.character.type=characterType.innerText
+    tempObj.character.proficiency=proficiency.value;
+    tempObj.character.inspiration=inspiration.src;
+
     
     ///
 
@@ -1155,6 +1205,58 @@ function disableEdit() {
     })
     window.scrollTo(0,0)
     console.log(tempObj)
+    window.tempy=JSON.stringify(tempObj)
+    return tempObj;
+}
+
+
+function apply(obj){
+    let features=sectionTraits.querySelectorAll('.feature');
+    features.forEach(ft=>{
+        ft.remove();
+    })
+    obj.traits.forEach(trait=>{
+        sectionTraits.insertBefore(makeTrait(trait),traitsAdd)
+    })
+
+
+    let pers=sectionPersonality.querySelectorAll('p');
+    pers.forEach((p,i)=>{
+        p.innerText=obj.personality[i]
+    })
+    ///
+    let pros=sectionOther.querySelectorAll('p');
+    pros.forEach(p=>{
+        p.remove();
+    })
+    obj.proficiencies.forEach(p=>{
+        let dom=d('feature');
+        dom.innerText=p;
+        sectionOther.insertBefore(dom,otherAdd)
+    })
+
+    ///
+    let stats=sectionStats.querySelectorAll('.section-item')
+    stats.forEach((p,i)=>{
+        let nums=p.querySelectorAll('.number')
+        nums[0].value=obj.abilities[i][0]
+        nums[1].value=obj.abilities[i][1]
+    })
+
+    let skills=sectionStats.querySelectorAll('.skill-item')
+    skills.forEach((p,i)=>{
+        p.querySelector('input').value=obj.skills[i]
+    })
+
+    let characterName=sectionCharacter.querySelector('.section-banner')
+    let characterType=sectionCharacter.querySelector('.character-class')
+    let proficiency=sectionCharacter.querySelector('.number')
+    let inspiration=sectionCharacter.querySelector('img')
+    characterName.innerText=obj.character.name
+    characterType.innerText=obj.character.type
+    proficiency.value=obj.character.proficiency
+    inspiration.src=obj.character.inspiration;
+    window.scrollTo(0,0)
 }
 
 var simpleAdjuster
@@ -1324,9 +1426,6 @@ function makeStatus() {
     hitpoints.appendChild(num2)
     //let hitDice=d('status-dice')
     //status.appendChild(hitDice);
-
-
-
 }
 
 function toggleMini(ev) {

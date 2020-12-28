@@ -15,6 +15,7 @@ import * as MakerMenu from "./MakerMenu.js";
 import * as AssetManager from "./AssetManager.js";
 import * as Drawer from "./Drawer.js";
 import * as Equipment from "./Equipment.js";
+import * as Character from "./Character.js";
 
 var mainDom;
 
@@ -119,10 +120,12 @@ function init() {
     AssetManager.init();
 
     Drawer.init();
+    
 
     let loop=setInterval(function(){
         if(AssetManager.getPending()<=0){
             Equipment.init();
+            Character.init();
             clearInterval(loop)
         }
     },1000)

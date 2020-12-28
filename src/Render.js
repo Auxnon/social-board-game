@@ -57,6 +57,7 @@ var ground;
 var blood;
 var yellow;
 
+var raycaster
 var pointer;
 var hexSelector;
 var pointerMat;
@@ -186,13 +187,14 @@ function init() {
 }
 
 function pointerInit() {
-    let pointerGeom = new THREE.CircleGeometry(3, 8);
+    let pointerGeom = new THREE.CircleGeometry(1, 8);
     //pointerGeom.rotateX(-Math.PI/2.0);
     pointerMat = new THREE.MeshBasicMaterial({ color: 0x4AE13A });
     pointerMatOn = new THREE.MeshBasicMaterial({ color: 0xEBEE00 });
     pointer = new THREE.Mesh(pointerGeom, pointerMat);
     pointer.position.z = 0.05;
     scene.add(pointer);
+     raycaster= new THREE.Raycaster();
 }
 
 function getAlphaCanvas() {
@@ -492,12 +494,25 @@ function applyCursor() {
     var dir = vector.sub(camera.position).normalize();
     var distance = -camera.position.z / dir.z;
     var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+/*
+    let intersects = raycaster.intersectObjects( scene.children,true );
+
+
+     console.log('sect',intersects.length)
+    if(intersects.length>0){
+        if(intersects[0].point.z>=pos.z){
+            pos.set(intersects[0].point.x,intersects[0].point.y,intersects[0].point.z)
+            console.log('sect')
+        }
+    }
+*/
 
     pointer.position.x = pos.x;
     pointer.position.y = pos.y
-    pointer.position.z = 2;
+    pointer.position.z = pos.z+0.5;
     // console.log(pointer.position)
     Control.setVector(pointer.position);
+    
 
 }
 

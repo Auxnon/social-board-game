@@ -570,4 +570,7 @@ function getCarry(){
 
     return carryTarget
 }
-export { init, updatePhysics, setPlayer, makePhys,delPhys,getCarry, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion }
+function cancelCarry(){
+    carryTarget=undefined
+}
+export { init, updatePhysics, setPlayer, makePhys,delPhys,getCarry,cancelCarry, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion }
