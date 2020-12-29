@@ -51,6 +51,6 @@ io.use(function(socket, next) {
 
 var gameBase = require('./SubApp')(app,express,server,io,sessionObj);
 
-server.listen(8080, function(){
+server.listen(8082, function(){
   console.log('1. listening on *:8080, version '+serverVersion);
 });

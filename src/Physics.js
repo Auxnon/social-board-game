@@ -370,13 +370,15 @@ function setPlayer(position, quaternion, velocity) {
 var physArray = []
 var meshArray = []
 
-function makePhys(id, size, mass, pos,quat, type, meta) {
+function physMake(id, size, mass, pos,quat, type, meta) {
     let body = new CANNON.Body({ mass: mass });
     let shape;
-    if(type)
-        shape = new CANNON.Cylinder(size.x, size.y, size.z, 6);
-    else
-        shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+    switch(type){
+        case 1: shape = new CANNON.Cylinder(size.x, size.y, size.z, 6); break;
+        case 2: shape = new CANNON.Sphere(size.x); break;
+        default: shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+    }
+
 
     body.addShape(shape);
     body.position.set(pos.x, pos.y, pos.z);
@@ -414,7 +416,7 @@ function makePhys(id, size, mass, pos,quat, type, meta) {
     mesh.physId = id;
 }
 
-function delPhys(id){
+function physDel(id){
     Render.removeModel(meshArray[id])
     delete meshArray[id];
     world.remove(physArray[id])
@@ -460,7 +462,7 @@ function interpolate(a, b, z) {
 }
 
 
-function clearPhys() {
+function physClear() {
     meshArray.forEach(m => {
         Render.removeModel(m);
     })
@@ -479,20 +481,9 @@ var carryTarget;
 /** first pass, find nearest physical object, if found set carryTarget, return true, next pass move the carryTarget, and update it for remote players
 return true if carrying in first or nth passes, return false if couldnt find object within range, return values indicate controller can opt for carrying controls or normal controls
 **/
-function carryPhys(pos,rot) {
+function physCarry(pos,rot) {
     if(carryTarget == undefined) {
-        let closest;
-        let distance = 6;
-        meshArray.forEach(mesh => {
-            if(mesh.physId != undefined) {
-                let d = mesh.position.distanceTo(pos);
-                if(d < distance) {
-                    closest = mesh.physId
-                    distance = d;
-                }
-            }
-
-        })
+        let closest=findWithin(3,pos)
         if(closest != undefined){
             carryTarget = physArray[closest]
             return 1;
@@ -510,12 +501,26 @@ function carryPhys(pos,rot) {
         adjustDelay++;
         if(adjustDelay > 10) {
             adjustDelay = 0
-            Online.sendPhys(p, true)
+            Online.physSend(p, true)
             console.log('send phys ',p.id,JSON.stringify(p.meta))
         }
         return 1;
     }
     return 0;
+}
+function findWithin(range,pos){
+    let closest;
+        let distance = range;
+        meshArray.forEach(mesh => {
+            if(mesh.physId != undefined) {
+                let d = mesh.position.distanceTo(pos);
+                if(d < distance) {
+                    closest = mesh.physId
+                    distance = d;
+                }
+            }
+        })
+    return closest
 }
 
 function remoteAdjustPhys(obj, floating) {
@@ -535,7 +540,7 @@ function remoteAdjustPhys(obj, floating) {
     }
 }
 
-function dropPhys(pos, vel) {
+function physDrop(pos, vel) {
     //let ar = Object.values(physArray)
     //if(ar.length > 0) {
     if(carryTarget && carryTarget!=-1) {
@@ -546,7 +551,7 @@ function dropPhys(pos, vel) {
             p.velocity.copy(vel)
             p.position.z += 6;
             adjustDelay = 0
-            Online.sendPhys(p, false)
+            Online.physSend(p, false)
             console.log('send phys NOW')
         }
     }
@@ -573,4 +578,5 @@ function getCarry(){
 function cancelCarry(){
     carryTarget=undefined
 }
-export { init, updatePhysics, setPlayer, makePhys,delPhys,getCarry,cancelCarry, clearPhys, syncOnline, carryPhys, dropPhys, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion }
+export { init, updatePhysics, setPlayer, physMake,physDel,getCarry,cancelCarry, physCarry, syncOnline, findWithin, 
+    physDrop, remoteAdjustPhys, createPhysicsDebugger, world,calcQuaterion,physClear }

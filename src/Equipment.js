@@ -57,7 +57,10 @@ function pointerUp(mx, my) {
         if(obj) {
             let pos = Control.pos();
             obj.color = PlayerManager.getOwnPlayer().color
-            Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: pos.x, y: pos.y, z: 10 }, Physics.calcQuaterion(Math.PI / 2), 1, obj);
+            if(obj && obj.model=='dice')
+                Online.physMake({ x: 2 }, 2, { x: pos.x, y: pos.y, z: 10 }, Physics.calcQuaterion(Math.PI / 2), 3, obj);
+            else
+                Online.physMake({ x: 1.5, y: 1.5, z: 3 }, 2, { x: pos.x, y: pos.y, z: 10 }, Physics.calcQuaterion(Math.PI / 2), 1, obj);
         }
         held = undefined
     } else {
@@ -68,7 +71,7 @@ function pointerUp(mx, my) {
                 dom = dom.closest('#equipment-bar')
                 if(dom) {
                     makeItem(target.meta.name, target.meta.description, target.meta.model)
-                    Physics.delPhys(target.id)
+                    Physics.physDel(target.id)
                     Control.cancelCarry();
                 }
 

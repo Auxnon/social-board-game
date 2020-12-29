@@ -74,7 +74,7 @@ function initSocket() {
 
     //socket.emit('init','hi')
 
-    socket.on('sendPhys', function(obj, floating) {
+    socket.on('physSend', function(obj, floating) {
         Physics.remoteAdjustPhys(obj, floating)
     });
     socket.on('physUpdate', function(data) {
@@ -84,12 +84,11 @@ function initSocket() {
             console.log('phys synced')
         } else
             console.log('!!!phys IGNORED')
-
     })
     socket.on('physInit', function(inits, data) {
-        Physics.clearPhys();
+        Physics.physClear();
         inits.forEach((item, i) => {
-            Physics.makePhys(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },{ x: 0, y: 0, z: 0, w:0 }, item[3], item[4])
+            Physics.physMake(item[0], item[1], item[2], { x: 0, y: 0, z: 0 },{ x: 0, y: 0, z: 0, w:0 }, item[3], item[4])
         })
         Physics.syncOnline(data)
         physReady = true;
@@ -97,7 +96,7 @@ function initSocket() {
 
 
     socket.on('physMake', function(id, size, mass, pos, quat, type,meta) {
-        Physics.makePhys(id, size, mass, pos, quat, type, meta)
+        Physics.physMake(id, size, mass, pos, quat, type, meta)
         console.log('made')
     })
     socket.on('physDel', function(id) {
@@ -222,11 +221,11 @@ function getSheets() {
 }
 
 
-function makePhys(size, mass, pos, quat, type,meta) {
+function physMake(size, mass, pos, quat, type,meta) {
     socket.emit('physMake', size, mass, pos, quat, type, meta);
 }
 
-function resetPhys() {
+function physReset() {
     socket.emit('physReset');
 }
 
@@ -244,16 +243,16 @@ function terrain(chunk, data) {
     socket.emit('terrain', PlayerManager.getOwnPlayer().id, chunk, data);
 }
 
-function sendPhys(obj, floating) {
+function physSend(obj, floating) {
     //physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity])
 
-    socket.emit('sendPhys', { id: obj.id, position: obj.position, velocity: obj.velocity, quaternion: obj.quaternion, angularVelocity: obj.angularVelocity }, floating);
+    socket.emit('physSend', { id: obj.id, position: obj.position, velocity: obj.velocity, quaternion: obj.quaternion, angularVelocity: obj.angularVelocity }, floating);
 }
 
-function delPhys(id) {
-    socket.emit('delPhys',id);
+function physDel(id) {
+    socket.emit('physDel',id);
 }
 function updateSheet(id,obj) {
     socket.emit('updateSheet',id,obj);
 }
-export { login, makePhys, resetPhys, message, terrain, sendPhys,delPhys,updateSheet }
+export { login, physMake, physReset, message, terrain, physSend,physDel,updateSheet }

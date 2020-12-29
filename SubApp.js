@@ -32,7 +32,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var possibleUsers = []; //TODO get rid of this lol
     var lastChats = [];
     var grid = [];
-    var sheets=[];
+    var sheets={};
 
 
 
@@ -317,7 +317,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     socket.broadcast.emit('terrain', id, chunk, data);
                     console.log('- terrain sync length ', data.length)
                 })
-                socket.on('sendPhys', function(obj, floating) {
+                socket.on('physSend', function(obj, floating) {
                     let target = physArray[obj.id]
                     if(target) {
                         target.position.copy(obj.position)
@@ -330,11 +330,11 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                             target.angularVelocity.copy(obj.angularVelocity)
                             target.wakeUp();
                         }
-                        socket.broadcast.emit('sendPhys', obj, floating);
+                        socket.broadcast.emit('physSend', obj, floating);
                     }
                 })
                 socket.on('updateSheet', function(id, obj) {
-                    sheets[''+id]=obj;
+                    sheets[id]=obj;
                     console.log('updating sheet')
                     socket.broadcast.emit('updateSheet', id, obj);
                 })
@@ -411,12 +411,12 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                 });
 
                 socket.on('physMake', function(size, mass, pos, quat, type, meta) {
-                    let id = addPhys(size, mass, pos, quat, type, meta);
+                    let id = physMake(size, mass, pos, quat, type, meta);
                     dandSpace.emit('physMake', id, size, mass, pos, quat, type, meta)
                     console.log('made obj')
                 });
                 socket.on('physDel', function(id) {
-                    delPhys(id);
+                    physDel(id);
                     dandSpace.emit('physDel', id)
                     console.log('delete obj')
                 });
@@ -494,7 +494,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     
     var physCounter = 0; //determines ids
 
-    var physArray = [] //hold actual objects
+    var physArray = {} //hold actual objects
     var physData = [] //quick access data array full of POINTERS i.e. json 
     var physInits = [] //basic initializers to send on first connection
 
@@ -503,13 +503,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var sleeping
     var physStep = 1 / 30;
 
-    function addPhys(size, mass, pos, quat, type, meta) {
+    function physMake(size, mass, pos, quat, type, meta) {
         let body = new CANNON.Body({ mass: mass });
         let shape;
-        if(type)
-            shape = new CANNON.Cylinder(size.x, size.y, size.z, 6);
-        else
-            shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+        switch(type){
+            case 1: shape = new CANNON.Cylinder(size.x, size.y, size.z, 6); break;
+            case 2: shape = new CANNON.Sphere(size.x); break;
+            default: shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
+        }
 
         body.addShape(shape);
         body.position.set(pos.x, pos.y, pos.z);
@@ -529,7 +530,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         physInits.push([id, size, mass, type, meta])
         return id;
     }
-    function delPhys(id){
+    function physDel(id){
 
         delete physArray[id];
         for(let i=0;i<physInits.length;i++){

@@ -56,7 +56,9 @@ function init(mainDom){
 
 } 
 
-function systemMessage(m,type,persistant){
+function systemMessage(m,type,persistant,timeout){
+	if(!timeout)
+		timeout=3500
 	let dom=document.createElement('div');
 	dom.className='uiSysTop';
 
@@ -103,7 +105,7 @@ function systemMessage(m,type,persistant){
 					dom.style.animation='0.5s uiSysMax forwards';
 					setTimeout(function(){
 						dom.style.animation='0.5s uiSysMini forwards';
-					},3500)
+					},timeout)
 				})
 			}else{
 				dom.remove();
@@ -123,7 +125,7 @@ function systemMessage(m,type,persistant){
 
 	setTimeout(function(){
 		_endMessage();
-	},3500)
+	},timeout)
 
 	sysTop.appendChild(dom);
 	return dom;

@@ -26,7 +26,6 @@ const SKILLS = [
     ["CHR", "Intimidation", 'intimidation.png'],
     ["CHR", "Performance", 'performance.png'],
     ["CHR", "Persuasion", 'persuasion.png'],
-
 ]
 
 var testToggle = true;
@@ -44,11 +43,15 @@ var traitsAdd
 var otherAdd;
 var inspirationButton;
 
-var sheets=[];
+var sheets={};
 var currentUser;
+var sheetDom;
+
+const emptySheet=JSON.stringify({traits:[],personality:["","","",""],proficiencies:[],abilities:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],skills:[0,0,0,0,0,0,0,0,0,0,0,0,0,0],character:{name:"Doopy",type:"Bard",proficiency:0,inspiration:"./undefined"}})
 
 function init() {
     main = document.querySelector('#characterCard')
+    sheetDom  = document.querySelector('.sheet')
     initSheet();
 
 
@@ -159,7 +162,6 @@ function init() {
     cent.appendChild(input(2,6))
     prof.appendChild(cent)
 
-
     main.querySelector('#sheet-edit-button').addEventListener('click',ev=>{
         if(testToggle){
                 enableEdit()
@@ -167,7 +169,7 @@ function init() {
             }else{
                 let out=disableEdit()
                 if(out)
-                    UI.systemMessage('Saved Character!','success')
+                    UI.systemMessage('Saved Character!','success',false,1500)
                 ev.target.classList.remove('toggled')
             }
             testToggle = !testToggle
@@ -192,7 +194,6 @@ function init() {
     pic.src=PictureMaker.get('man')
 
     disableEdit(true);
-
 }
 
 
@@ -753,18 +754,29 @@ function applyUsers(data){
         dom.setAttribute('data',user.id)
         dom.addEventListener('click',ev=>{
             let i=parseInt(ev.target.getAttribute('data'))
-            let sheet=sheets[''+i]
+            let sheet=sheets[i]
             if(sheet){
-                apply(sheet)
+                
+            }else{
+                UI.systemMessage('No Sheet available, loading empty','warn',false,1500)
+                sheet=JSON.parse(emptySheet)
+            }
+            apply(sheet)
                 window.scrollTo(0,0)
                 currentUser=i;
-            }
+                ev.target.style.animation='';
+                void ev.target.offsetWidth;
+                ev.target.style.animation='jello 0.4s'
+
+                sheetDom.style.animation='';
+                void sheetDom.offsetWidth;
+                sheetDom.style.animation='jello 0.4s'
 
         })
         if(user.id==PlayerManager.getOwnPlayer().id){
             currentUser=user.id;
             ownDom=dom
-            let sheet=sheets[''+user.id]
+            let sheet=sheets[user.id]
             if(sheet)
                 apply(sheet)
         }else
@@ -776,7 +788,7 @@ function applyUsers(data){
 }
 
 function updateSheet(id,obj){
-    sheets[''+id]=obj
+    sheets[id]=obj
 }
 /*
 function setSheets(obj){
@@ -1392,6 +1404,7 @@ input[type=number] {
     left: 50%;
     transform: translate(-50%);
     background-color: #fff5;
+    pointer-events: none;
 }
 
 .sheet-selected::before{

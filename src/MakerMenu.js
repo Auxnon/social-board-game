@@ -13,6 +13,8 @@ var stuff = [
     'werewolf',
     'vampire',
     'zombie',
+    'trash',
+    'dice'
 ]
 
 function init() {

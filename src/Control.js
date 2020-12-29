@@ -339,21 +339,31 @@ function setVector(pos) {
             if(singleTouch || mdown) {
                 let selected = MakerMenu.getSelection();
                 if(selected) {
-                    singleTouch = false;
-                    mdown = false;
-                    calcRot();
-                    let name = selected.charAt(0).toUpperCase() + selected.slice(1)
-                    Online.makePhys({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 1, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
-                    //let m = AssetManager.make(selected)
-                    //m.position.set(px, py, pz)
-                    //Render.addModel(m)
+                    if(selected=='trash'){
+                        let closest=Physics.findWithin(1,pos)
+                        if(closest!=undefined)
+                            Online.physDel(closest)
+                    }else{
+                        singleTouch = false;
+                        mdown = false;
+                        calcRot();
+                        let name = selected.charAt(0).toUpperCase() + selected.slice(1)
+                        if(selected=='dice'){
+                            Online.physMake({ x: 2 }, 1, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 3, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
+                        }else
+                            Online.physMake({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 1, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
+                        
+                        //let m = AssetManager.make(selected)
+                        //m.position.set(px, py, pz)
+                        //Render.addModel(m)
+                    }
                 }
             }
             break;
         default:
             if(singleTouch || mdown) {
                 calcRot();
-                heldPhys = Physics.carryPhys(pos, lastRot)
+                heldPhys = Physics.physCarry(pos, lastRot)
                 if(heldPhys == 1) {
                     //orbital.dispatchEvent(  { type: 'change' } );
                     orbital.reset();
@@ -361,7 +371,7 @@ function setVector(pos) {
                     secondaryTouchPan();
                 }
             } else if(heldPhys > -1) {
-                Physics.dropPhys(pos, calcVelocity());
+                Physics.physDrop(pos, calcVelocity());
                 cancelCarry()
             }
     }
