@@ -695,6 +695,10 @@ function hide() {
     barTucked = true;
     barAdjust();
 }
+function show(){
+    barTucked=false;
+    barAdjust();
+}
 
 function setNotifier(id, num) {
     let target = apps[id];
@@ -725,4 +729,4 @@ function isFocused(id) {
 }
 
 
-export { pendApp, clearPendApp, apps, init, openApp, closeApp, hide, setNotifier }
+export { pendApp, clearPendApp, apps, init, openApp, closeApp, hide,show, setNotifier }

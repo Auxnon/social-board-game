@@ -9,6 +9,8 @@ import * as Online from "./Online.js";
 
 import * as Helper from "./Helper.js";
 import * as PlayerManager from "./PlayerManager.js";
+import * as BarUI from "./BarUI.js";
+
 
 var input
 
@@ -37,6 +39,7 @@ function init() {
     let loginMenu = document.querySelector('#login-menu')
     loginMenu.appendChild(list)
     loginMenu.appendChild(login)
+    BarUI.hide();
 
 
     fetch('/getUsers', {
@@ -165,7 +168,7 @@ function makeNum(ele) {
         item.className = 'num'
         row.appendChild(item)
         item.addEventListener('click', ev => {
-            ev.stopPropagation();
+            ev.stopPropagation 
             if(input.value.length < 4)
                 input.value += ev.target.innerText
         })

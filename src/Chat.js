@@ -281,6 +281,8 @@ function makeEpic(message){
 	chatPane.appendChild(dom)
 }
 function setSize(bool){
+	if(!chatPane || !chatBottom)
+		return 
 	if(bool){
 		chatPane.style.height='calc(100vh - 100px)';
 		chatBottom.style.bottom='100px'
