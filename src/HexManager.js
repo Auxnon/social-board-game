@@ -43,6 +43,8 @@ var gridLineModel;
 
 function init() {
 
+
+
     Render.loadModel('./assets/models/Hex.glb', m => {
         console.log('got children ' + m.children.length)
         let basicMat = new THREE.MeshStandardMaterial({ vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0 }); // 
@@ -554,7 +556,7 @@ function hexPick(x, y) {
             hexDebounce = null
         }
         hexDebounce = setTimeout(function() {
-            Online.terrain(0, grid)
+            Online.terrain(0, compress(grid))
         }, 2000)
 
     }
@@ -610,13 +612,39 @@ function getModel(st) {
 }
 
 function updateTerrain(chunk, data) {
-    grid = data
+    grid = decompress(data)
+
     processLand();
 }
 
 function toggleSelector(bool) {
     hexSelector.visible = bool;
 }
+
+function compress(array){
+    let st=''
+    for(let i=0;i<array.length;i++){
+        for(let j=0;j<array.length;j++){
+            st+=String.fromCharCode(array[i][j])
+        }
+    }
+    //console.log('hex out ',st)
+    return st;
+}
+function decompress(st){
+    //Math.sqrt(st.length)
+    let size=SIZE;
+    let array=[];
+    for(let i=0;i<size;i++){
+        array[i]=[]
+        for(let j=0;j<size;j++){
+            array[i][j]=st.charCodeAt(i*size+j);////String.fromCharCode(array[i][j])
+        }
+    }
+    return array;
+}
+
+
 
 
 

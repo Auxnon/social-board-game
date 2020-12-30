@@ -43,25 +43,32 @@ var traitsAdd
 var otherAdd;
 var inspirationButton;
 
-var sheets={};
+var sheets = {};
 var currentUser;
 var sheetDom;
 
-const emptySheet=JSON.stringify({traits:[],personality:["","","",""],proficiencies:[],abilities:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],skills:[0,0,0,0,0,0,0,0,0,0,0,0,0,0],character:{name:"Doopy",type:"Bard",proficiency:0,inspiration:"./undefined"}})
+const emptySheet = JSON.stringify({ traits: [], personality: ["", "", "", ""], proficiencies: [], abilities: [
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0]
+    ], skills: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], character: { name: "Doopy", type: "Bard", proficiency: 0, inspiration: "./undefined" } })
 
 function init() {
     main = document.querySelector('#characterCard')
-    sheetDom  = document.querySelector('.sheet')
+    sheetDom = document.querySelector('.sheet')
     initSheet();
 
 
     let stats = main.querySelector('.section-stats')
-    sectionStats=stats;
-    sectionOther=main.querySelector('.section-other');
-    sectionTraits=main.querySelector('.section-traits');
-    sectionPersonality=main.querySelector('.section-personality');
-    sectionStatus=main.querySelector('.section-status');
-    sectionCharacter=main.querySelector('.section-character');
+    sectionStats = stats;
+    sectionOther = main.querySelector('.section-other');
+    sectionTraits = main.querySelector('.section-traits');
+    sectionPersonality = main.querySelector('.section-personality');
+    sectionStatus = main.querySelector('.section-status');
+    sectionCharacter = main.querySelector('.section-character');
 
     let strDom = makeStat('STR', 'Strength', 5)
     let dexDom = makeStat('DEX', 'Dexterity', 5)
@@ -128,8 +135,8 @@ function init() {
     //
     window.addEventListener('keyup', ev => {
         //console.log(ev.keyCode )
-        if(ev.keyCode == 27) {
-            if(testToggle)
+        if (ev.keyCode == 27) {
+            if (testToggle)
                 enableEdit()
             else
                 disableEdit()
@@ -142,56 +149,56 @@ function init() {
     makeStatus();
 
     //createSimpleAdjuster(main)
-    
 
-    otherAdd=sectionOther.querySelector('.feature-add');
-    traitsAdd=sectionTraits.querySelector('.feature-add');
 
-    otherAdd.addEventListener('click',ev=>{
-        let dom=makeOther();
-        sectionOther.insertBefore(dom,otherAdd)
+    otherAdd = sectionOther.querySelector('.feature-add');
+    traitsAdd = sectionTraits.querySelector('.feature-add');
+
+    otherAdd.addEventListener('click', ev => {
+        let dom = makeOther();
+        sectionOther.insertBefore(dom, otherAdd)
     })
 
-    traitsAdd.addEventListener('click',ev=>{
-        let dom=makeTrait();
-        sectionTraits.insertBefore(dom,traitsAdd)
+    traitsAdd.addEventListener('click', ev => {
+        let dom = makeTrait();
+        sectionTraits.insertBefore(dom, traitsAdd)
     })
 
-    let prof=sectionCharacter.querySelector('.character-proficiency')
-    let cent=d('centered')
-    cent.appendChild(input(2,6))
+    let prof = sectionCharacter.querySelector('.character-proficiency')
+    let cent = d('centered')
+    cent.appendChild(input(2, 6))
     prof.appendChild(cent)
 
-    main.querySelector('#sheet-edit-button').addEventListener('click',ev=>{
-        if(testToggle){
-                enableEdit()
-                ev.target.classList.add('toggled')
-            }else{
-                let out=disableEdit()
-                if(out)
-                    UI.systemMessage('Saved Character!','success',false,1500)
-                ev.target.classList.remove('toggled')
-            }
-            testToggle = !testToggle
+    main.querySelector('#sheet-edit-button').addEventListener('click', ev => {
+        if (testToggle) {
+            enableEdit()
+            ev.target.classList.add('toggled')
+        } else {
+            let out = disableEdit()
+            if (out)
+                UI.systemMessage('Saved Character!', 'success', false, 1500)
+            ev.target.classList.remove('toggled')
+        }
+        testToggle = !testToggle
     })
 
-    let inspiration=sectionCharacter.querySelector('.character-inspiration')
+    let inspiration = sectionCharacter.querySelector('.character-inspiration')
 
-    inspirationButton=Drawer.makeButton(inspiration,'character',function(opening){
-        let profi=sectionCharacter.querySelector('.character-inspiration').querySelector('img')
+    inspirationButton = Drawer.makeButton(inspiration, 'character', function(opening) {
+        let profi = sectionCharacter.querySelector('.character-inspiration').querySelector('img')
 
-        if(opening)
+        if (opening)
             Drawer.setData(profi)
         else
-            profi.src=Drawer.getData()
+            profi.src = Drawer.getData()
     })
-    inspirationButton.style.position='absolute'
-    inspirationButton.style.right='-16px'
-    inspirationButton.style.bottom='-16px'
+    inspirationButton.style.position = 'absolute'
+    inspirationButton.style.right = '-16px'
+    inspirationButton.style.bottom = '-16px'
     //inspiration.appendChild(inspButton)
 
-    let pic=sectionCharacter.querySelector('.character-picture')
-    pic.src=PictureMaker.get('man')
+    let pic = sectionCharacter.querySelector('.character-picture')
+    pic.src = PictureMaker.get('man')
 
     disableEdit(true);
 }
@@ -270,49 +277,50 @@ function makeInputNumber(parent) {
 
     parent.parentElement.appendChild(input)
 }
-function makeOther(){
-    let dom=d('feature')
-    let p=document.createElement('p')
-    p.setAttribute('contenteditable',true)
+
+function makeOther() {
+    let dom = d('feature')
+    let p = document.createElement('p')
+    p.setAttribute('contenteditable', true)
     dom.appendChild(p)
     return dom;
 }
 
-function makeTrait(obj){
-    let dom=d('feature')
-    let name=d('feature-name')
+function makeTrait(obj) {
+    let dom = d('feature')
+    let name = d('feature-name')
     let tag;
-    
-    let p=document.createElement('p')
-    
 
-    let check=document.createElement('input')
-    check.setAttribute('type','checkbox')
+    let p = document.createElement('p')
 
-    if(obj){
-        check.checked=obj.spell
-        check.style.display='none'
-        name.innerText=obj.name;
-        p.innerText=obj.description
-        tag=[];
-        obj.tags.forEach(t=>{
-            let dom=d('feature-tag')
-            dom.innerText=t
+
+    let check = document.createElement('input')
+    check.setAttribute('type', 'checkbox')
+
+    if (obj) {
+        check.checked = obj.spell
+        check.style.display = 'none'
+        name.innerText = obj.name;
+        p.innerText = obj.text
+        tag = [];
+        obj.tags.forEach(t => {
+            let dom = d('feature-tag')
+            dom.innerText = t
             tag.push(dom)
         })
 
-    }else{
-        tag=d('feature-tag')
-        name.setAttribute('contenteditable',true)
-        tag.setAttribute('contenteditable',true)
-        p.setAttribute('contenteditable',true)
+    } else {
+        tag = d('feature-tag')
+        name.setAttribute('contenteditable', true)
+        tag.setAttribute('contenteditable', true)
+        p.setAttribute('contenteditable', true)
     }
-   
+
 
 
     dom.appendChild(name)
-    if(obj)
-        tag.forEach(t=>{dom.appendChild(t)})
+    if (obj)
+        tag.forEach(t => { dom.appendChild(t) })
     else
         dom.appendChild(tag)
 
@@ -345,40 +353,40 @@ function enableEdit() {
         makeInputNumber(number)
     })
 
-    let list=Object.values(main.querySelectorAll('p'))
+    let list = Object.values(main.querySelectorAll('p'))
 
     //list = list.concat(Object.values(sectionTraits.querySelectorAll('.feature-name')))
     //list = list.concat(Object.values(sectionTraits.querySelectorAll('.feature-tag')))
-    list.forEach(p=>{
-        p.setAttribute('contenteditable',true)
+    list.forEach(p => {
+        p.setAttribute('contenteditable', true)
     })
 
-    let features=sectionTraits.querySelectorAll('.feature');
-    features.forEach(ft=>{
-        let inp=ft.querySelector('input')
-        if(inp)
-            inp.style.display='initial'
-        let name=ft.querySelector('.feature-name')
-        let text=ft.querySelector('p')
-        if(name)
-            name.setAttribute('contenteditable',true)
-        if(text)
-            text.setAttribute('contenteditable',true)
-        let tags=ft.querySelectorAll('.feature-tag')
-        tags.forEach(tag=>{
-            tag.setAttribute('contenteditable',true)
+    let features = sectionTraits.querySelectorAll('.feature');
+    features.forEach(ft => {
+        let inp = ft.querySelector('input')
+        if (inp)
+            inp.style.display = 'initial'
+        let name = ft.querySelector('.feature-name')
+        let text = ft.querySelector('p')
+        if (name)
+            name.setAttribute('contenteditable', true)
+        if (text)
+            text.setAttribute('contenteditable', true)
+        let tags = ft.querySelectorAll('.feature-tag')
+        tags.forEach(tag => {
+            tag.setAttribute('contenteditable', true)
         })
     })
 
-     inspirationButton.style.display='initial';
-     let charName=sectionCharacter.querySelector('.section-banner')
-     charName.setAttribute('contenteditable',true)
+    inspirationButton.style.display = 'initial';
+    let charName = sectionCharacter.querySelector('.section-banner')
+    charName.setAttribute('contenteditable', true)
 
-    main.querySelectorAll('.feature-add').forEach(adder=>{
-        adder.style.display='block'
+    main.querySelectorAll('.feature-add').forEach(adder => {
+        adder.style.display = 'block'
     })
-    window.scrollTo(0,0)
-   
+    window.scrollTo(0, 0)
+
 }
 
 function disableEdit(initial) {
@@ -386,9 +394,9 @@ function disableEdit(initial) {
     main.querySelectorAll('.section-group').forEach(dom => {
         dom.classList.add('section-group-mini')
     })
-    let tempObj={};
+    let tempObj = {};
 
-
+    
     let doms = main.querySelectorAll('.editable-number')
     doms.forEach(input => {
         input.removeEventListener('touchstart', numberStartAdjust);
@@ -397,162 +405,218 @@ function disableEdit(initial) {
         input.addEventListener('mouseup', numberClick);
         input.remove();
     })
+
     let numbers = main.querySelectorAll('.number')
     numbers.forEach(number => {
         number.disabled = true;
     })
 
-    tempObj.traits=[];
+    tempObj.traits = [];
 
-    let features=sectionTraits.querySelectorAll('.feature');
-    features.forEach(ft=>{
-        let obj={};
-        let name=ft.querySelector('.feature-name')
-        let text=ft.querySelector('p')
-        if(!(name || text) || (name.innerText.length==0 && text.innerText.length==0)){
+    let features = sectionTraits.querySelectorAll('.feature');
+    features.forEach(ft => {
+        let obj = {};
+        let name = ft.querySelector('.feature-name')
+        let text = ft.querySelector('p')
+        if (!(name || text) || (name.innerText.length == 0 && text.innerText.length == 0)) {
             ft.remove();
-        }else{
-            obj.name=name.innerText;
-            obj.text=text.innerText;
-            obj.tags=[];
-            let tags=ft.querySelectorAll('.feature-tag')
-            tags.forEach(tag=>{
-                tag.setAttribute('contenteditable',undefined)
-                if(tag.innerText.length>0){
+        } else {
+            obj.name = name.innerText;
+            obj.text = text.innerText;
+            obj.tags = [];
+            let tags = ft.querySelectorAll('.feature-tag')
+            tags.forEach(tag => {
+                tag.setAttribute('contenteditable', undefined)
+                if (tag.innerText.length > 0) {
                     obj.tags.push(tag.innerText)
-                }else
+                } else
                     tag.remove();
             })
-            let inp=ft.querySelector('input')
-            if(inp){
-                if(inp.checked ){
-                    obj.spell=true;
+            let inp = ft.querySelector('input')
+            if (inp) {
+                if (inp.checked) {
+                    obj.spell = true;
                     ft.classList.remove('trait')
                     ft.classList.add('spell')
-                }else{
+                } else {
                     ft.classList.add('trait')
                     ft.classList.remove('spell')
                 }
-                inp.style.display='none'
+                inp.style.display = 'none'
             }
-            name.setAttribute('contenteditable',undefined)
-            text.setAttribute('contenteditable',undefined)
+            name.setAttribute('contenteditable', undefined)
+            text.setAttribute('contenteditable', undefined)
             tempObj.traits.push(obj)
         }
     })
 
     ///
-    tempObj.personality=[];
-    let pers=sectionPersonality.querySelectorAll('p');
-    pers.forEach(p=>{
-        p.setAttribute('contenteditable',undefined)
+    tempObj.personality = [];
+    let pers = sectionPersonality.querySelectorAll('p');
+    pers.forEach(p => {
+        p.setAttribute('contenteditable', undefined)
         tempObj.personality.push(p.innerText)
     })
     ///
-    tempObj.proficiencies=[];
-    let pros=sectionOther.querySelectorAll('p');
-    pros.forEach(p=>{
-        tempObj.proficiencies.push(p.innerText)
+    tempObj.proficiencies = [];
+    let pros = sectionOther.querySelectorAll('p');
+    pros.forEach(p => {
+        if(p.innerText.length>0){
+            tempObj.proficiencies.push(p.innerText)
+            p.setAttribute('contenteditable', undefined)
+        }else
+        p.parentElement.remove();
     })
 
     ///
-    tempObj.abilities=[]
-    let stats=sectionStats.querySelectorAll('.section-item')
-    stats.forEach(p=>{
-        let nums=p.querySelectorAll('.number')
-        tempObj.abilities.push([nums[0].value,nums[1].value])
+    tempObj.abilities = []
+    let stats = sectionStats.querySelectorAll('.section-item')
+    stats.forEach(p => {
+        let nums = p.querySelectorAll('.number')
+        tempObj.abilities.push([nums[0].value, nums[1].value])
     })
-    tempObj.skills=[]
-    let skills=sectionStats.querySelectorAll('.skill-item')
-    skills.forEach(p=>{
+    tempObj.skills = []
+    let skills = sectionStats.querySelectorAll('.skill-item')
+    skills.forEach(p => {
         tempObj.skills.push(p.querySelector('input').value)
     })
 
-    tempObj.character={}
-    let characterName=sectionCharacter.querySelector('.section-banner')
-    let characterType=sectionCharacter.querySelector('.character-class')
-    let proficiency=sectionCharacter.querySelector('.number')
+    tempObj.status = []
+    let statuses = sectionStatus.querySelectorAll('.number')
+    statuses.forEach(n => {
+        tempObj.status.push(n.value)
+    })
+    let rows = sectionStatus.querySelectorAll('.saving-row')
+    let success = rows[0].querySelectorAll('input')
+    let fails = rows[1].querySelectorAll('input')
+    tempObj.successes = [success[0].checked, success[1].checked, success[2].checked]
+    tempObj.failures = [fails[0].checked, fails[1].checked, fails[2].checked]
 
 
-    if(Drawer.getState()=='character'){
+    tempObj.character = {}
+    let characterName = sectionCharacter.querySelector('.section-banner')
+    let characterType = sectionCharacter.querySelector('.character-class')
+    let proficiency = sectionCharacter.querySelector('.number')
+
+
+    if (Drawer.getState() == 'character') {
         inspirationButton.click();
     }
-    inspirationButton.style.display='none';
-    let inspiration=sectionCharacter.querySelector('.character-inspiration').querySelector('img')
-    tempObj.character.name=characterName.innerText
-    tempObj.character.type=characterType.innerText
+    inspirationButton.style.display = 'none';
+    let inspiration = sectionCharacter.querySelector('.character-inspiration').querySelector('img')
+    tempObj.character.name = characterName.innerText
+    characterName.setAttribute('contenteditable',"")
+    tempObj.character.type = characterType.innerText
+    characterType.setAttribute('contenteditable',"")
 
-    tempObj.character.proficiency=proficiency.value;
-    tempObj.character.inspiration=inspiration.src;
+    tempObj.character.proficiency = proficiency.value;
+    tempObj.character.inspiration = inspiration.src;
 
-    
+
     ///
 
 
-    main.querySelectorAll('.feature-add').forEach(adder=>{
-        adder.style.display='none'
+    main.querySelectorAll('.feature-add').forEach(adder => {
+        adder.style.display = 'none'
     })
-    window.scrollTo(0,0)
+    window.scrollTo(0, 0)
     console.log(tempObj)
-    window.tempy=JSON.stringify(tempObj)
-    if(!initial){
+    window.tempy = JSON.stringify(tempObj)
+    if (!initial) {
 
-        Online.updateSheet(currentUser,tempObj)
-        updateSheet(currentUser,tempObj)
+        Online.updateSheet(currentUser, tempObj)
+        updateSheet(currentUser, tempObj)
     }
     return tempObj;
 }
 
 
-function apply(obj){
-    let features=sectionTraits.querySelectorAll('.feature');
-    features.forEach(ft=>{
+function apply(obj,id) {
+    let features = sectionTraits.querySelectorAll('.feature');
+    features.forEach(ft => {
         ft.remove();
     })
-    obj.traits.forEach(trait=>{
-        sectionTraits.insertBefore(makeTrait(trait),traitsAdd)
-    })
 
-
-    let pers=sectionPersonality.querySelectorAll('p');
-    pers.forEach((p,i)=>{
-        p.innerText=obj.personality[i]
-    })
     ///
-    let pros=sectionOther.querySelectorAll('p');
-    pros.forEach(p=>{
+    if (obj.traits) {
+        obj.traits.forEach(trait => {
+            sectionTraits.insertBefore(makeTrait(trait), traitsAdd)
+        })
+    }
+
+    ///
+    if (obj.personality) {
+        let pers = sectionPersonality.querySelectorAll('p');
+        pers.forEach((p, i) => {
+            p.innerText = obj.personality[i]
+        })
+    }
+    ///
+    let pros = sectionOther.querySelectorAll('p');
+    pros.forEach(p => {
         p.remove();
     })
-    obj.proficiencies.forEach(p=>{
-        let dom=d('feature');
-        dom.innerText=p;
-        sectionOther.insertBefore(dom,otherAdd)
-    })
+    if (obj.proficiencies) {
+
+
+        obj.proficiencies.forEach(p => {
+            let dom = d('feature');
+            dom.innerText = p;
+            sectionOther.insertBefore(dom, otherAdd)
+        })
+    }
 
     ///
-    let stats=sectionStats.querySelectorAll('.section-item')
-    stats.forEach((p,i)=>{
-        let nums=p.querySelectorAll('.number')
-        nums[0].value=obj.abilities[i][0]
-        nums[1].value=obj.abilities[i][1]
-    })
+    if (obj.abilities) {
+        let stats = sectionStats.querySelectorAll('.section-item')
+        stats.forEach((p, i) => {
+            let nums = p.querySelectorAll('.number')
+            nums[0].value = obj.abilities[i][0] ? obj.abilities[i][0] : 0
+            nums[1].value = obj.abilities[i][1] ? obj.abilities[i][1] : 0
+        })
+    }
 
-    let skills=sectionStats.querySelectorAll('.skill-item')
-    skills.forEach((p,i)=>{
-        p.querySelector('input').value=obj.skills[i]
-    })
+    if (obj.skills) {
+        let skills = sectionStats.querySelectorAll('.skill-item')
+        skills.forEach((p, i) => {
+            p.querySelector('input').value = obj.skills[i]
+        })
+    }
 
-    let characterName=sectionCharacter.querySelector('.section-banner')
-    let characterType=sectionCharacter.querySelector('.character-class')
-    let proficiency=sectionCharacter.querySelector('.number')
+    if (obj.character) {
+        let characterName = sectionCharacter.querySelector('.section-banner')
+        let characterType = sectionCharacter.querySelector('.character-class')
+        let proficiency = sectionCharacter.querySelector('.number')
 
-    let inspiration=sectionCharacter.querySelector('.character-inspiration').querySelector('img')
-    characterName.innerText=obj.character.name
-    characterType.innerText=obj.character.type
-    if(obj.character.proficiency)
-        proficiency.value=obj.character.proficiency
-    inspiration.src=obj.character.inspiration;
-    window.scrollTo(0,0)
+        let inspiration = sectionCharacter.querySelector('.character-inspiration').querySelector('img')
+        characterName.innerText = obj.character.name
+        if(id!=undefined){
+             let user=PlayerManager.getUser(id)
+            if(user)
+                characterName.style.backgroundColor=user.color;
+        }
+       
+        characterType.innerText = obj.character.type
+        if (obj.character.proficiency)
+            proficiency.value = obj.character.proficiency
+        inspiration.src = obj.character.inspiration;
+    }
+    if (obj.status) {
+        let statuses = sectionStatus.querySelectorAll('.number')
+        statuses.forEach((n, i) => {
+            n.value = obj.status[i] ? obj.status[i] : 0
+        })
+    }
+    if (obj.successes && obj.failures) {
+        let rows = sectionStatus.querySelectorAll('.saving-row')
+        let success = rows[0].querySelectorAll('input')
+        let fails = rows[1].querySelectorAll('input')
+        for (let i = 0; i < 3; i++) {
+            success[i].checked = obj.successes[i]
+            fails[i].checked = obj.failures[i]
+        }
+    }
+    window.scrollTo(0, 0)
 }
 
 var simpleAdjuster
@@ -623,14 +687,14 @@ function numberStartAdjust(ev) {
 }
 
 function numberMoveAdjust(ev) {
-    if(movingAdjust) {
+    if (movingAdjust) {
         let flip = true;
         //let box=ev.target.getBoundingClientRect()
         let v = ev.touches[0].clientX - (movingAdjust.x);
         let c = 0
-        if(v > 24 || v < -24) {
+        if (v > 24 || v < -24) {
             v = Math.max(-96, Math.min(v, 96));
-            if(v < -24) {
+            if (v < -24) {
                 flip = false;
                 c = (ev.target.range[1] - ev.target.range[0]) * ((Math.abs(v) - 24) / 72)
             } else {
@@ -649,7 +713,7 @@ function numberEndAdjust(ev) {
     movingAdjust = false;
     ev.target.className = 'editable-number'
     ev.target.style.transform = 'translate(0)';
-    if(!touchTimeout) {
+    if (!touchTimeout) {
         moveSimpleAdjuster(ev.target)
     }
 }
@@ -661,8 +725,8 @@ function numberClick(ev) {
 }
 
 function skillSelect(ev) {
-    if(ev.target.classList.contains('skill-item')) {
-        if(ev.target.classList.contains('selected')) {
+    if (ev.target.classList.contains('skill-item')) {
+        if (ev.target.classList.contains('selected')) {
             ev.target.classList.remove('selected')
             ev.target.parentElement.appendChild(ev.target)
         } else {
@@ -677,7 +741,7 @@ function skillSelect(ev) {
 
 function d(c) {
     let dom = document.createElement('div')
-    if(c)
+    if (c)
         dom.className = c;
     return dom
 }
@@ -715,9 +779,9 @@ function makeStatus() {
     row.appendChild(speed);
 
 
-    let hitpoints=sectionStatus.querySelector('.status-hitpoints')
-    let num1=input(0,30)
-    let num2=input(0,30)
+    let hitpoints = sectionStatus.querySelector('.status-hitpoints')
+    let num1 = input(0, 30)
+    let num2 = input(0, 30)
     hitpoints.appendChild(num1)
     hitpoints.appendChild(num2)
     //let hitDice=d('status-dice')
@@ -725,14 +789,14 @@ function makeStatus() {
 }
 
 function toggleMini(ev) {
-    if(editing)
+    if (editing)
         return;
     let doms = main.querySelectorAll('.section-group')
     doms.forEach(obj => {
-        if(ev.target != obj)
+        if (ev.target != obj)
             obj.classList.add('section-group-mini')
     })
-    if(ev) {
+    if (ev) {
 
         ev.target.classList.toggle('section-group-mini')
     }
@@ -740,55 +804,55 @@ function toggleMini(ev) {
 
 
 /******************/
-function applyUsers(data){
-    sheets=data
+function applyUsers(data) {
+    sheets = data
 
-    let nav=main.querySelector('.sheet-nav');
+    let nav = main.querySelector('.sheet-nav');
     let ownDom
-    PlayerManager.users.forEach(user=>{
-        let dom=d('sheet-user')
-        dom.style.backgroundColor=user.color;
-        let span=document.createElement('span')
-        span.innerText=user.username;
+    PlayerManager.users.forEach(user => {
+        let dom = d('sheet-user')
+        dom.style.backgroundColor = user.color;
+        let span = document.createElement('span')
+        span.innerText = user.username;
         dom.appendChild(span)
-        dom.setAttribute('data',user.id)
-        dom.addEventListener('click',ev=>{
-            let i=parseInt(ev.target.getAttribute('data'))
-            let sheet=sheets[i]
-            if(sheet){
-                
-            }else{
-                UI.systemMessage('No Sheet available, loading empty','warn',false,1500)
-                sheet=JSON.parse(emptySheet)
-            }
-            apply(sheet)
-                window.scrollTo(0,0)
-                currentUser=i;
-                ev.target.style.animation='';
-                void ev.target.offsetWidth;
-                ev.target.style.animation='jello 0.4s'
+        dom.setAttribute('data', user.id)
+        dom.addEventListener('click', ev => {
+            let i = parseInt(ev.target.getAttribute('data'))
+            let sheet = sheets[i]
+            if (sheet) {
 
-                sheetDom.style.animation='';
-                void sheetDom.offsetWidth;
-                sheetDom.style.animation='jello 0.4s'
+            } else {
+                UI.systemMessage('No Sheet available, loading empty', 'warn', false, 1500)
+                sheet = JSON.parse(emptySheet)
+            }
+            apply(sheet,i)
+            window.scrollTo(0, 0)
+            currentUser = i;
+            ev.target.style.animation = '';
+            void ev.target.offsetWidth;
+            ev.target.style.animation = 'jello 0.4s'
+
+            sheetDom.style.animation = '';
+            void sheetDom.offsetWidth;
+            sheetDom.style.animation = 'jello 0.4s'
 
         })
-        if(user.id==PlayerManager.getOwnPlayer().id){
-            currentUser=user.id;
-            ownDom=dom
-            let sheet=sheets[user.id]
-            if(sheet)
-                apply(sheet)
-        }else
+        if (user.id == PlayerManager.getOwnPlayer().id) {
+            currentUser = user.id;
+            ownDom = dom
+            let sheet = sheets[user.id]
+            if (sheet)
+                apply(sheet,user.id)
+        } else
             nav.appendChild(dom)
     })
-    if(ownDom)
-        nav.insertBefore(ownDom,nav.firstChild)
+    if (ownDom)
+        nav.insertBefore(ownDom, nav.firstChild)
 
 }
 
-function updateSheet(id,obj){
-    sheets[id]=obj
+function updateSheet(id, obj) {
+    sheets[id] = obj
 }
 /*
 function setSheets(obj){
@@ -815,6 +879,9 @@ function setSheets(obj){
 function initSheet() {
     var sheet = document.createElement('style')
     sheet.innerHTML = `
+    [contenteditable="true"]{
+        text-decoration: underline;
+    }
     [contenteditable="true"]:active,
 [contenteditable="true"]:focus{
   border:none;
@@ -862,6 +929,7 @@ input[type=number] {
     max-height: calc(100% - 200px);
     font-family: openBold;
 }
+
 .sub-section{
     display: flex;
     flex: 1;
@@ -919,7 +987,15 @@ input[type=number] {
     text-align: center;
     max-width: 64px;
     font-size: 32px;
+    text-decoration: underline;
 }
+.number:disabled{
+    text-decoration: none;
+}
+.number:before{
+    content:'+';
+}
+
 
 
 
@@ -1038,6 +1114,7 @@ input[type=number] {
 .skill-item .number {
     position: absolute;
     right: 32px;
+    top: -10px;
 }
 
 .skill-item-label {
@@ -1429,7 +1506,7 @@ input[type=number] {
         border-radius: 28px;
         cursor: pointer;
         pointer-events: auto;
-        right: 102px;
+        right: 48px;
         bottom: 108px;
         background-size: 48px;
         background-position: center center;
@@ -1446,4 +1523,4 @@ input[type=number] {
 }
 
 
-export {init,updateSheet,applyUsers}
+export { init, updateSheet, applyUsers }

@@ -18,7 +18,9 @@
  var pendingLogin;
 
  function initSocket() {
-     window.m = m;
+     window.sysMessage=sysMessage;
+     window.forceSave=forceSave;
+
      BarUI.show();
 
      console.log('trying auth...');
@@ -110,6 +112,10 @@
      socket.on('updateSheet', function(id, obj) {
          Character.updateSheet(id, obj)
          console.log('deleted')
+     })
+     socket.on('sysMessage', function(m,type) {
+         console.log('sysMessage ',m,type)
+         UI.systemMessage(m,type)
      })
 
      lastChats();
@@ -260,4 +266,12 @@
  function updateSheet(id, obj) {
      socket.emit('updateSheet', id, obj);
  }
+
+ function sysMessage(m,type){
+    socket.emit('sysMessage', m,type);
+ }
+
+function forceSave(){
+    socket.emit('forceSave');
+}
  export { login, physMake, physReset, message, terrain, physSend, physDel, updateSheet }

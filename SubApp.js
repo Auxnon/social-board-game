@@ -31,8 +31,9 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var USERS = [];
     var possibleUsers = []; //TODO get rid of this lol
     var lastChats = [];
-    var grid = [];
+   
     var sheets={};
+    var land
 
 
 
@@ -56,6 +57,12 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         sessionID: DataTypes.STRING,
         online: false,
     }, { sequelize, modelName: 'user' });
+
+    class Land extends Model {}
+    Land.init({
+        data: DataTypes.STRING,
+        meta: DataTypes.STRING,
+    }, { sequelize, modelName: 'land' });
 
 
     function makeUser(name, color, pin, callback) {
@@ -98,6 +105,8 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     }
 
 
+
+
     (async () => {
         if(passedArgs[0] == 'purge') {
             console.log('P U R G I N G  DB'.red)
@@ -120,6 +129,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                 ['Greg', '9000', 'salt', '#3442C5'],
                 ['Nick', '8008', 'salt', '#7EBB1D'],
                 ['Heather', '6969', 'salt', '#FF00D8'],
+                ['Twilt', '4200', 'salt', '#FF00D8'],
             ]
 
             contents.forEach(stuff => {
@@ -131,6 +141,12 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     password: hashPassword(stuff[1], stuff[2])
                 });
             })
+
+            let land = Land.create({
+                        data: '',
+                        meta:'',
+            });
+
             await sequelize.sync();
 
 
@@ -144,9 +160,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
             possibleUsers.push({ id: user.id, username: user.username, color: user.color });
         })
 
+        Land.findOne().then(l=>{
+            land=l;
+        })
+
         console.log('[[ USER COUNT %i ]]', users.length)
         console.log('=====[[ VVV Start VVV ]]===='.underline.bgMagenta)
 
+        
 
 
     })();
@@ -223,7 +244,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         res.send({ array: lastChats });
     })
     app.post('/grid', function(req, res, next) {
-        res.send({ grid: grid });
+        res.send({ grid: land?land.data:undefined });
     })
      app.post('/getSheets', function(req, res, next) {
         console.log('* sending sheets ')
@@ -313,7 +334,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     })*/
                 });
                 socket.on('terrain', function(id, chunk, data) {
-                    grid = data;
+                    land.data = data;
                     socket.broadcast.emit('terrain', id, chunk, data);
                     console.log('- terrain sync length ', data.length)
                 })
@@ -335,8 +356,9 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                 })
                 socket.on('updateSheet', function(id, obj) {
                     sheets[id]=obj;
-                    console.log('updating sheet')
+                    console.log('updating sheet ',JSON.stringify(obj))
                     socket.broadcast.emit('updateSheet', id, obj);
+
                 })
 
                 //body.position, body.quaternion, body.velocity, body.angularVelocity,body.sleepObj
@@ -424,10 +446,28 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     console.log('send phys init data')
                     socket.emit('physInit', physInits, physData)
                 });
+                socket.on('forceSave', function() {
+                    save();
+                })
+                socket.on('sysMessage', function(m) {
+                    dandSpace.emit('sysMessage', m)
+                })
+
             }
         })
 
     });
+
+    function save(){
+        if(land){
+            land.save();
+            dandSpace.emit('sysMessage', 'server land saved','success')
+        }
+    }
+    setInterval(function(){
+        save()
+    },600000) //10 minutes
+
 
     function getUserId(session) {
         if(session) {
