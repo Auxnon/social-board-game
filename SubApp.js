@@ -361,7 +361,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
 
                 })
 
-                //body.position, body.quaternion, body.velocity, body.angularVelocity,body.sleepObj
+                //body.position, body.quaternion, body.velocity, body.angularVelocity,body.dynamics
 
 
 
@@ -542,13 +542,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
 
     var sleeping
     var physStep = 1 / 30;
+    var defaultMat;
 
     function physMake(size, mass, pos, quat, type, meta) {
-        let body = new CANNON.Body({ mass: mass });
+        let body = new CANNON.Body({ mass: mass,material:defaultMat });
         let shape;
         switch(type){
             case 1: shape = new CANNON.Cylinder(size.x, size.y, size.z, 6); break;
-            case 2: shape = new CANNON.Sphere(size.x); break;
+            case 3: shape = new CANNON.Sphere(size.x); break;
             default: shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
         }
 
@@ -557,16 +558,17 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         if(quat)
             body.quaternion.copy(quat)
 
-        console.log(quat)
-
-        body.sleepObj = { value: 0 }
+        body.dynamics = { value:-1,sleep: 0 }
+        /*if(meta.label=='dice'){
+            body.watch=true;
+        }*/
         let id = physCounter;
         body.id = id;
         physArray[id] = body;
         world.addBody(body);
         physCounter++;
 
-        physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity, body.sleepObj])
+        physData.push([id, body.position, body.quaternion, body.velocity, body.angularVelocity, body.dynamics])
         physInits.push([id, size, mass, type, meta])
         return id;
     }
@@ -592,8 +594,16 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         world.gravity.set(0, 0, -10);
         world.broadphase = new CANNON.NaiveBroadphase();
 
+        defaultMat = new CANNON.Material();
+
+        const contactMaterial = new CANNON.ContactMaterial(defaultMat, defaultMat, {
+            friction: 1
+        });
+
+        world.addContactMaterial(contactMaterial);
+
         let groundShape = new CANNON.Plane();
-        let groundBody = new CANNON.Body({ mass: 0 });
+        let groundBody = new CANNON.Body({ mass: 0, material:defaultMat });
         groundBody.addShape(groundShape);
         world.addBody(groundBody);
 
@@ -624,9 +634,13 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         let array = Object.values(physArray);
         let awakeCount = 0;
         array.forEach(obj => {
-            obj.sleepObj.value = obj.sleepState
+            obj.dynamics.sleep = obj.sleepState
             if(obj.sleepState == 0) { //active
+
                 awakeCount++;
+                /*if(obj.watch){
+                    obj.dynamics.value=M
+                }*/
             }
         })
         //console.log('sleep ',awakeCount)

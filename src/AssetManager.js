@@ -37,6 +37,11 @@ function init(){
     defaultLoad('werewolf','glb');
     defaultLoad('vampire','glb');
     defaultLoad('zombie','glb');
+    defaultLoad('die4','glb');
+    defaultLoad('die6','glb');
+    defaultLoad('die8','glb');
+    defaultLoad('die10','glb');
+    defaultLoad('die20','glb');
 
 /*
 	load('assets/person.gltf',m=>{

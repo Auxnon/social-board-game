@@ -348,8 +348,8 @@ function setVector(pos) {
                         mdown = false;
                         calcRot();
                         let name = selected.charAt(0).toUpperCase() + selected.slice(1)
-                        if(selected=='dice'){
-                            Online.physMake({ x: 2 }, 1, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 3, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
+                        if(selected.startsWith('die')){
+                            Online.physMake({ x: 1.2,y: 1.2, z: 1.2 }, 1, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 3, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
                         }else
                             Online.physMake({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 1, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
                         

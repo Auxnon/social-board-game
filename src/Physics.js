@@ -3,7 +3,7 @@ import * as Control from "./Control.js";
 import * as Render from "./Render.js";
 import * as Online from "./Online.js";
 import * as AssetManager from "./AssetManager.js";
-
+import * as Chat from "./Chat.js";
 
 import * as CANNON from "./lib/cannon.min.js";
 
@@ -17,6 +17,7 @@ var bullets;
 var world;
 var playerBody;
 var orientation = 0;
+var defaultMat
 
 const dt = 1 / 30; //1/20
 /// 1/100
@@ -35,6 +36,14 @@ function init() {
 
     world.gravity.set(0, 0, -10);
     world.broadphase = new CANNON.NaiveBroadphase();
+
+    defaultMat = new CANNON.Material();
+
+    const contactMaterial = new CANNON.ContactMaterial(defaultMat, defaultMat, {
+        friction: 1
+    });
+
+    world.addContactMaterial(contactMaterial);
 
 
 
@@ -247,7 +256,7 @@ function makeMan() {
 
 function makeFloor() {
     let groundShape = new CANNON.Plane();
-    let groundBody = new CANNON.Body({ mass: 0 });
+    let groundBody = new CANNON.Body({ mass: 0,material:defaultMat });
     groundBody.addShape(groundShape);
     world.addBody(groundBody);
 
@@ -371,11 +380,11 @@ var physArray = []
 var meshArray = []
 
 function physMake(id, size, mass, pos,quat, type, meta) {
-    let body = new CANNON.Body({ mass: mass });
+    let body = new CANNON.Body({ mass: mass,material:defaultMat });
     let shape;
     switch(type){
         case 1: shape = new CANNON.Cylinder(size.x, size.y, size.z, 6); break;
-        case 2: shape = new CANNON.Sphere(size.x); break;
+        case 3: shape = new CANNON.Sphere(size.x); break;
         default: shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
     }
 
@@ -401,12 +410,18 @@ function physMake(id, size, mass, pos,quat, type, meta) {
         inner.position.z=-size.z/2;
         inner.rotation.x=Math.PI/2;
         mesh.add(inner)
+
+        if(meta.label){
+            if(meta.label=='dice'){
+                body.labelDom=Chat.addBubble('dice',{color:'#ff0000'},mesh,)
+            }
+        }
         //mesh.up.set(0,0,1)
         /*if(mesh.children && mesh.children.length>1)
             if(mesh.children[0].geometry){
                 mesh.children[0].geometry.rotateX(Math.PI/2)
             }*/
-    }else if(type) {
+    }else if(type==1) {
         mesh = Render.cylinder(size.x, size.y, size.z, pos.x, pos.y, pos.z, meta.color)
         //mesh.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
     } else
@@ -419,6 +434,9 @@ function physMake(id, size, mass, pos,quat, type, meta) {
 function physDel(id){
     Render.removeModel(meshArray[id])
     delete meshArray[id];
+    if(physArray[id].labelDom){
+        Chat.popBubble(physArray[id].labelDom);
+    }
     world.remove(physArray[id])
     delete physArray[id];
 }
@@ -440,13 +458,16 @@ function syncOnline(data) {
 
             p.angularVelocity.copy(stuff[4])
 
-            if(p.sleepState != stuff[5]) {
-                if(stuff[5] == 2) {
+            if(p.sleepState != stuff[5].sleep) {
+                if(stuff[5].sleep == 2) {
                     p.sleep();
                 } else if(p.sleepState == 2) {
                     p.wakeUp();
                 }
                 //p.sleepState=stuff[5]
+            }
+            if(p.labelDom){ //stuff[5].value!=-1 &&  //value is changing, but also we have a label, hopefully this is dice
+                p.labelDom.bubble.innerText=p.quaternion.x;
             }
         }
     })

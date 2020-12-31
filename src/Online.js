@@ -18,6 +18,7 @@
  var pendingLogin;
 
  function initSocket() {
+    try{
      window.sysMessage=sysMessage;
      window.forceSave=forceSave;
 
@@ -122,6 +123,10 @@
      getGrid();
      getSheets();
      Control.init();
+ }catch(err){
+    UI.systemMessage("Stage2 Auth: "+err,'error');
+    console.log('test')
+ }
  }
 
 
@@ -152,7 +157,7 @@
              return response.json();
      }).then(function(data) {
          if(data) {
-             UI.systemMessage(data.message, 'success')
+             //UI.systemMessage(data.message, 'success')
              PlayerManager.setOwnPlayer(data.id)
              initSocket();
          }

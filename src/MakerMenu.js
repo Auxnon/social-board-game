@@ -14,7 +14,11 @@ var stuff = [
     'vampire',
     'zombie',
     'trash',
-    'dice'
+    'die4',
+    'die6',
+    'die8',
+    'die10',
+    'die20',
 ]
 
 function init() {

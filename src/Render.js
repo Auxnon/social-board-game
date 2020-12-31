@@ -33,6 +33,7 @@ var activeCamera, activeScene;
 
 
 var docWidth, docHeight;
+var anchors=[];
 
 var loader;
 var mixer;
@@ -316,6 +317,11 @@ function animate(time) {
         physDebugger.update();
     renderer.render(activeScene, activeCamera);
     //composer.render();
+    if(anchors.length>0){
+        anchors.forEach((a,i)=>{
+            updateAnchor(a,i);
+        })
+    }
     requestAnimationFrame(animate);
 }
 
@@ -345,7 +351,6 @@ function bufferPrint(sc, cam) {
     return m;
 }
 
-var anchors = [];
 
 function addAnchor(host, bubble) {
     let anchor = {
@@ -512,8 +517,6 @@ function applyCursor() {
     pointer.position.z = pos.z+0.5;
     // console.log(pointer.position)
     Control.setVector(pointer.position);
-    
-
 }
 
 function projectVector(object) {
@@ -524,7 +527,7 @@ function projectVector(object) {
         heightHalf = height / 2;
 
     let vector = object.position.clone();
-    vector.z += 30
+    vector.z += 4
     //vector.applyMatrix4(object.matrixWorld);
     vector.project(camera)
 
@@ -861,6 +864,7 @@ export {
     getAlphaCanvas,
     bufferPrint,
     loadModel,
+    addAnchor,
     resize,
     player,
     togglePhysicsDebugger

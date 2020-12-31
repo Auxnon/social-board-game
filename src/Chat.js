@@ -5,15 +5,17 @@ import * as BarUI from "./BarUI.js";
 import * as Helper from "./Helper.js";
 import * as PlayerManager from "./PlayerManager.js";
 import * as Drawer from "./Drawer.js"; 
-//import * as Mail from "./Mail.js";
+import * as UI from "./UI.js";
 
 var chatPane;
 //var chatBlock;
 var chatInput;
 var chatBottom;
+var projection;
 
 function init(){
 	let mainDom=document.querySelector('#chatCard');
+	projection=document.querySelector('#projection');
 	//let chatButton=document.createElement('div');
 	//chatButton.classList.add('chatButton','menuHidable');
 
@@ -149,12 +151,12 @@ function addBubble(s,player,model){
 
 	if(model){
 		chatBubble.classList.add('chat-world-bubble');
-		let projection=document.querySelector('#projection');
+		
 		
 		projection.appendChild(chatBubble);
 		let anchor=Render.addAnchor(model,chatBubble);
-		Control.addConfetti(anchor.x,anchor.y,Math.floor(Math.random()*360));
-		Control.addConfetti(anchor.x,anchor.y,Math.floor(Math.random()*360));
+		UI.addConfetti(anchor.x,anchor.y,Math.floor(Math.random()*360));
+		UI.addConfetti(anchor.x,anchor.y,Math.floor(Math.random()*360));
 		//Render.schedule(player,"shake")
 		return anchor;
 
@@ -291,5 +293,12 @@ function setSize(bool){
 		chatBottom.style.bottom='0px'
 	}
 }
+function popBubble(anchor){
+	anchor.bubble.remove();
+	anchor.bubble=null;
+}
+function updateBubble(anchor){
+	anchor.bubble
+}
 
-export {init,openChat,closeChat,hook,setSize,lastChats,makeDivider,makeEpic}
+export {init,openChat,closeChat,hook,setSize,lastChats,makeDivider,makeEpic,addBubble,popBubble}

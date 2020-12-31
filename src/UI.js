@@ -407,4 +407,4 @@ function styleInit(){
 	document.body.appendChild(sheet);
 }
 
-export {init,systemMessage,cursorMessage}
+export {init,systemMessage,cursorMessage,addConfetti}

@@ -21,8 +21,13 @@ var mainDom;
 
 function init() {
     mainDom=document.querySelector('#main');
-    controls = {};
     UI.init(mainDom)
+    try{
+
+
+    
+    controls = {};
+    
 
     window.onError = function(message, source, lineno, colno, error) {
         UI.systemMessage(message,'error')
@@ -104,7 +109,7 @@ function init() {
 
 
 
-    
+
 
 
     let canvas = Render.init();
@@ -121,12 +126,12 @@ function init() {
     AssetManager.init();
 
     Drawer.init();
-    
+    Character.init();
 
     let loop=setInterval(function(){
         if(AssetManager.getPending()<=0){
             Equipment.init();
-            Character.init();
+            
             clearInterval(loop)
         }
     },1000)
@@ -136,7 +141,9 @@ function init() {
      //makeRoom(200,220,80,10)
 
      //Render.addModel(Render.plane(100,100,0))
-
+}catch(err){
+    UI.systemMessage(err,'error')
+}
 
 
 }
