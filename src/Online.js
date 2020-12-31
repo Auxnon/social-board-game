@@ -46,7 +46,8 @@
          Login.hide();
          console.log('connected')
          socket.emit('physInit')
-         pendingLogin.remove();
+         if(pendingLogin)
+         	pendingLogin.remove();
          pendingLogin = undefined;
      });
 

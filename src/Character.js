@@ -454,7 +454,7 @@ function disableEdit(initial) {
     tempObj.personality = [];
     let pers = sectionPersonality.querySelectorAll('p');
     pers.forEach(p => {
-        p.setAttribute('contenteditable', undefined)
+        p.setAttribute('contenteditable', false)
         tempObj.personality.push(p.innerText)
     })
     ///
@@ -463,7 +463,7 @@ function disableEdit(initial) {
     pros.forEach(p => {
         if(p.innerText.length>0){
             tempObj.proficiencies.push(p.innerText)
-            p.setAttribute('contenteditable', undefined)
+            p.setAttribute('contenteditable', false)
         }else
         p.parentElement.remove();
     })
@@ -505,9 +505,9 @@ function disableEdit(initial) {
     inspirationButton.style.display = 'none';
     let inspiration = sectionCharacter.querySelector('.character-inspiration').querySelector('img')
     tempObj.character.name = characterName.innerText
-    characterName.setAttribute('contenteditable',"")
+    characterName.setAttribute('contenteditable',false)
     tempObj.character.type = characterType.innerText
-    characterType.setAttribute('contenteditable',"")
+    characterType.setAttribute('contenteditable',false)
 
     tempObj.character.proficiency = proficiency.value;
     tempObj.character.inspiration = inspiration.src;

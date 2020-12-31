@@ -18,11 +18,13 @@ var world;
 var playerBody;
 var orientation = 0;
 var defaultMat
+var randTest=[]
 
 const dt = 1 / 30; //1/20
 /// 1/100
 
 function init() {
+    window.randTest=randTest
     let N = 1;
     meshes = [];
     particles = [];
@@ -37,10 +39,10 @@ function init() {
     world.gravity.set(0, 0, -10);
     world.broadphase = new CANNON.NaiveBroadphase();
 
-    defaultMat = new CANNON.Material();
+    defaultMat = new CANNON.Material("basicMaterial");
 
     const contactMaterial = new CANNON.ContactMaterial(defaultMat, defaultMat, {
-        friction: 1
+        friction: 0.2
     });
 
     world.addContactMaterial(contactMaterial);
@@ -384,7 +386,7 @@ function physMake(id, size, mass, pos,quat, type, meta) {
     let shape;
     switch(type){
         case 1: shape = new CANNON.Cylinder(size.x, size.y, size.z, 6); break;
-        case 3: shape = new CANNON.Sphere(size.x); break;
+        case 3: shape = new CANNON.Sphere(size.x); body.angularDamping=0.3;break;
         default: shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
     }
 
@@ -407,13 +409,15 @@ function physMake(id, size, mass, pos,quat, type, meta) {
     if(meta && meta.model){
         let inner=AssetManager.make(meta.model,meta.color)
         mesh=Render.makeGroup();
-        inner.position.z=-size.z/2;
+        if(!meta.label)
+            inner.position.z=-size.z/2;
         inner.rotation.x=Math.PI/2;
         mesh.add(inner)
 
         if(meta.label){
             if(meta.label=='dice'){
-                body.labelDom=Chat.addBubble('dice',{color:'#ff0000'},mesh,)
+                body.labelDom=Chat.addBubble('dice',{color:meta.color},mesh,)
+                body.labelDom.mult=parseInt(meta.model.substring(3))
             }
         }
         //mesh.up.set(0,0,1)
@@ -467,7 +471,17 @@ function syncOnline(data) {
                 //p.sleepState=stuff[5]
             }
             if(p.labelDom){ //stuff[5].value!=-1 &&  //value is changing, but also we have a label, hopefully this is dice
-                p.labelDom.bubble.innerText=p.quaternion.x;
+                let v=stuff[5].value;//((p.quaternion.z) + (p.quaternion.w) )/2
+                if(p.labelDom.mult){
+                    let val=Math.floor(v*p.labelDom.mult)+1
+                    v=val+' / '+p.labelDom.mult
+                    /*if(!randTest[p.labelDom.mult])
+                        randTest[p.labelDom.mult]=[]
+                    randTest[p.labelDom.mult].push(val)
+                    if(randTest[p.labelDom.mult].length>100)
+                        randTest[p.labelDom.mult].shift();*/
+                }
+                p.labelDom.bubble.innerText=v;
             }
         }
     })
@@ -504,7 +518,7 @@ return true if carrying in first or nth passes, return false if couldnt find obj
 **/
 function physCarry(pos,rot) {
     if(carryTarget == undefined) {
-        let closest=findWithin(3,pos)
+        let closest=findWithin(2.2,pos)
         if(closest != undefined){
             carryTarget = physArray[closest]
             return 1;

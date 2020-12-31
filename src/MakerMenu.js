@@ -33,6 +33,9 @@ function item(st) {
     dom.setAttribute('data', st)
     dom.addEventListener('click', ev => {
         selected = ev.target.getAttribute('data')
+        ev.target.style.animation=''
+        void ev.target.offsetWidth
+        ev.target.style.animation='jello 0.4s'
     })
     dom.innerText = st
     menu.appendChild(dom)

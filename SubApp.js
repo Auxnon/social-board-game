@@ -544,12 +544,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var physStep = 1 / 30;
     var defaultMat;
 
+    var watched={};
+
     function physMake(size, mass, pos, quat, type, meta) {
         let body = new CANNON.Body({ mass: mass,material:defaultMat });
         let shape;
         switch(type){
             case 1: shape = new CANNON.Cylinder(size.x, size.y, size.z, 6); break;
-            case 3: shape = new CANNON.Sphere(size.x); break;
+            case 3: shape = new CANNON.Sphere(size.x);body.angularDamping=0.3; break;
             default: shape = new CANNON.Box(new CANNON.Vec3(size.x, size.y, size.z));
         }
 
@@ -558,11 +560,14 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         if(quat)
             body.quaternion.copy(quat)
 
-        body.dynamics = { value:-1,sleep: 0 }
-        /*if(meta.label=='dice'){
-            body.watch=true;
-        }*/
         let id = physCounter;
+
+
+        body.dynamics = { value:-1,sleep: 0 }
+        if(meta.label=='dice'){
+            body.watch=true;
+            watched[id]=(body)
+        }
         body.id = id;
         physArray[id] = body;
         world.addBody(body);
@@ -573,6 +578,8 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         return id;
     }
     function physDel(id){
+        if(physArray[id].watch)
+          delete watched[id]
 
         delete physArray[id];
         for(let i=0;i<physInits.length;i++){
@@ -594,10 +601,10 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         world.gravity.set(0, 0, -10);
         world.broadphase = new CANNON.NaiveBroadphase();
 
-        defaultMat = new CANNON.Material();
+        defaultMat = new CANNON.Material("basicMaterial");
 
         const contactMaterial = new CANNON.ContactMaterial(defaultMat, defaultMat, {
-            friction: 1
+            friction: 0.2
         });
 
         world.addContactMaterial(contactMaterial);
@@ -618,13 +625,18 @@ module.exports = function Game(app, express, server, io, sessionObj) {
             updatePhysics()
             if(!sleeping) {
                 if(physTick >= 360) {
+                    let array=Object.values(watched)
+                    array.forEach(p=>{
+                      if(p.sleepState==0)
+                        p.dynamics.value=Math.random();
+                    })
                     dandSpace.emit('physUpdate', physData);
                     physTick = 0;
                 }
                 physTick++;
             }
 
-        }, 1)
+        }, 10)
 
     }
 
