@@ -123,6 +123,7 @@
      lastChats();
      getGrid();
      getSheets();
+     getEquipment();
      Control.init();
  }catch(err){
     UI.systemMessage("Stage2 Auth: "+err,'error');
@@ -183,6 +184,28 @@
      }).then(function(data) {
          if(data) {
              Chat.lastChats(data.array)
+         }
+     }).catch(e => {
+         UI.systemMessage(e, 'error')
+         console.error('ERROR ', e);
+     });
+ }
+ function getEquipment(id){
+ 	 
+     fetch('/getEquipment', {
+         method: 'post',
+         headers: {
+             'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({ id: id })
+     }).then(function(response) {
+         if(!response.ok) {
+             return undefined;
+         } else
+             return response.json();
+     }).then(function(data) {
+         if(data) {
+             Equipment.syncEquipment(data.array)
          }
      }).catch(e => {
          UI.systemMessage(e, 'error')
@@ -280,4 +303,7 @@
 function forceSave(){
     socket.emit('forceSave');
 }
+function sendEquipment(id,array){
+    socket.emit('sendEquipment',id,array);
+
  export { login, physMake, physReset, message, terrain, physSend, physDel, updateSheet }

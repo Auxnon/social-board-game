@@ -8,7 +8,8 @@ var main;
 var dragger;
 var menu;
 var held;
-var items = [] //name:,description:,model:
+var items = {} //name:,description:,model:
+var equipmentDebounce;
 
 function init() {
     initSheet();
@@ -41,9 +42,6 @@ function init() {
 
     })
 
-    makeItem('A Man', 'Good boi', 'man')
-    makeItem('Cool Rock', "It's a cool rock", 'rock')
-    makeItem('Pot', "420", 'pot')
 }
 
 function pointerUp(mx, my) {
@@ -56,7 +54,7 @@ function pointerUp(mx, my) {
         let obj = scrapItem(held)
         if(obj) {
             let pos = Control.pos();
-            obj.color = PlayerManager.getOwnPlayer().color
+            obj.player = PlayerManager.getOwnPlayer()
             if(obj && obj.model.startsWith('die')){
                 obj.label='dice'
                 Online.physMake({ x: 1.2,y: 1.2, z: 1.2 }, 2, { x: pos.x, y: pos.y, z: 10 }, Physics.calcQuaterion(Math.PI / 2), 3, obj);
@@ -137,6 +135,29 @@ function makeItem(name, description, model) {
             dragger.children[0].remove()
     })
     menu.appendChild(dom)
+    //item.push({name:name,description:description,model:model})
+    if(equipmentDebounce){
+        cleartTimeout(equipmentDebounce)
+        equipmentDebounce=undefined
+    }
+    equipmentDebounce=setTimeout(()=>{
+        let array=[];
+        main.querySelectorAll('.equipment-item').forEach(item=>{
+            array.push(scrapItem(item))
+        })
+         Online.sendEquipment(id,array)
+    },2000)
+}
+function syncEquipment(data){
+    if(!data || data.length==0){
+        makeItem('A Man', 'Good boi', 'man')
+        makeItem('Cool Rock', "It's a cool rock", 'rock')
+        makeItem('Pot', "420", 'pot')
+    }else{
+        data.forEach(item=>{
+            makeItem(item.name,item.description,item.model)
+        })
+    }
 }
 
 function scrapItem(item) {
@@ -223,4 +244,4 @@ function initSheet() {
 
 }
 
-export { init, pointerUp }
+export { init, pointerUp,syncEquipment }

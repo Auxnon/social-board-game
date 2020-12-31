@@ -1,4 +1,6 @@
 function hexToRGB(h) {
+    if(!h)
+        return [0,0,0]
     if(typeof h !== 'string')
         h = h.toString(16);
 

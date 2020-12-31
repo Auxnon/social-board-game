@@ -407,7 +407,7 @@ function physMake(id, size, mass, pos,quat, type, meta) {
 
     let mesh;
     if(meta && meta.model){
-        let inner=AssetManager.make(meta.model,meta.color)
+        let inner=AssetManager.make(meta.model,meta.player);
         mesh=Render.makeGroup();
         if(!meta.label)
             inner.position.z=-size.z/2;
@@ -416,7 +416,7 @@ function physMake(id, size, mass, pos,quat, type, meta) {
 
         if(meta.label){
             if(meta.label=='dice'){
-                body.labelDom=Chat.addBubble('dice',{color:meta.color},mesh,)
+                body.labelDom=Chat.addBubble('dice',{color:meta.player.color},mesh,)
                 body.labelDom.mult=parseInt(meta.model.substring(3))
             }
         }

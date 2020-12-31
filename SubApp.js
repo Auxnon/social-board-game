@@ -56,6 +56,8 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         color: DataTypes.STRING,
         sessionID: DataTypes.STRING,
         online: false,
+        sheet: 
+        equipment:
     }, { sequelize, modelName: 'user' });
 
     class Land extends Model {}

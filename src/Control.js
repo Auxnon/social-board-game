@@ -349,9 +349,9 @@ function setVector(pos) {
                         calcRot();
                         let name = selected.charAt(0).toUpperCase() + selected.slice(1)
                         if(selected.startsWith('die')){
-                            Online.physMake({ x: 1.2,y: 1.2, z: 1.2 }, 1, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 3, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
+                            Online.physMake({ x: 1.2,y: 1.2, z: 1.2 }, 1, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 3, { name: name, player: PlayerManager.getOwnPlayer(), model: selected });
                         }else
-                            Online.physMake({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 1, { name: name, color: PlayerManager.getOwnPlayer().color, model: selected });
+                            Online.physMake({ x: 1.5, y: 1.5, z: 3 }, 2, { x: px, y: py, z: pz + 0.1 }, Physics.calcQuaterion(lastRot), 1, { name: name, player: PlayerManager.getOwnPlayer(), model: selected });
                         
                         //let m = AssetManager.make(selected)
                         //m.position.set(px, py, pz)

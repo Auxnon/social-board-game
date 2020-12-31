@@ -126,12 +126,12 @@ function init() {
     AssetManager.init();
 
     Drawer.init();
-    Character.init();
 
     let loop=setInterval(function(){
         if(AssetManager.getPending()<=0){
             Equipment.init();
-            
+                Character.init();
+
             clearInterval(loop)
         }
     },1000)

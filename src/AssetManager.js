@@ -6,14 +6,17 @@ Also heavy with experimentation
 import * as Render from "./Render.js";
 import * as Helper from "./Helper.js";
 import * as THREE from "./lib/three.module.js";
-import {SkeletonUtils} from "./lib/SkeletonUtils.js";
+import { SkeletonUtils } from "./lib/SkeletonUtils.js";
+import * as PlayerManager from "./PlayerManager.js";
+
+
 //import * as InstancedObjectManager from "./InstancedObjectManager.js";
 
 
-var modelCounter=0;
-var animators=[];
-var windies=[];
-var instanceColors=[];
+var modelCounter = 0;
+var animators = [];
+var windies = [];
+var instanceColors = [];
 
 var treeModel;
 var manModel;
@@ -21,109 +24,109 @@ var womanModel;
 var swordModel;
 var helmModel;
 
-var UNIFORMS={};
+var UNIFORMS = {};
 var personShader;
-var personAnimations={};
+var personAnimations = {};
 
-var MODELS={};
-var MODELALTS=[];
+var MODELS = {};
+var MODELALTS = [];
 
-function init(){
+function init() {
     //defaultLoad('man');
     defaultLoad('pot');
     defaultLoad('rock');
-    defaultLoad('goblin','glb');
-    defaultLoad('hedgehog','glb');
-    defaultLoad('werewolf','glb');
-    defaultLoad('vampire','glb');
-    defaultLoad('zombie','glb');
-    defaultLoad('die4','glb');
-    defaultLoad('die6','glb');
-    defaultLoad('die8','glb');
-    defaultLoad('die10','glb');
-    defaultLoad('die20','glb');
+    defaultLoad('goblin', 'glb');
+    defaultLoad('hedgehog', 'glb');
+    defaultLoad('werewolf', 'glb');
+    defaultLoad('vampire', 'glb');
+    defaultLoad('zombie', 'glb');
+    defaultLoad('die4', 'glb',[1, 1, 1]);
+    defaultLoad('die6', 'glb',[1, 1, 1]);
+    defaultLoad('die8', 'glb',[1, 1, 1]);
+    defaultLoad('die10', 'glb',[1, 1, 1]);
+    defaultLoad('die20', 'glb',[1, 1, 1]);
 
-/*
-	load('assets/person.gltf',m=>{
-        m.position.z+=55;
-        //m.scale.set(10,10,10);
-        m.visible=false;
-        //m.material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0, roughness: 1.0}); // 
-        //playerModel=m;
-    },0xffffff);
+    /*
+        load('assets/person.gltf',m=>{
+            m.position.z+=55;
+            //m.scale.set(10,10,10);
+            m.visible=false;
+            //m.material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0, roughness: 1.0}); // 
+            //playerModel=m;
+        },0xffffff);
 
-    load('assets/tree1.gltf',m=>{
-        m.position.z+=55;
-        //m.scale.set(10,10,10);
-       treeModel=m;
-       treeModel.castShadow = true; //default is false
-        treeModel.receiveShadow = true; //default
-        //playerModel=m;
-        
-        _documentModel("tree",m);
-       
-    });
+        load('assets/tree1.gltf',m=>{
+            m.position.z+=55;
+            //m.scale.set(10,10,10);
+           treeModel=m;
+           treeModel.castShadow = true; //default is false
+            treeModel.receiveShadow = true; //default
+            //playerModel=m;
+            
+            _documentModel("tree",m);
+           
+        });
 
-    defaultLoad('plant');
-    defaultLoad('log');
-    defaultLoad('shroom1');
-    defaultLoad('shroom2');
-    defaultLoad('plank');
-    defaultLoad('pot');
-    defaultLoad('rock');
-    defaultLoad('pinkTree');
+        defaultLoad('plant');
+        defaultLoad('log');
+        defaultLoad('shroom1');
+        defaultLoad('shroom2');
+        defaultLoad('plank');
+        defaultLoad('pot');
+        defaultLoad('rock');
+        defaultLoad('pinkTree');
 
-    load('assets/grass.gltf',m=>{
-        m.material.side=THREE.DoubleSide;
+        load('assets/grass.gltf',m=>{
+            m.material.side=THREE.DoubleSide;
 
-        readColors(m,[1,1,1],Helper.hexToRGBFloat('#DAEA55'))
-        readColors(m,[0,0,0],Helper.hexToRGBFloat('#66B136'))
-        _documentModel("grass",m);
-    });
+            readColors(m,[1,1,1],Helper.hexToRGBFloat('#DAEA55'))
+            readColors(m,[0,0,0],Helper.hexToRGBFloat('#66B136'))
+            _documentModel("grass",m);
+        });
 
-    load('assets/sword.gltf',m=>{
-         swordModel=m;
-        _documentModel("sword",m);
-    });
+        load('assets/sword.gltf',m=>{
+             swordModel=m;
+            _documentModel("sword",m);
+        });
 
-    load('assets/helm.gltf',m=>{
-        helmModel=m;
-        helmModel.material.side=THREE.DoubleSide;
-        _documentModel("helm",helmModel);
+        load('assets/helm.gltf',m=>{
+            helmModel=m;
+            helmModel.material.side=THREE.DoubleSide;
+            _documentModel("helm",helmModel);
 
-    });*/
+        });*/
 
-    load('assets/models/man.gltf',(m,animations)=>{
+    load('assets/models/man.gltf', (m, animations) => {
         //m.position.x+=100;
-        m=m.children[0]
-        manModel=m;
+        m = m.children[0]
+        manModel = m;
         manModel.castShadow = true;
         manModel.receiveShadow = true;
-        m.scale.set(2,2,2);
+        m.scale.set(2, 2, 2);
 
-        if(animations){
-            animations.forEach(anim=>{
+        if(animations) {
+            animations.forEach(anim => {
                 if(anim.name)
-                    personAnimations[anim.name]=anim;
+                    personAnimations[anim.name] = anim;
             });
         }
-        
 
-        readColors(m,[1,0.2541521191596985,0.022173885256052017],[0,0,1])
 
-        let val={value: new THREE.Vector3(0,0,1)};
+        readColors(m, [1, 0.2541521191596985, 0.022173885256052017], [0, 0, 1])
+
+        let val = { value: new THREE.Vector3(0, 0, 1) };
 
         personShader = makeShader();
         personShader.needsUpdate = true;
-        personShader.skinning=true;
+        personShader.skinning = true;
 
-        MODELS['man']=manModel;
+        MODELS['man'] = manModel;
 
 
-        personShader.onBeforeCompile = shader=> {
+        personShader.onBeforeCompile = shader => {
             //shader.fragmentShader = 'uniform vec3 myVector;\n' + shader.fragmentShader;
-            shader.uniforms.shirt= man.children[1].material.uniforms.shirt;
-            shader.vertexShader='uniform vec3 shirt;\n'+shader.vertexShader;
+            shader.uniforms.shirt = man.children[1].material.uniforms.shirt;
+            shader.vertexShader = 'uniform vec3 shirt;\n' + shader.vertexShader;
             shader.vertexShader = shader.vertexShader.replace('#include <color_vertex>',
                 `
                 #ifdef USE_COLOR
@@ -137,47 +140,47 @@ function init(){
 
 
 
-       /* 
+        /* 
 
-        let manny=getModel(null,8,0,-8,'#C000BE',false,false);
-        let danny=getModel(null,9,0,-8,'#FF9C0E',true,false);
-        let sammy=getModel(null,10,0,-8,'#4191FF',false,true);
-        let lenny=getModel(null,11,0,-8,'#C00032',true,true);
-        let jenny=getModel(null,12,0,-8,'#210FA7',false,true);
-        let jimmy=getModel(null,13,0,-8,'#09C000',true,true);
+         let manny=getModel(null,8,0,-8,'#C000BE',false,false);
+         let danny=getModel(null,9,0,-8,'#FF9C0E',true,false);
+         let sammy=getModel(null,10,0,-8,'#4191FF',false,true);
+         let lenny=getModel(null,11,0,-8,'#C00032',true,true);
+         let jenny=getModel(null,12,0,-8,'#210FA7',false,true);
+         let jimmy=getModel(null,13,0,-8,'#09C000',true,true);
        
-        
-        Render.addModel(manny);
-        Render.addModel(danny);
-         Render.addModel(sammy);
-        Render.addModel(lenny);
-         Render.addModel(jenny);
-        Render.addModel(jimmy);
+         
+         Render.addModel(manny);
+         Render.addModel(danny);
+          Render.addModel(sammy);
+         Render.addModel(lenny);
+          Render.addModel(jenny);
+         Render.addModel(jimmy);
 
 
-        load('assets/woman.gltf',m=>{
-            womanModel=m;
-            womanModel.castShadow = true;
-            womanModel.receiveShadow = true;
-            readColors(m,[1,0.13286831974983215,0],[0,0,1])
-           // readColors(m,[1,0.2541521191596985,0.022173885256052017],[0,0,1])
-            //let val={value: new THREE.Vector3(0,0,1)};
+         load('assets/woman.gltf',m=>{
+             womanModel=m;
+             womanModel.castShadow = true;
+             womanModel.receiveShadow = true;
+             readColors(m,[1,0.13286831974983215,0],[0,0,1])
+            // readColors(m,[1,0.2541521191596985,0.022173885256052017],[0,0,1])
+             //let val={value: new THREE.Vector3(0,0,1)};
 
 
 
-            //new THREE.MeshStandardMaterial({  vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0});
+             //new THREE.MeshStandardMaterial({  vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0});
 
-            let lady=getModel(womanModel,-3,0,-3,'#C000BE',false,false,"StrikeThrust");
-            Render.addModel(lady);
+             let lady=getModel(womanModel,-3,0,-3,'#C000BE',false,false,"StrikeThrust");
+             Render.addModel(lady);
 
-        });*/
+         });*/
     });
 
-    load('assets/models/gran.gltf',(m,animations)=>{
-        m=m.children[0]
+    load('assets/models/gran.gltf', (m, animations) => {
+        m = m.children[0]
         m.castShadow = true;
         m.receiveShadow = true;
-        m.scale.set(2,2,2);
+        m.scale.set(2, 2, 2);
 
         /*if(animations){
             animations.forEach(anim=>{
@@ -185,194 +188,203 @@ function init(){
                     personAnimations[anim.name]=anim;
             });
         }*/
-        readColors(m,[0.42869052290916443,0.262250691652298,0.4677838087081909],[0,0,1])
-        let val={value: new THREE.Vector3(0,0,1)};
-        MODELS['gran']=m;
+        readColors(m, [0.42869052290916443, 0.262250691652298, 0.4677838087081909], [0, 0, 1])
+        let val = { value: new THREE.Vector3(0, 0, 1) };
+        MODELS['gran'] = m;
     });
 }
-function load(model,callback){
-	modelCounter++;
-	Render.loadModel(model,(m,anim)=>{
-		modelCounter--;
-		callback(m,anim);
-	});
+
+function load(model, callback) {
+    modelCounter++;
+    Render.loadModel(model, (m, anim) => {
+        modelCounter--;
+        callback(m, anim);
+    });
 }
-function defaultLoad(s,type){
+
+function defaultLoad(s, type,override) {
     if(!type)
-        type='gltf'
-    load('assets/models/'+s+'.'+type,m=>{
-        m.scale.set(2,2,2);
+        type = 'gltf'
+    load('assets/models/' + s + '.' + type, m => {
+        m.scale.set(2, 2, 2);
         m.castShadow = true; //default is false
         m.receiveShadow = true; //default
         //m.material.shadowSide=THREE.FrontSide;
         //m.material.side= THREE.DoubleSide;
-        
-        _documentModel(s,m);
-        
+        if(override)
+            readColors(m,override, [0, 0, 1])
+
+
+        _documentModel(s, m);
+
         //Render.addModel(m);
     });
 }
 
 /**make a string reference of our model for easy loading**/
-function _documentModel(s,m){
+function _documentModel(s, m) {
     //strip out numbers so we can combine numbered models into a single array for random picking
-        let s2=s.replace(/[0-9]/g, '');
-        if(s2!=s){
-            if(MODELS[s2]){
-                if(!Array.isArray(MODELS[s2])){
-                    let temp=MODELS[s2];
-                    MODELS[s2]=[temp];
-                }
-                MODELS[s2].push(m)
-            }else{
-                MODELS[s2]=m;
+    let s2 = s.replace(/[0-9]/g, '');
+    if(s2 != s) {
+        if(MODELS[s2]) {
+            if(!Array.isArray(MODELS[s2])) {
+                let temp = MODELS[s2];
+                MODELS[s2] = [temp];
             }
+            MODELS[s2].push(m)
+        } else {
+            MODELS[s2] = m;
         }
-        MODELS[s]=m;
+    }
+    MODELS[s] = m;
 }
 
-function getPending(){
-	return modelCounter;
+function getPending() {
+    return modelCounter;
 }
 
-function findBone(model,name){
-    if(name && model.children && model.children.length>0){
-        return walkBone(model,name);
+function findBone(model, name) {
+    if(name && model.children && model.children.length > 0) {
+        return walkBone(model, name);
     }
 }
-function walkBone(root,name){
-    for(let i=0;i<root.children.length;i++){
+
+function walkBone(root, name) {
+    for(let i = 0; i < root.children.length; i++) {
         //console.log(root.children[i].name)
-        if(root.children[i].name==name){
+        if(root.children[i].name == name) {
             return root.children[i];
-        }else if(root.children[i].type="Bone" && root.children[i].children && root.children[i].children.length>0){
-            let result=walkBone(root.children[i],name);
+        } else if(root.children[i].type = "Bone" && root.children[i].children && root.children[i].children.length > 0) {
+            let result = walkBone(root.children[i], name);
             if(result)
                 return result;
         }
     }
 }
 
-function readColors(model,swapIn,swapOut){
+function readColors(model, swapIn, swapOut) {
 
-    if(model.geometry){
-        _subReadColors(model,model.geometry,swapIn,swapOut);
-    }else if(model.children && model.children.length>0){
-        for(let n=0;n<model.children.length;n++){
-            if(model.children[n].geometry){
-                _subReadColors(model,model.children[n].geometry,swapIn,swapOut);
+    if(model.geometry) {
+        _subReadColors(model, model.geometry, swapIn, swapOut);
+    } else if(model.children && model.children.length > 0) {
+        for(let n = 0; n < model.children.length; n++) {
+            if(model.children[n].geometry) {
+                _subReadColors(model, model.children[n].geometry, swapIn, swapOut);
             }
         }
     }
 }
-function _subReadColors(parent,geom,swapIn,swapOut){
+
+function _subReadColors(parent, geom, swapIn, swapOut) {
     if(!geom)
         return;
 
-    let swapping=swapIn && swapOut;
+    let swapping = swapIn && swapOut;
 
-    let array=geom.attributes.color.array
-    let colorArray=[];
+    let array = geom.attributes.color.array
+    let colorArray = [];
     let j;
-    for(let i=0;i<array.length;i++){
-        j=i%4;
-        if(j>=3){
-            if(swapping){
-                if(array[i-3]==swapIn[0] && array[i-2]==swapIn[1] && array[i-1]==swapIn[2]){
-                    array[i-3]=swapOut[0];
-                    array[i-2]=swapOut[1];
-                    array[i-1]=swapOut[2];
+    for(let i = 0; i < array.length; i++) {
+        j = i % 4;
+        if(j >= 3) {
+            if(swapping) {
+                if(array[i - 3] == swapIn[0] && array[i - 2] == swapIn[1] && array[i - 1] == swapIn[2]) {
+                    array[i - 3] = swapOut[0];
+                    array[i - 2] = swapOut[1];
+                    array[i - 1] = swapOut[2];
                 }
-            }else{
-                let hex=Helper.rgbFloatToHex(array[i-3],array[i-2],array[i-1]);
-                colorArray[hex]=array[i-3]+','+array[i-2]+','+array[i-1];
+            } else {
+                let hex = Helper.rgbFloatToHex(array[i - 3], array[i - 2], array[i - 1]);
+                colorArray[hex] = array[i - 3] + ',' + array[i - 2] + ',' + array[i - 1];
             }
-            
+
         }
     }
-    if(!swapping){
-        let content=Object.keys(colorArray);
-        content.forEach(color=>{
-             console.log('%s %s %c %s %c %s', parent.name,geom.name,'background: '+color+'; color: #000',color,'background: white;',colorArray[color]);
+    if(!swapping) {
+        let content = Object.keys(colorArray);
+        content.forEach(color => {
+            console.log('%s %s %c %s %c %s', parent.name, geom.name, 'background: ' + color + '; color: #000', color, 'background: white;', colorArray[color]);
         })
     }
 }
 
 var windTest;
 var windV;
-function animate(delta){
 
-    if(animators.length>0){
-        animators.forEach(anim=>{
-              anim.update(5); //DEV set constant for XR     
+function animate(delta) {
+
+    if(animators.length > 0) {
+        animators.forEach(anim => {
+            anim.update(5); //DEV set constant for XR     
         });
-    } 
-/*
-    //VERY COSTLY, FIND A BETTER SOLUTION
-    if(windies.length>0){
-        if(!windTest){
-            windTest=new THREE.Vector3(0,0,0);
-            windV=new THREE.Vector3(0,0,0);
-        }
-        windV.x+=rnd();
-        windV.y+=rnd();
-        windV.z+=rnd();
-        if(Math.abs(windV.x)>1){
-            windV.x*=-0.9;
-        }
-        if(Math.abs(windV.y)>1){
-            windV.y*=-0.9;
-        }
-        if(Math.abs(windV.z)>1){
-            windV.z*=-0.9;
-        }
+    }
+    /*
+        //VERY COSTLY, FIND A BETTER SOLUTION
+        if(windies.length>0){
+            if(!windTest){
+                windTest=new THREE.Vector3(0,0,0);
+                windV=new THREE.Vector3(0,0,0);
+            }
+            windV.x+=rnd();
+            windV.y+=rnd();
+            windV.z+=rnd();
+            if(Math.abs(windV.x)>1){
+                windV.x*=-0.9;
+            }
+            if(Math.abs(windV.y)>1){
+                windV.y*=-0.9;
+            }
+            if(Math.abs(windV.z)>1){
+                windV.z*=-0.9;
+            }
 
-        windTest.add(windV);
-        windTest.clampLength(0,1.0);
+            windTest.add(windV);
+            windTest.clampLength(0,1.0);
 
 
-        windies.forEach(windy=>{
-            windy.material.uniforms.wind.value=windTest;
-        })
-    }*/
-}
-function rnd(){
-    return (Math.random()-0.5)*0.001;
+            windies.forEach(windy=>{
+                windy.material.uniforms.wind.value=windTest;
+            })
+        }*/
 }
 
-function getModel(model,x,y,z,color,sword,helm,anim){
-    
+function rnd() {
+    return (Math.random() - 0.5) * 0.001;
+}
+
+function getModel(model, x, y, z, color, sword, helm, anim) {
+
     if(!model)
-        model=SkeletonUtils.clone(manModel);
+        model = SkeletonUtils.clone(manModel);
     else
-        model=SkeletonUtils.clone(model);
+        model = SkeletonUtils.clone(model);
 
-    model.position.x=x;
-    model.position.y=y;
-    model.position.z=z;
-    model.rotation.y=Math.PI*(0.5*Math.random() +0.75) ;
+    model.position.x = x;
+    model.position.y = y;
+    model.position.z = z;
+    model.rotation.y = Math.PI * (0.5 * Math.random() + 0.75);
 
-    let colors=Helper.hexToRGBFloat(color);
-    
-    model.userData.shirt={value: new THREE.Vector3(colors[0],colors[1],colors[2])};
-    model.userData.wind={value: new THREE.Vector3(0,1,0)};
+    let colors = Helper.hexToRGBFloat(color);
 
-    model.children.forEach(obj=>{
-        if(obj && obj.type=="SkinnedMesh"){
+    model.userData.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
+    model.userData.wind = { value: new THREE.Vector3(0, 1, 0) };
+
+    model.children.forEach(obj => {
+        if(obj && obj.type == "SkinnedMesh") {
             obj.castShadow = true;
             obj.receiveShadow = true;
-            if(obj.name=="Woman" || obj.name=="Man" ){//|| obj.name=="Scarf"){ //DEV
-                    obj.material=personShader.clone();
-                    obj.material.uniforms.shirt= model.userData.shirt;
-                    //obj.material.uniforms.wind= model.userData.wind;
+            if(obj.name == "Woman" || obj.name == "Man") { //|| obj.name=="Scarf"){ //DEV
+                obj.material = personShader.clone();
+                obj.material.uniforms.shirt = model.userData.shirt;
+                //obj.material.uniforms.wind= model.userData.wind;
             }
-            if(obj.name=="Scarf"){ //DEV
+            if(obj.name == "Scarf") { //DEV
                 //windies.push(obj);
             }
         }
     })
 
-    
+
 
 
 
@@ -393,81 +405,94 @@ function getModel(model,x,y,z,color,sword,helm,anim){
 
 
 
-    if(sword){
-        let bone=findBone(model,"attachHoldR");
-        if(bone){
+    if(sword) {
+        let bone = findBone(model, "attachHoldR");
+        if(bone) {
             bone.add(swordModel.clone());
         }
     }
-    
-    if(helm){
-        let bone2=findBone(model,"attachHat");
-        if(bone2){
-           // let mm=Render.cubit(.1,.8,.1, 0,.4,0,0xff0000,-1)
+
+    if(helm) {
+        let bone2 = findBone(model, "attachHat");
+        if(bone2) {
+            // let mm=Render.cubit(.1,.8,.1, 0,.4,0,0xff0000,-1)
             bone2.add(helmModel.clone());
         }
     }
 
     if(!anim)
-        anim="Walk"
+        anim = "Walk"
 
     let mixer = new THREE.AnimationMixer(model);
-    let action = mixer.clipAction( personAnimations[anim] );
-    action.timeScale=0.002;
+    let action = mixer.clipAction(personAnimations[anim]);
+    action.timeScale = 0.002;
     action.play();
     animators.push(mixer);
     instanceColors.push(colors);
-    model.action=action;
+    model.action = action;
 
     return model;
 }
-function attach(root,hookString,itemString){
-    let item=make(itemString);
-    let bone=findBone(root,hookString);
-    if(bone && item){
-         item.scale.set(1,1,1);
-         item.position.set(0,0,0);
-         item.castShadow=true;
+
+function attach(root, hookString, itemString) {
+    let item = make(itemString);
+    let bone = findBone(root, hookString);
+    if(bone && item) {
+        item.scale.set(1, 1, 1);
+        item.position.set(0, 0, 0);
+        item.castShadow = true;
 
         bone.add(item);
     }
 }
 
 /**important model asset fetch and clone function, used often**/
-function make(s,color){
-    let m= MODELS[s];
-    if(m){
-        if(Array.isArray(m)){
-            m=m[Math.floor(Math.random()*m.length)]
-        }else if((s=='man' || s=='gran') && color){
-            m=SkeletonUtils.clone(m);
-            let colors=Helper.hexToRGBFloat(color);
-            
-            m.userData.shirt={value: new THREE.Vector3(colors[0],colors[1],colors[2])};
-            m.userData.wind={value: new THREE.Vector3(0,1,0)};
+function make(s, player) {
+    let m = MODELS[s];
+    if(m) {
+        if(Array.isArray(m)) {
+            m = m[Math.floor(Math.random() * m.length)]
+        } else if(player && player.color) {
+            if((s == 'man' || s == 'gran')) {
+                m = SkeletonUtils.clone(m);
+                let colors = Helper.hexToRGBFloat(player.color);
 
-            m.children.forEach(obj=>{
-                if(obj && obj.type=="SkinnedMesh"){
-                    obj.castShadow = true;
-                    obj.receiveShadow = true;
-                    if(obj.name=="Gran" || obj.name=="Man" || obj.name=="GranHead" ){//|| obj.name=="Scarf"){ //DEV
-                        console.log('skinned ',obj.name)
-                            obj.material=personShader.clone();
-                            obj.material.skinning=true;
+                m.userData.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
+                m.userData.wind = { value: new THREE.Vector3(0, 1, 0) };
+
+                m.children.forEach(obj => {
+                    if(obj && obj.type == "SkinnedMesh") {
+                        obj.castShadow = true;
+                        obj.receiveShadow = true;
+                        if(obj.name == "Gran" || obj.name == "Man" || obj.name == "GranHead") { //|| obj.name=="Scarf"){ //DEV
+                            console.log('skinned ', obj.name)
+                            obj.material = personShader.clone();
+                            obj.material.skinning = true;
                             obj.material.needsUpdate = true;
-                            obj.material.uniforms.shirt= m.userData.shirt;
+                            obj.material.uniforms.shirt = m.userData.shirt;
                             //obj.material.uniforms.wind= model.userData.wind;
+                        }
+                        if(obj.name == "Scarf") { //DEV
+                            //windies.push(obj);
+                        }
                     }
-                    if(obj.name=="Scarf"){ //DEV
-                        //windies.push(obj);
-                    }
+                })
+                return m;
+            } else if(player && player.id) {
+                let user = PlayerManager.getUser(player.id)
+                if(!user.shader) {
+                    user.shader = personShader.clone();
+                    user.shader.needsUpdate = true;
+                    let colors = Helper.hexToRGBFloat(player.color);
+                    user.shader.uniforms.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
                 }
-            })
-            return m;
+                let out = m.clone()
+                out.material = user.shader
+            }
 
         }
         return m.clone();
-    }else{
+    } else {
 
     }
 
@@ -475,25 +500,25 @@ function make(s,color){
 }
 
 /** simple asset checker, dev purposes**/
-function get(s){
+function get(s) {
     return MODELS[s]
 }
 /**Fancy color mapper shader used for people models to add custom colors per instance with the same asset**/
-function makeShader(){
-   // 
-   //THREE.ShaderChunk.meshphysical_frag = "#define STANDARD\n#ifdef PHYSICAL\n\t#define REFLECTIVITY\n\t#define CLEARCOAT\n\t#define TRANSPARENCY\n#endif\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform float roughness;\nuniform float metalness;\nuniform float opacity;\n#ifdef TRANSPARENCY\n\tuniform float transparency;\n#endif\n#ifdef REFLECTIVITY\n\tuniform float reflectivity;\n#endif\n#ifdef CLEARCOAT\n\tuniform float clearcoat;\n\tuniform float clearcoatRoughness;\n#endif\n#ifdef USE_SHEEN\n\tuniform vec3 sheen;\n#endif\nvarying vec3 vViewPosition;\n#ifndef FLAT_SHADED\n\tvarying vec3 vNormal;\n\t#ifdef USE_TANGENT\n\t\tvarying vec3 vTangent;\n\t\tvarying vec3 vBitangent;\n\t#endif\n#endif\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <bsdfs>\n#include <cube_uv_reflection_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_physical_pars_fragment>\n#include <fog_pars_fragment>\n#include <lights_pars_begin>\n#include <lights_physical_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <clearcoat_pars_fragment>\n#include <roughnessmap_pars_fragment>\n#include <metalnessmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;\n\t#include <logdepthbuf_fragment>\n\t#include <map_fragment>\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <roughnessmap_fragment>\n\t#include <metalnessmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <clearcoat_normal_fragment_begin>\n\t#include <clearcoat_normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_physical_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t#ifdef TRANSPARENCY\n\t\tdiffuseColor.a *= saturate( 1. - transparency + linearToRelativeLuminance( reflectedLight.directSpecular + reflectedLight.indirectSpecular ) );\n\t#endif\n\tgl_FragColor = vec4( 1,1,0, diffuseColor.a );\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}";
+function makeShader() {
+    // 
+    //THREE.ShaderChunk.meshphysical_frag = "#define STANDARD\n#ifdef PHYSICAL\n\t#define REFLECTIVITY\n\t#define CLEARCOAT\n\t#define TRANSPARENCY\n#endif\nuniform vec3 diffuse;\nuniform vec3 emissive;\nuniform float roughness;\nuniform float metalness;\nuniform float opacity;\n#ifdef TRANSPARENCY\n\tuniform float transparency;\n#endif\n#ifdef REFLECTIVITY\n\tuniform float reflectivity;\n#endif\n#ifdef CLEARCOAT\n\tuniform float clearcoat;\n\tuniform float clearcoatRoughness;\n#endif\n#ifdef USE_SHEEN\n\tuniform vec3 sheen;\n#endif\nvarying vec3 vViewPosition;\n#ifndef FLAT_SHADED\n\tvarying vec3 vNormal;\n\t#ifdef USE_TANGENT\n\t\tvarying vec3 vTangent;\n\t\tvarying vec3 vBitangent;\n\t#endif\n#endif\n#include <common>\n#include <packing>\n#include <dithering_pars_fragment>\n#include <color_pars_fragment>\n#include <uv_pars_fragment>\n#include <uv2_pars_fragment>\n#include <map_pars_fragment>\n#include <alphamap_pars_fragment>\n#include <aomap_pars_fragment>\n#include <lightmap_pars_fragment>\n#include <emissivemap_pars_fragment>\n#include <bsdfs>\n#include <cube_uv_reflection_fragment>\n#include <envmap_common_pars_fragment>\n#include <envmap_physical_pars_fragment>\n#include <fog_pars_fragment>\n#include <lights_pars_begin>\n#include <lights_physical_pars_fragment>\n#include <shadowmap_pars_fragment>\n#include <bumpmap_pars_fragment>\n#include <normalmap_pars_fragment>\n#include <clearcoat_pars_fragment>\n#include <roughnessmap_pars_fragment>\n#include <metalnessmap_pars_fragment>\n#include <logdepthbuf_pars_fragment>\n#include <clipping_planes_pars_fragment>\nvoid main() {\n\t#include <clipping_planes_fragment>\n\tvec4 diffuseColor = vec4( diffuse, opacity );\n\tReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\n\tvec3 totalEmissiveRadiance = emissive;\n\t#include <logdepthbuf_fragment>\n\t#include <map_fragment>\n\t#include <color_fragment>\n\t#include <alphamap_fragment>\n\t#include <alphatest_fragment>\n\t#include <roughnessmap_fragment>\n\t#include <metalnessmap_fragment>\n\t#include <normal_fragment_begin>\n\t#include <normal_fragment_maps>\n\t#include <clearcoat_normal_fragment_begin>\n\t#include <clearcoat_normal_fragment_maps>\n\t#include <emissivemap_fragment>\n\t#include <lights_physical_fragment>\n\t#include <lights_fragment_begin>\n\t#include <lights_fragment_maps>\n\t#include <lights_fragment_end>\n\t#include <aomap_fragment>\n\tvec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;\n\t#ifdef TRANSPARENCY\n\t\tdiffuseColor.a *= saturate( 1. - transparency + linearToRelativeLuminance( reflectedLight.directSpecular + reflectedLight.indirectSpecular ) );\n\t#endif\n\tgl_FragColor = vec4( 1,1,0, diffuseColor.a );\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n\t#include <premultiplied_alpha_fragment>\n\t#include <dithering_fragment>\n}";
 
-/*
-    `
-#ifdef USE_ALPHAMAP
-    diffuseColor.a *= texture2D( alphaMap, vUv ).g;
-#endif
+    /*
+        `
+    #ifdef USE_ALPHAMAP
+        diffuseColor.a *= texture2D( alphaMap, vUv ).g;
+    #endif
 
-#ifdef BIGGO
-    gl_FragColor=vec4(1.0,0,0,1.0);
-#endif
-`;*/
-// #include <clearcoat_pars_fragment>
+    #ifdef BIGGO
+        gl_FragColor=vec4(1.0,0,0,1.0);
+    #endif
+    `;*/
+    // #include <clearcoat_pars_fragment>
     var meshphysical_frag = `
     #define STANDARD
 #ifdef PHYSICAL
@@ -590,13 +615,13 @@ void main() {
 
 
 
-/*
-#ifdef USE_COLOR
-            if(vColor==vec3(0,0,1))
-                diffuseColor.rgb *= vec3(1,0,0);
-            else
-                diffuseColor.rgb *= vColor;
-    #endif*/
+    /*
+    #ifdef USE_COLOR
+                if(vColor==vec3(0,0,1))
+                    diffuseColor.rgb *= vec3(1,0,0);
+                else
+                    diffuseColor.rgb *= vColor;
+        #endif*/
 
     //    #include <color_vertex>
 
@@ -668,16 +693,18 @@ void main() {
     #include <shadowmap_vertex>
     #include <fog_vertex>
 }`
-   
-   var uniforms = THREE.UniformsUtils.merge(
-       [THREE.ShaderLib.phong.uniforms,
-       {shirt: {value:new THREE.Vector3(0,1,0)},
-        wind: {value:new THREE.Vector3(0,0,0)}}
+
+    var uniforms = THREE.UniformsUtils.merge(
+        [THREE.ShaderLib.phong.uniforms,
+            {
+                shirt: { value: new THREE.Vector3(0, 1, 0) },
+                wind: { value: new THREE.Vector3(0, 0, 0) }
+            }
         ]
     );
 
-   uniforms.ambientLightColor.value=null;
-   /* var uniforms={ambientLightColor: { value: null },
+    uniforms.ambientLightColor.value = null;
+    /* var uniforms={ambientLightColor: { value: null },
     lightProbe: { value: null },
     directionalLights: { value: null },
     spotLights: { value: null },
@@ -693,25 +720,25 @@ void main() {
 }*/
 
 
-   /*{
-          diffuse: {type: 'c', value: new THREE.Color(0x0000ff)}
-        }*/
+    /*{
+           diffuse: {type: 'c', value: new THREE.Color(0x0000ff)}
+         }*/
 
-   /*let mat=new THREE.ShaderMaterial( {
-        uniforms: uniforms,
-        derivatives: false,
-        lights: true,
-        //vertexShader: vertexShader(),
-        //fragmentShader: fragmentShader()
-        vertexShader: THREE.ShaderChunk.cube_vert,
-        fragmentShader: THREE.ShaderChunk.cube_frag
-    });
-   mat.skinning=true;*/
+    /*let mat=new THREE.ShaderMaterial( {
+         uniforms: uniforms,
+         derivatives: false,
+         lights: true,
+         //vertexShader: vertexShader(),
+         //fragmentShader: fragmentShader()
+         vertexShader: THREE.ShaderChunk.cube_vert,
+         fragmentShader: THREE.ShaderChunk.cube_frag
+     });
+    mat.skinning=true;*/
 
-   //let mat=new THREE.MeshStandardMaterial({  vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0});
-   //mat.defines.BIGGO=true;
+    //let mat=new THREE.MeshStandardMaterial({  vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0});
+    //mat.defines.BIGGO=true;
 
-   let mat=new THREE.ShaderMaterial( {
+    let mat = new THREE.ShaderMaterial({
         uniforms: uniforms,
         derivatives: false,
         lights: true,
@@ -722,11 +749,11 @@ void main() {
         //fragmentShader: THREE.ShaderChunk.cube_frag
     });
 
-   return mat;
+    return mat;
 }
 
 function vertexShader() {
-  return `
+    return `
     #include <common>
     varying vec3 vUv; 
 
@@ -738,8 +765,9 @@ function vertexShader() {
     }
   `
 }
-function fragmentShader(){
-     /* return `
+
+function fragmentShader() {
+    /* return `
       #include <common>
       uniform vec3 colorA; 
       uniform vec3 colorB; 
@@ -750,42 +778,53 @@ function fragmentShader(){
       }
   `*/
 
-/*
-  return `
-uniform float opacity;
-#if defined( FLAT_SHADED ) || defined( USE_BUMPMAP ) || defined( TANGENTSPACE_NORMALMAP )
-    varying vec3 vViewPosition;
-#endif
-#ifndef FLAT_SHADED
-    varying vec3 vNormal;
-    #ifdef USE_TANGENT
-        varying vec3 vTangent;
-        varying vec3 vBitangent;
+    /*
+      return `
+    uniform float opacity;
+    #if defined( FLAT_SHADED ) || defined( USE_BUMPMAP ) || defined( TANGENTSPACE_NORMALMAP )
+        varying vec3 vViewPosition;
     #endif
-#endif
-#include <packing>
-#include <uv_pars_fragment>
-#include <bumpmap_pars_fragment>
-#include <normalmap_pars_fragment>
-#include <logdepthbuf_pars_fragment>
-#include <clipping_planes_pars_fragment>
-void main() {
-    #include <clipping_planes_fragment>
-    #include <logdepthbuf_fragment>
-    #include <normal_fragment_begin>
-    #include <normal_fragment_maps>
-    gl_FragColor = vec4( packNormalToRGB( normal ), opacity );
-}
-  `*/
+    #ifndef FLAT_SHADED
+        varying vec3 vNormal;
+        #ifdef USE_TANGENT
+            varying vec3 vTangent;
+            varying vec3 vBitangent;
+        #endif
+    #endif
+    #include <packing>
+    #include <uv_pars_fragment>
+    #include <bumpmap_pars_fragment>
+    #include <normalmap_pars_fragment>
+    #include <logdepthbuf_pars_fragment>
+    #include <clipping_planes_pars_fragment>
+    void main() {
+        #include <clipping_planes_fragment>
+        #include <logdepthbuf_fragment>
+        #include <normal_fragment_begin>
+        #include <normal_fragment_maps>
+        gl_FragColor = vec4( packNormalToRGB( normal ), opacity );
+    }
+      `*/
 
 
 
 }
 
- 
-export {init,getPending,animate,getModel,get,make, attach,findBone,
-	treeModel,manModel
+
+export {
+    init,
+    getPending,
+    animate,
+    getModel,
+    get,
+    make,
+    attach,
+    findBone,
+    treeModel,
+    manModel
 
     //dev only
-    ,defaultLoad,readColors
+    ,
+    defaultLoad,
+    readColors
 }
