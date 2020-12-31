@@ -40,11 +40,11 @@ function init() {
     defaultLoad('werewolf', 'glb');
     defaultLoad('vampire', 'glb');
     defaultLoad('zombie', 'glb');
-    defaultLoad('die4', 'glb',[1, 1, 1]);
-    defaultLoad('die6', 'glb',[1, 1, 1]);
-    defaultLoad('die8', 'glb',[1, 1, 1]);
-    defaultLoad('die10', 'glb',[1, 1, 1]);
-    defaultLoad('die20', 'glb',[1, 1, 1]);
+    defaultLoad('die4',undefined,[1, 1, 1]);
+    defaultLoad('die6',undefined,[1, 1, 1]);
+    defaultLoad('die8',undefined,[1, 1, 1]);
+    defaultLoad('die10',undefined,[1, 1, 1]);
+    defaultLoad('die20',undefined,[1, 1, 1]);
 
     /*
         load('assets/person.gltf',m=>{
@@ -206,13 +206,17 @@ function defaultLoad(s, type,override) {
     if(!type)
         type = 'gltf'
     load('assets/models/' + s + '.' + type, m => {
+        if(m.type=='Scene')
+            m=m.children[0]
         m.scale.set(2, 2, 2);
         m.castShadow = true; //default is false
         m.receiveShadow = true; //default
         //m.material.shadowSide=THREE.FrontSide;
         //m.material.side= THREE.DoubleSide;
-        if(override)
-            readColors(m,override, [0, 0, 1])
+        //if(override)
+            //readColors(m,override, [0, 0, 1])
+        //else
+            readColors(m)
 
 
         _documentModel(s, m);
@@ -488,6 +492,7 @@ function make(s, player) {
                 }
                 let out = m.clone()
                 out.material = user.shader
+                return out;
             }
 
         }

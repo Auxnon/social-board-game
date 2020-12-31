@@ -42,7 +42,9 @@ var hexDebounce;
 var gridLineModel;
 
 function init() {
-
+    window.updateTerrain=updateTerrain;
+    window.compress=compress;
+    window.decompress=decompress;
 
 
     Render.loadModel('./assets/models/Hex.glb', m => {
@@ -625,7 +627,7 @@ function compress(array){
     let st=''
     for(let i=0;i<array.length;i++){
         for(let j=0;j<array.length;j++){
-            st+=String.fromCharCode(array[i][j])
+            st+=String.fromCharCode(array[i][j]+48) 
         }
     }
     //console.log('hex out ',st)
@@ -638,7 +640,7 @@ function decompress(st){
     for(let i=0;i<size;i++){
         array[i]=[]
         for(let j=0;j<size;j++){
-            array[i][j]=st.charCodeAt(i*size+j);////String.fromCharCode(array[i][j])
+            array[i][j]=st.charCodeAt(i*size+j)-48;////String.fromCharCode(array[i][j])
         }
     }
     return array;

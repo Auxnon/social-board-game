@@ -33,6 +33,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     var lastChats = [];
    
     var sheets={};
+    var equipments={}; //i hate this name but just differentiating it from equipment
     var land
 
 
@@ -56,8 +57,8 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         color: DataTypes.STRING,
         sessionID: DataTypes.STRING,
         online: false,
-        sheet: 
-        equipment:
+        sheet: DataTypes.JSON,
+        equipment:DataTypes.JSON,
     }, { sequelize, modelName: 'user' });
 
     class Land extends Model {}
@@ -120,15 +121,15 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                 ['Bungo', '1234', 'salt', '#8248A3'],
                 ['Bango', '1234', 'salt', '#B804AD'],
                 ['Bilbo', '1234', 'salt', '#7C03D0'],
-                ['Jake', '8008', 'salt', '#FFED24'],
-                ['VA', '9999', 'salt', '#F48A0D'],
+                ['Jake', '8008', 'salt', '#FFFC34'],
+                ['VA', '9999', 'salt', '#FF7700'],
                 ['Meg', '4343', 'salt', '#25BDFC'],
                 ['Claire', '7272', 'salt', '#D10054'],
                 ['Emo', '1111', 'salt', '#940818'],
                 ['Jon', '4200', 'salt', '#B234C5'],
                 ['Jack', '1954', 'salt', '#863D0C'],
-                ['Helen', '0005', 'salt', '#B234C5'],
-                ['Greg', '9000', 'salt', '#3442C5'],
+                ['Helen', '0005', 'salt', '#002C57'],
+                ['Greg', '9000', 'salt', '#FF0000'],
                 ['Nick', '8008', 'salt', '#7EBB1D'],
                 ['Heather', '6969', 'salt', '#FF00D8'],
                 ['Twilt', '4200', 'salt', '#FF00D8'],
@@ -160,6 +161,8 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         const users = await User.findAll();
         users.forEach(user => {
             possibleUsers.push({ id: user.id, username: user.username, color: user.color });
+            sheets[user.id]=user.sheet
+            equipments[user.id]=user.equipment
         })
 
         Land.findOne().then(l=>{
@@ -248,9 +251,13 @@ module.exports = function Game(app, express, server, io, sessionObj) {
     app.post('/grid', function(req, res, next) {
         res.send({ grid: land?land.data:undefined });
     })
-     app.post('/getSheets', function(req, res, next) {
+    app.post('/getSheets', function(req, res, next) {
         console.log('* sending sheets ')
         res.send({ array: sheets });
+    })
+    app.post('/getEquipment', function(req, res, next) {
+        if(req.body.id)
+        res.send({ array: equipments[req.body.id] });
     })
 
 
@@ -360,7 +367,17 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                     sheets[id]=obj;
                     console.log('updating sheet ',JSON.stringify(obj))
                     socket.broadcast.emit('updateSheet', id, obj);
-
+                    getUser(id,user=>{
+                        user.sheet=obj
+                        user.save();
+                    })
+                })
+                socket.on('sendEquipment', function(id, obj) {
+                    equipments[id]=obj
+                    getUser(id,user=>{
+                        user.equipment=obj;
+                        user.save();
+                    })
                 })
 
                 //body.position, body.quaternion, body.velocity, body.angularVelocity,body.dynamics

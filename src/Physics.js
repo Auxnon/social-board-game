@@ -433,6 +433,9 @@ function physMake(id, size, mass, pos,quat, type, meta) {
     Render.addModel(mesh);
     meshArray[id] = mesh;
     mesh.physId = id;
+    let dupe=JSON.parse(JSON.stringify(body.meta))
+    dupe.player.shader=undefined;
+    console.log('phys ',id,dupe)
 }
 
 function physDel(id){

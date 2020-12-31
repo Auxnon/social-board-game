@@ -137,7 +137,7 @@ function makeItem(name, description, model) {
     menu.appendChild(dom)
     //item.push({name:name,description:description,model:model})
     if(equipmentDebounce){
-        cleartTimeout(equipmentDebounce)
+        clearTimeout(equipmentDebounce)
         equipmentDebounce=undefined
     }
     equipmentDebounce=setTimeout(()=>{
@@ -145,7 +145,8 @@ function makeItem(name, description, model) {
         main.querySelectorAll('.equipment-item').forEach(item=>{
             array.push(scrapItem(item))
         })
-         Online.sendEquipment(id,array)
+         Online.sendEquipment(PlayerManager.getOwnPlayer().id,array)
+         console.log('send equipment '+array.length)
     },2000)
 }
 function syncEquipment(data){

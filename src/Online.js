@@ -10,7 +10,7 @@
  import * as Control from "./Control.js";
  import * as Character from "./Character.js";
  import * as BarUI from "./BarUI.js";
-
+ import * as Equipment from "./Equipment.js";
 
  var socket;
 
@@ -123,7 +123,7 @@
      lastChats();
      getGrid();
      getSheets();
-     getEquipment();
+     getEquipment(PlayerManager.getOwnPlayer().id);
      Control.init();
  }catch(err){
     UI.systemMessage("Stage2 Auth: "+err,'error');
@@ -305,5 +305,6 @@ function forceSave(){
 }
 function sendEquipment(id,array){
     socket.emit('sendEquipment',id,array);
+}
 
- export { login, physMake, physReset, message, terrain, physSend, physDel, updateSheet }
+ export { login, physMake, physReset, message, terrain, physSend, physDel, updateSheet,sendEquipment }
