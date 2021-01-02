@@ -133,6 +133,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
                 ['Nick', '8008', 'salt', '#7EBB1D'],
                 ['Heather', '6969', 'salt', '#FF00D8'],
                 ['Twilt', '4200', 'salt', '#FF00D8'],
+                ['Dylan', '4200', 'salt', '#00FF8A'],
             ]
 
             contents.forEach(stuff => {
@@ -597,7 +598,7 @@ module.exports = function Game(app, express, server, io, sessionObj) {
         return id;
     }
     function physDel(id){
-        if(physArray[id].watch)
+        if(physArray[id] && physArray[id].watch)
           delete watched[id]
 
         delete physArray[id];

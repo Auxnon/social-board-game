@@ -21,15 +21,21 @@ roof #70665C
 hinges #20140E
 door #67483C
 window #67483C
-#703212*/
+#703212
 
-var chunks=[];
+castle wall #797B7E
+*/
+
+
+var chunks={};
+var visibleChunks=[];
+//chunk {id,x,y,land,meta}
 
 
 
 var hex = []
-var landBits = []
-var grid = [];
+//var grid = [];
+//var meta=[];
 const SCALE = 8
 const SIZE = 32
 const HALF_GRID = 12 * SCALE / 2
@@ -40,6 +46,7 @@ var hexSelector
 
 var hexDebounce;
 var gridLineModel;
+var metaMode=false;
 
 function init() {
     window.updateTerrain=updateTerrain;
@@ -63,9 +70,10 @@ function init() {
 
             mm.material = basicMat
             mm.receiveShadow = true;
-            if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House"))
+            if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall"))
                 mm.castShadow = true;
             //Render.addModel(mm)
+
             hex[mm.name] = mm;
 
             let colors = [];
@@ -96,7 +104,6 @@ function init() {
 
         function clik(d, i) {
             d.addEventListener('click', ev => {
-                console.log('clicking hex')
                 let target = ev.target;
                 if(!target.classList.contains('hex')) {
                     target = target.parentElement
@@ -105,6 +112,7 @@ function init() {
                 void target.offsetWidth;
                 target.classList.add('jelloAnim')
                 setType(i)
+                metaMode=false;
             })
         }
 
@@ -121,10 +129,27 @@ function init() {
         clik(doms[4], 0);
         doms[5].appendChild(PictureMaker.generate(getModel('House_N')));
         clik(doms[5], 5);
+        doms[6].appendChild(PictureMaker.generate(getModel('Wall_N'),65,-90));
+        clik(doms[6], 6);
+
+       doms[7].style.backgroundColor='red'
+
+       doms[7].addEventListener('click', ev => {
+                let target = ev.target;
+                if(!target.classList.contains('hex')) {
+                    target = target.parentElement
+                }
+                target.classList.remove('jelloAnim')
+                void target.offsetWidth;
+                target.classList.add('jelloAnim')
+                metaMode=true;
+            })
 
         clearLand()
 
-        processLand();
+        let firstChunk=createChunk(0,0)
+
+        processLand(firstChunk);
 
 
 
@@ -197,37 +222,44 @@ function setGrid(bool) {
     }
 }
 
-function place(x, y, t) {
-    grid[x][y] = t
-    processLand();
+function place(chunk,x, y, t) {
+    console.log('stuff ',chunk.x,chunk.y,x,y)
+    chunk.grid[x][y] = t
+    processLand(chunk);
+}
+function alter(chunk,x, y, t) {
+    chunk.meta[x][y] = t
+    processLand(chunk);
 }
 
-function processLand() {
+function processLand(chunk) {
     SEED = 6;
-    modelClear()
-    for(let i = 0; i < grid.length; i++) {
-        for(let j = 0; j < grid.length; j++) {
-            let n = grid[i][j];
-            let rando = Math.floor(randomSeed(1, 4))
-            let turner = Math.floor(randomSeed(1, 6))
+    let offsetX=chunk.x*SIZE
+    let offsetY=chunk.y*SIZE
+    modelClear(chunk)
+    for(let i = 0; i < chunk.grid.length; i++) {
+        for(let j = 0; j < chunk.grid.length; j++) {
+            let n = chunk.grid[i][j];
+            let rando = Math.floor(chunk.meta[i][j]/6)+1;
+            let turner = chunk.meta[i][j]%6
             if(n != 1) { //hex coordinate system follows, hang tight it's a bumpy ride!
                 //if(i==2 && j==2)
                 //debugger
                 let l, r, tl, tr;
 
-                l = (i > 0) ? grid[i - 1][j] : 0
+                l = (i > 0) ? chunk.grid[i - 1][j] : 0
                 // pure hex x left right
-                r = (i < grid.length - 1) ? grid[i + 1][j] : 0
+                r = (i < chunk.grid.length - 1) ? chunk.grid[i + 1][j] : 0
 
 
                 //land('P1',i,j,1)
 
                 //upper hex edges, left and right
 
-                if(j < grid.length - 1) {
+                if(j < chunk.grid.length - 1) {
 
-                    tl = (i > 0) ? grid[i - 1][j + 1] : 0
-                    tr = grid[i][j + 1]
+                    tl = (i > 0) ? chunk.grid[i - 1][j + 1] : 0
+                    tr = chunk.grid[i][j + 1]
                 } else {
                     tl = 0;
                     tr = 0;
@@ -239,8 +271,8 @@ function processLand() {
 
                 let bl, br;
                 if(j > 0) {
-                    bl = grid[i][j - 1]
-                    br = (i < grid.length - 1) ? grid[i + 1][j - 1] : 0
+                    bl = chunk.grid[i][j - 1]
+                    br = (i < chunk.grid.length - 1) ? chunk.grid[i + 1][j - 1] : 0
                 } else {
                     bl = 0;
                     br = 0;
@@ -276,7 +308,7 @@ function processLand() {
                 let letter = 'N'
                 let type = ''
                 if(branches.length == 6) {
-                    land(n, 'H' + type, i, j, Math.floor(turner));
+                    land(chunk,n, 'H' + type, i, j, turner);
                 } else if(branches.length > 0) {
                     let distances = [];
 
@@ -408,9 +440,9 @@ function processLand() {
 
 
                     }
-                    land(n, letter + type, i, j, r)
+                    land(chunk,n, letter + type, i+offsetX, j+offsetY, r)
                 } else {
-                    land(n, 'N', i, j, 0)
+                    land(chunk,n, 'N', i+offsetX, j+offsetY, turner)
                 }
 
 
@@ -440,14 +472,14 @@ function processLand() {
 
             } else if(n == 1) {
                 //SEED=i*j
-                land(n, 'O' + rando, i, j, Math.floor(turner)) //,Math.floor(Math.random()*6))
+                land(chunk,n, 'O' + rando, i+offsetX, j+offsetY, turner) //,Math.floor(Math.random()*6))
             }
         }
 
     }
 }
 
-function land(n, st, x, y, r) {
+function land(chunk,n, st, x, y, r) {
     //n==1 grass, n==2 path, n==3 mount
     let radius = 1;
     let skew = SCALE * radius * Math.sqrt(3) / 2;
@@ -468,51 +500,73 @@ function land(n, st, x, y, r) {
         case 5:
             prefix = "House_";
             break;
+        case 6:
+            prefix = "Wall_";
+            break;
     }
 
     //dummy.position.set(offsetx+i*9,0,offsetz+j*skew*2 +i*skew);
     let picked = hex[prefix + st];
     if(picked) {
         let m = picked.clone();
+
         m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, -SCALE * .2) //z -SCALE*.2
+        //console.log('pos ')
+        if( m.position.x<leastx)
+            leastx=m.position.x
+        if( m.position.x>mostx)
+            mostx=m.position.x
+
+        if( m.position.y<leasty)
+            leasty=m.position.y
+        if( m.position.y>mosty)
+            mosty=m.position.y
+
+        console.log('least ',leastx,leasty,mostx,mosty)
+
+
         if(r) { //sp always not 0
             r = 6 - r;
             m.rotation.z = r * Math.PI / 3
         }
 
-        landBits.push(m)
+        chunk.modelReferences.push(m)
         Render.addModel(m)
     } else {
         console.log('invalid model ' + prefix + st)
     }
 
 }
+var leastx=9999,mostx=-9999,leasty=9999,mosty=-9999
 
-function modelClear() {
-    landBits.forEach(m => {
+function modelClear(chunk) {
+    chunk.modelReferences.forEach(m => {
         Render.removeModel(m)
     })
-    landBits = [];
+    chunk.modelReferences = [];
 }
 
 function clearLand() {
 
-    modelClear()
+   /* modelClear()
     for(let i = 0; i < SIZE; i++) {
         grid[i] = [];
+        meta[i]=[];
         for(let j = 0; j < SIZE; j++) {
             grid[i][j] = 1
+            meta[i][j] = Math.floor(Math.random()*18)
         }
-    }
+    }*/
 }
 
-function hexCheck(x, y) {
+function hexCheck(x, y,skipSelector) {
 
     let radius = 1;
     let skew = SCALE * radius * Math.sqrt(3) / 2;
     //m.position.set(-120+x*skew*2 +y*skew,-120+y*30,40)
     let y2 = Math.floor((SCALE + y) / (SCALE * 1.5));
     let x2 = Math.floor(((x + HALF_GRID + SCALE) - y2 * skew) / (skew * 2))
+    if(!skipSelector)
     hexSelector.position.set(-HALF_GRID + x2 * skew * 2 + y2 * skew, y2 * SCALE * 1.5, .8)
 
     return [x2, y2]
@@ -525,8 +579,22 @@ let hexChangeCount = 0;
 function hexPick(x, y) {
     let [x2, y2] = hexCheck(x, y)
 
+    let cx=Math.floor(x2/SIZE)
+    let cy=Math.floor(y2/SIZE)
+    x2=x2%SIZE
+    y2=y2%SIZE
+    if(x2<0)
+        x2+=SIZE
+
+    if(y2<0)
+        y2+=SIZE
+    let chunk=chunks[cx+','+cy]
+    if(!chunk)
+        chunk=createChunk(cx,cy)
+
+
     //console.log('click',x,y,x2,y2)
-    let bounds = grid.length;
+    let bounds = chunk.grid.length;
     if(!(x2 == lastPick.x && y2 == lastPick.y) && x2 > -1 && y2 > -1 && x2 < bounds && y2 < bounds) {
         /*let v=grid[x2][y2];
 		
@@ -537,12 +605,20 @@ function hexPick(x, y) {
 
         //if(hexChangeCount==0)
 
-        if(hexChangeCount == 0 && grid[x2][y2] == hexType) {
-            place(x2, y2, 1)
-        } else {
-            place(x2, y2, hexType)
+        if(metaMode){
+            let v=chunk.meta[x2][y2]+1
+            if(v>=18)
+                v=0;
+             alter(chunk,x2, y2, v)
+        }else{
+            if(hexChangeCount == 0 && chunk.grid[x2][y2] == hexType) {
+                place(chunk,x2, y2, 1)
+            } else {
+                place(chunk,x2, y2, hexType)
+            }
+            hexChangeCount++;
         }
-        hexChangeCount++;
+        
 
         /*if((x2==lastPick.x && y2==lastPick.y)){
 
@@ -558,7 +634,7 @@ function hexPick(x, y) {
             hexDebounce = null
         }
         hexDebounce = setTimeout(function() {
-            Online.terrain(0, compress(grid))
+            //Online.terrain(0, compress(grid))
         }, 2000)
 
     }
@@ -614,14 +690,15 @@ function getModel(st) {
 }
 
 function updateTerrain(chunk, data) {
-    grid = decompress(data)
+    //grid = decompress(data)
 
-    processLand();
+    //processLand();
 }
 
 function toggleSelector(bool) {
     hexSelector.visible = bool;
 }
+
 
 function compress(array){
     let st=''
@@ -648,6 +725,60 @@ function decompress(st){
 
 
 
+//////
+function createChunk(x,y){
+    let id=x+','+y
+    let grid=[];
+    let meta=[];
+    let modelReferences=[];
+    for(let i = 0; i < SIZE; i++) {
+        grid[i] = [];
+        meta[i]=[];
+        for(let j = 0; j < SIZE; j++) {
+            grid[i][j] = 1
+            meta[i][j] = Math.floor(Math.random()*18)
+        }
+    }
+    let visible=true;
+
+    let obj={id,x,y,grid,meta,modelReferences,visible};
+    chunks[id]=obj
+    visibleChunks.push(obj)
+    return obj;
+}
+
+function setHexFocus(pos){
 
 
-export { init, hexCheck, hexPick, toggleType, setType, getModel, updateTerrain, setGrid, refreshCount, toggleSelector }
+    let [x,y]=hexCheck(pos.x,pos.y)
+    x/=SIZE
+    y/=SIZE
+
+    console.log('visi ', x,y)
+
+    let all=Object.values(chunks)
+
+    all.forEach(chunk=>{
+        let xx=chunk.x-x
+        let yy=chunk.y-y
+        let r=Math.sqrt(xx*xx + yy*yy)
+        if(r<2){
+             if(!chunk.visible){
+                processLand(chunk)
+                 chunk.visible=true;
+             }
+        }else {
+            if(chunk.visible){
+                PictureMaker.processHexChunk(chunk)
+                modelClear(chunk)
+                chunk.visible=false;
+            }
+        }
+    })
+}
+
+
+
+
+
+export { init, hexCheck, hexPick, toggleType, setType, getModel, updateTerrain, setGrid, refreshCount, toggleSelector,setHexFocus }

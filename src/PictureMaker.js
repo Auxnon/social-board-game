@@ -8,6 +8,9 @@ var camera;
 var testToggle=true;
 var cached=[];
 
+var chunkCanvas
+var chunkCtx
+
 
 function init(){
 	scene=new THREE.Scene();
@@ -21,8 +24,20 @@ function init(){
     var ambientLight = new THREE.AmbientLight( 0x8F8F8F ); // soft white light  0x404040
    scene.add( ambientLight );
 
+
+
     //let m=Render.cubic(100,100,1)
     //scene.add(m)
+    ///
+    chunkCanvas=document.createElement('Canvas')
+    chunkCanvas.width=''+32*5
+    chunkCanvas.height=''+32*3
+    chunkCanvas.style.zIndex=99
+    chunkCanvas.style.border='red solid 3px'
+    chunkCanvas.style.position='absolute'
+    chunkCanvas.style.top='0px'
+    document.querySelector('#main').appendChild(chunkCanvas)
+    chunkCtx = chunkCanvas.getContext('2d')
 }
 
 function make(m,size,offset){
@@ -70,4 +85,40 @@ function get(m,size,offset){
     }
 }
 
-export {init,make,get,generate,test}
+var chunkCanvas
+function processHexChunk(chunk){
+    //let skew = 4  * Math.sqrt(3);
+    let skew= Math.sqrt(3)
+    //m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, -SCALE * .2) //z -SCALE*.2
+
+    let data=chunk.grid
+    for(let i=0;i<data.length;i++){
+        for(let j=0;j<data.length;j++){
+            let val=data[i][j]
+            let color='black'
+            switch(val){
+                case 0: color='lightblue';break; //water
+                case 1: color='#69951B';break; //grass
+                case 3: color='#7D5500';break; //mountain
+                case 4: color='#378A37';break; //tree
+                case 5: color='#594C40';break; //house
+                case 6: color='#515157';break; //wall
+            }
+
+            chunkCtx.beginPath();
+            chunkCtx.rect(Math.floor(j*skew+i*3), (data.length-j)*3, 3, 3);
+            chunkCtx.fillStyle = color;
+            chunkCtx.fill();
+        }
+
+    }
+    let texture =new THREE.CanvasTexture( chunkCanvas)
+    let material = new THREE.MeshLambertMaterial({ map : texture });
+    let size=8*32*skew
+    let plane = new THREE.Mesh(new THREE.PlaneGeometry(644.3229004156224, 372), material);
+
+    plane.position.set(-48+644.3229004156224/2,372/2,0)
+    Render.addModel(plane)
+}
+
+export {init,make,get,generate,test,processHexChunk}

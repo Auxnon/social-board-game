@@ -136,6 +136,7 @@ function defineOrbital(renderDom, camera) {
                     }
                 }*/
         Environment.setShadowPos(orbital.target)
+        HexManager.setHexFocus(orbital.target)
         //console.log('changed camera '+orbital.object.position.y)
     })
 
