@@ -73,6 +73,8 @@ function init() {
             if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall"))
                 mm.castShadow = true;
             //Render.addModel(mm)
+            if(mm.name.endsWith('H'))
+                mm.name+='1'
 
             hex[mm.name] = mm;
 
@@ -225,6 +227,7 @@ function setGrid(bool) {
 function place(chunk,x, y, t) {
     console.log('stuff ',chunk.x,chunk.y,x,y)
     chunk.grid[x][y] = t
+    chunk.dirty=true;
     processLand(chunk);
 }
 function alter(chunk,x, y, t) {
@@ -512,7 +515,7 @@ function land(chunk,n, st, x, y, r) {
 
         m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, -SCALE * .2) //z -SCALE*.2
         //console.log('pos ')
-        if( m.position.x<leastx)
+       /* if( m.position.x<leastx)
             leastx=m.position.x
         if( m.position.x>mostx)
             mostx=m.position.x
@@ -522,7 +525,7 @@ function land(chunk,n, st, x, y, r) {
         if( m.position.y>mosty)
             mosty=m.position.y
 
-        console.log('least ',leastx,leasty,mostx,mosty)
+        console.log('least ',leastx,leasty,mostx,mosty)*/
 
 
         if(r) { //sp always not 0
@@ -740,8 +743,11 @@ function createChunk(x,y){
         }
     }
     let visible=true;
+    let skew = SCALE  * Math.sqrt(3) / 2;
+    let actualX=(((-HALF_GRID) + x * skew * 2) + (y * skew)  )*SIZE
+    let actualY=(y * SCALE * 1.5 )*SIZE
 
-    let obj={id,x,y,grid,meta,modelReferences,visible};
+    let obj={id,x,y,actualX,actualY,grid,meta,modelReferences,visible};
     chunks[id]=obj
     visibleChunks.push(obj)
     return obj;
@@ -754,7 +760,7 @@ function setHexFocus(pos){
     x/=SIZE
     y/=SIZE
 
-    console.log('visi ', x,y)
+    
 
     let all=Object.values(chunks)
 
@@ -764,14 +770,30 @@ function setHexFocus(pos){
         let r=Math.sqrt(xx*xx + yy*yy)
         if(r<2){
              if(!chunk.visible){
+                chunk.visible=true;
                 processLand(chunk)
-                 chunk.visible=true;
+                 if(chunk.plane)
+                    chunk.plane.visible=false;
              }
         }else {
             if(chunk.visible){
-                PictureMaker.processHexChunk(chunk)
-                modelClear(chunk)
                 chunk.visible=false;
+                if(chunk.dirty && chunk.plane){
+                    console.log('dump plane')
+                    Render.removeModel(chunk.plane)
+                    delete chunk.plane
+                }
+
+                if(!chunk.plane){
+                    chunk.plane=PictureMaker.processHexChunk(chunk)
+                    console.log('new plane')
+                    Render.addModel(chunk.plane)
+                    chunk.dirty=false;
+                }
+                modelClear(chunk)
+                console.log('show plane')
+                chunk.plane.visible=true
+                
             }
         }
     })

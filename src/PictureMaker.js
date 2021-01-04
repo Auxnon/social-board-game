@@ -30,7 +30,7 @@ function init(){
     //scene.add(m)
     ///
     chunkCanvas=document.createElement('Canvas')
-    chunkCanvas.width=''+32*5
+    chunkCanvas.width=''+32*1.73*3
     chunkCanvas.height=''+32*3
     chunkCanvas.style.zIndex=99
     chunkCanvas.style.border='red solid 3px'
@@ -91,34 +91,36 @@ function processHexChunk(chunk){
     let skew= Math.sqrt(3)
     //m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, -SCALE * .2) //z -SCALE*.2
 
+    chunkCtx.clearRect(0,0,+32*1.73*3,32*3);
     let data=chunk.grid
     for(let i=0;i<data.length;i++){
         for(let j=0;j<data.length;j++){
             let val=data[i][j]
             let color='black'
             switch(val){
-                case 0: color='lightblue';break; //water
-                case 1: color='#69951B';break; //grass
-                case 3: color='#7D5500';break; //mountain
-                case 4: color='#378A37';break; //tree
+                case 0: color='#3449CF';break; //water
+                case 1: color='#2E4209';break; //grass   #2E4209 6CA90B
+                case 3: color='#4C3200';break; //mountain
+                case 4: color='#4F5822';break; //tree
                 case 5: color='#594C40';break; //house
                 case 6: color='#515157';break; //wall
             }
 
             chunkCtx.beginPath();
-            chunkCtx.rect(Math.floor(j*skew+i*3), (data.length-j)*3, 3, 3);
+            chunkCtx.rect(Math.floor(j*skew+i*3*37.5/32), (data.length-j -1)*3, 5, 3);
             chunkCtx.fillStyle = color;
             chunkCtx.fill();
         }
 
     }
     let texture =new THREE.CanvasTexture( chunkCanvas)
-    let material = new THREE.MeshLambertMaterial({ map : texture });
+    let material = new THREE.MeshBasicMaterial({ map : texture,transparent:true });
     let size=8*32*skew
     let plane = new THREE.Mesh(new THREE.PlaneGeometry(644.3229004156224, 372), material);
-
-    plane.position.set(-48+644.3229004156224/2,372/2,0)
-    Render.addModel(plane)
+    console.log('actual ',chunk.actualX,chunk.actualY) //
+    plane.position.set(chunk.actualX+644.3229004156224*2.5 +48,chunk.actualY+372/2,chunk.x%2==1?0.1:0) //644.3229004156224/2
+    return plane
+    //Render.addModel(plane)
 }
 
 export {init,make,get,generate,test,processHexChunk}
