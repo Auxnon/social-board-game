@@ -76,6 +76,7 @@ function changeShadowScale(factor) {
                 sunLight.shadow.mapSize.height = SHADOW_SIZE;
                 shadowMaxHeight = 200 / 2
                 sunLight.position.z = 600
+                Render.getCursor().scale.set(2,2,2)
             }
             break;
         case 3:
@@ -86,6 +87,7 @@ function changeShadowScale(factor) {
                 sunLight.shadow.mapSize.height = SHADOW_SIZE;
                 shadowMaxHeight = 100
                 sunLight.position.z = 300
+                Render.getCursor().scale.set(6,6,6)
             }
             break;
         case 2:
@@ -96,6 +98,7 @@ function changeShadowScale(factor) {
                 sunLight.shadow.mapSize.height = SHADOW_SIZE;
                 shadowMaxHeight = 40
                 sunLight.position.z = 120
+                Render.getCursor().scale.set(2,2,2)
 
             }
             break;
@@ -107,6 +110,7 @@ function changeShadowScale(factor) {
                 sunLight.shadow.mapSize.height = SHADOW_SIZE;
                 shadowMaxHeight = 25
                 sunLight.position.z = 75
+                Render.getCursor().scale.set(.75,.75,.75)
             }
             break;
         default:
@@ -117,6 +121,7 @@ function changeShadowScale(factor) {
                 sunLight.shadow.mapSize.height = SHADOW_SIZE;
                 shadowMaxHeight = 10
                 sunLight.position.z = 30
+                Render.getCursor().scale.set(.25,.25,.25)
             }
     }
 

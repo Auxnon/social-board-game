@@ -4,9 +4,11 @@ import * as IK from './lib/three-ik.js';
 import * as Render from "./Render.js";
 import * as Control from "./Control.js";
 
-var ik;
+var iks=[];
+var pivot
+var movingTarget
+var host
 function init(){
-	ik = new IK.IK();
 
 
 	window.addEventListener('keyup',ev=>{
@@ -19,6 +21,8 @@ function init(){
 	})
 }
 function makeSpline(target){
+	host=target
+		let ik = new IK.IK();
 		let chain = new IK.IKChain();
 	let constraints = [new IK.IKBallConstraint(90)];
 	
@@ -35,6 +39,12 @@ function makeSpline(target){
 
 
 //lastMesh.children[0].children[0].children[0].children[0].children[1].children[0]
+movingTarget = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+movingTarget.position.z = 0.75;
+pivot = new THREE.Object3D();
+pivot.add(movingTarget);
+Render.addModel(pivot)
+
 target.children.forEach(obj=>{
 	if(obj.type=='Bone'){
 		walkBone(obj,chain,constraints,0)
@@ -58,36 +68,48 @@ for (let i = 0; i < 10; i++) {
 
 // Add the chain to the IK system
 ik.add(chain);
-Render.addModel(ik.getRootBone());
+//target.add(ik.getRootBone());
 
 
 // Create a helper and add to the scene so we can visualize
 // the bones
 const helper = new IK.IKHelper(ik);
 Render.addModel(helper);
+window.ikhelper=helper;
+iks.push(ik)
+
 }
 
 function walkBone(bone,chain,constraints,iterator){
 	if(bone && bone.type=='Bone'){
 		let nextBone;
 		let target
+		console.log('chickn bone '+bone.name)
 		if(bone.children && bone.children.length>0){
-			nextBone=bone.children[0]
+			if(bone.children.length>1 && bone.name=='spine005')
+				nextBone=bone.children[1]
+			else 
+				nextBone=bone.children[0]
 		}else{
-			target=Render.getCursor();
+			target=Render.getCursor()//movingTarget
 		}
-		if(iterator>0)
+		if(iterator>1){
+			if(iterator==2)
+				bone.position.z-=0.1
 			chain.add(new IK.IKJoint(bone, { constraints }), { target });
+		}
 		if(nextBone)
 			walkBone(nextBone,chain,constraints,iterator+1)
 	}
 }
 
 function animate(){
-	if(ik){
-		
+	if(iks && iks.length>0 && pivot){
 
-	  ik.solve();
+		//pivot.position.set(Control.x(),Control.y(),Control.z())
+		iks.forEach(ik=>{
+			ik.solve();
+		})
 
 	}
 }
