@@ -16,6 +16,7 @@ import * as AssetManager from "./AssetManager.js";
 import * as Drawer from "./Drawer.js";
 import * as Equipment from "./Equipment.js";
 import * as Character from "./Character.js";
+import * as Experimental from "./Experimental.js";
 
 var mainDom;
 
@@ -130,7 +131,8 @@ function init() {
     let loop=setInterval(function(){
         if(AssetManager.getPending()<=0){
             Equipment.init();
-                Character.init();
+            Character.init();
+            Experimental.init();
 
             clearInterval(loop)
         }

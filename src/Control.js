@@ -38,6 +38,7 @@ var menuLocked = false;
 
 var velArray = [];
 var velocity = { x: 0, y: 0, z: 0 };
+var posObject={x:0,y:0,z:0}
 
 
 var state;
@@ -46,6 +47,7 @@ var lastRot = 0;
 
 
 function init() {
+    window.posObject=posObject
     //window.addEventListener('click',animationControl)
     let target = document.querySelector('.canvasHolder');
     window.addEventListener('pointermove', pointermove);
@@ -306,11 +308,9 @@ function z() {
 }
 
 function pos() {
-    return {
-        x: px,
-        y: py,
-        z: pz
-    };
+    
+
+    return posObject;
 }
 
 function down() {
@@ -326,6 +326,8 @@ function setVector(pos) {
     px = pos.x;
     py = pos.y;
     pz = pos.z;
+
+    posObject=pos;
     switch (state) {
         case "landscapeCard":
             if(!mdown)

@@ -33,7 +33,7 @@ var visibleChunks=[];
 
 
 
-var hex = []
+var hex = {}
 //var grid = [];
 //var meta=[];
 const SCALE = 8
@@ -52,6 +52,7 @@ function init() {
     window.updateTerrain=updateTerrain;
     window.compress=compress;
     window.decompress=decompress;
+    //console.log('water',Helper.get)
 
 
     Render.loadModel('./assets/models/Hex.glb', m => {
@@ -73,8 +74,12 @@ function init() {
             if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall"))
                 mm.castShadow = true;
             //Render.addModel(mm)
-            if(mm.name.endsWith('H'))
+            if(mm.name.endsWith('H')){
+                hex[mm.name+'2'] = mm;
+                hex[mm.name+'3'] = mm;
                 mm.name+='1'
+
+            }
 
             hex[mm.name] = mm;
 
@@ -96,6 +101,7 @@ function init() {
                 //console.log(colors)
             }
 
+
             //console.log(vr,vg,vb,va)
             //let val=Helper.rgbFloatToHex(mm.geometry.attributes.color.array[0],mm.geometry.attributes.color.array[1],mm.geometry.attributes.color.array[2])
             //console.log(val)
@@ -103,6 +109,9 @@ function init() {
 
 
         }
+        /*hex['House_H2']=hex['House_H1'];hex['House_H3']=hex['House_H1'];
+        hex['Wall_H2']=hex['Wall_H1'];hex['Wall_H3']=hex['Wall_H1'];
+        hex['Water_H2']=hex['Water_H1'];hex['Water_H3']=hex['Water_H1'];*/
 
         function clik(d, i) {
             d.addEventListener('click', ev => {
@@ -311,7 +320,7 @@ function processLand(chunk) {
                 let letter = 'N'
                 let type = ''
                 if(branches.length == 6) {
-                    land(chunk,n, 'H' + type, i, j, turner);
+                    land(chunk,n, 'H' + rando, i, j, turner);
                 } else if(branches.length > 0) {
                     let distances = [];
 

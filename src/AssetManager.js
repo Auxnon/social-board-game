@@ -40,11 +40,15 @@ function init() {
     defaultLoad('werewolf', 'glb');
     defaultLoad('vampire', 'glb');
     defaultLoad('zombie', 'glb');
+
+    //defaultLoad('chicken', 'glb');
     defaultLoad('die4',undefined,[1, 1, 1]);
     defaultLoad('die6',undefined,[1, 1, 1]);
     defaultLoad('die8',undefined,[1, 1, 1]);
     defaultLoad('die10',undefined,[1, 1, 1]);
     defaultLoad('die20',undefined,[1, 1, 1]);
+
+    
 
     /*
         load('assets/person.gltf',m=>{
@@ -96,6 +100,9 @@ function init() {
 
         });*/
 
+    personShader = makeShader();
+    personShader.needsUpdate = true;
+    personShader.skinning = true;
     load('assets/models/man.gltf', (m, animations) => {
         //m.position.x+=100;
         m = m.children[0]
@@ -116,9 +123,8 @@ function init() {
 
         let val = { value: new THREE.Vector3(0, 0, 1) };
 
-        personShader = makeShader();
-        personShader.needsUpdate = true;
-        personShader.skinning = true;
+        
+        
 
         MODELS['man'] = manModel;
 
@@ -192,6 +198,26 @@ function init() {
         let val = { value: new THREE.Vector3(0, 0, 1) };
         MODELS['gran'] = m;
     });
+
+    load('assets/models/chicken.glb',m=>{
+            m=m.children[0]
+           m.scale.set(2, 2, 2);
+            
+            m.children.forEach(o=>{
+                 console.log('hit chicken'+o.type)
+                if(o.type=='SkinnedMesh'){
+                    o.material = personShader.clone();
+                    //o.material.skinning = true;
+                    //o.material.needsUpdate = true;
+                    //o.castShadow = true;
+                    //o.receiveShadow = true;
+                }
+            })
+           
+            //m.material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0, roughness: 1.0}); // 
+            MODELS['chicken'] = m;
+
+        });
 }
 
 function load(model, callback) {
@@ -206,8 +232,15 @@ function defaultLoad(s, type,override) {
     if(!type)
         type = 'gltf'
     load('assets/models/' + s + '.' + type, m => {
-        if(m.type=='Scene')
-            m=m.children[0]
+        if(m.type=='Scene'){
+            m.children.every(obj=>{
+                if(obj.type=='Mesh'){
+                    m=obj;
+                    return false;
+                }
+                return true;
+            })
+        }
         m.scale.set(2, 2, 2);
         m.castShadow = true; //default is false
         m.receiveShadow = true; //default
@@ -457,7 +490,31 @@ function make(s, player) {
         if(Array.isArray(m)) {
             m = m[Math.floor(Math.random() * m.length)]
         } else if(player && player.color) {
-            if((s == 'man' || s == 'gran')) {
+            if((s == 'man' || s == 'gran' || s=='chicken')) {
+                if(player && player.id) {
+                    let user = PlayerManager.getUser(player.id)
+                    if(!user.shader) {
+                        user.shader = personShader.clone();
+                        user.shader.needsUpdate = true;
+                        let colors = Helper.hexToRGBFloat(player.color);
+                        user.shader.uniforms.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
+                    }
+
+                    let out = SkeletonUtils.clone(m);
+                    
+                    out.children.forEach(obj => {
+                        if(obj && obj.type == "SkinnedMesh") {
+                            obj.castShadow = true;
+                            obj.receiveShadow = true;
+                            obj.material = user.shader
+                            obj.material.needsUpdate = true;
+                        }
+                    })
+                    return out;
+                }else{
+
+
+
                 m = SkeletonUtils.clone(m);
                 let colors = Helper.hexToRGBFloat(player.color);
 
@@ -482,18 +539,8 @@ function make(s, player) {
                     }
                 })
                 return m;
-            } else if(player && player.id) {
-                let user = PlayerManager.getUser(player.id)
-                if(!user.shader) {
-                    user.shader = personShader.clone();
-                    user.shader.needsUpdate = true;
-                    let colors = Helper.hexToRGBFloat(player.color);
-                    user.shader.uniforms.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
-                }
-                let out = m.clone()
-                out.material = user.shader
-                return out;
             }
+            } 
 
         }
         return m.clone();

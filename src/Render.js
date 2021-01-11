@@ -5,6 +5,8 @@ import * as Physics from "./Physics.js";
 import * as Control from "./Control.js";
 import * as Environment from "./Environment";
 import { GLTFLoader } from "./lib/GLTFLoader.js";
+import * as Experimental from "./Experimental.js";
+
 
 
 import { EffectComposer } from './lib/EffectComposer.js';
@@ -322,6 +324,7 @@ function animate(time) {
             updateAnchor(a,i);
         })
     }
+    Experimental.animate();
     requestAnimationFrame(animate);
 }
 
@@ -760,6 +763,9 @@ function toggleScene(sc, cam) {
     }
 }
 
+function getCursor(){
+    return pointer;
+}
 
 
 
@@ -867,5 +873,6 @@ export {
     addAnchor,
     resize,
     player,
-    togglePhysicsDebugger
+    togglePhysicsDebugger,
+    getCursor
 }

@@ -524,6 +524,7 @@ function physCarry(pos,rot) {
         let closest=findWithin(2.2,pos)
         if(closest != undefined){
             carryTarget = physArray[closest]
+            window.carryTarget=carryTarget
             return 1;
         }else{
             carryTarget=-1;
@@ -540,7 +541,9 @@ function physCarry(pos,rot) {
         if(adjustDelay > 10) {
             adjustDelay = 0
             Online.physSend(p, true)
-            console.log('send phys ',p.id,JSON.stringify(p.meta))
+            let temp=JSON.parse(JSON.stringify(p.meta))
+            delete temp.shader
+            console.log('send phys ',p.id,temp)
         }
         return 1;
     }
@@ -553,6 +556,7 @@ function findWithin(range,pos){
             if(mesh.physId != undefined) {
                 let d = mesh.position.distanceTo(pos);
                 if(d < distance) {
+                    window.lastMesh=mesh;
                     closest = mesh.physId
                     distance = d;
                 }
