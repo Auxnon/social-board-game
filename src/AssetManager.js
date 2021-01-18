@@ -249,7 +249,7 @@ function defaultLoad(s, type,override) {
         //if(override)
             //readColors(m,override, [0, 0, 1])
         //else
-            readColors(m)
+            //readColors(m)
 
 
         _documentModel(s, m);
@@ -330,6 +330,8 @@ function _subReadColors(parent, geom, swapIn, swapOut) {
                     array[i - 2] = swapOut[1];
                     array[i - 1] = swapOut[2];
                 }
+                    //console.log('match?',Helper.rgbFloatToHex(swapIn[0],swapIn[1],swapIn[2]),Helper.rgbFloatToHex(array[i-3],array[i-2],array[i-1]))
+
             } else {
                 let hex = Helper.rgbFloatToHex(array[i - 3], array[i - 2], array[i - 1]);
                 colorArray[hex] = array[i - 3] + ',' + array[i - 2] + ',' + array[i - 1];

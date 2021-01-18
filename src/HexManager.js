@@ -2,6 +2,9 @@ import * as Render from "./Render.js";
 import * as Helper from "./Helper.js";
 import * as PictureMaker from "./PictureMaker.js";
 import * as Online from "./Online.js";
+import * as AssetManager from "./AssetManager.js";
+import * as Experimental from "./Experimental.js";
+
 
 import * as THREE from "./lib/three.module.js";
 
@@ -53,6 +56,7 @@ function init() {
     window.compress=compress;
     window.decompress=decompress;
     //console.log('water',Helper.get)
+    let testShader=Experimental.makeShader();
 
 
     Render.loadModel('./assets/models/Hex.glb', m => {
@@ -69,8 +73,17 @@ function init() {
             mm.scale.set(SCALE, SCALE, SCALE)
             //mm.material= new THREE.MeshBasicMaterial( {color: 0x20E89F, side: THREE.FrontSide} );
 
-            mm.material = basicMat
+            mm.material = testShader
             mm.receiveShadow = true;
+            if(mm.name.startsWith('Water')){
+                //debugger;
+                //AssetManager.readColors(mm,[0.12890625, 0.30859375, 0.3125],[1,0,0])
+                //AssetManager.readColors(mm,Helper.hexToRGBFloat('#214f51'),[1,0,0])
+                //AssetManager.readColors(mm,[0.12890625, 0.30859375, 0.31640625],[1,0,0])
+                //AssetManager.readColors(mm,Helper.hexToRGBFloat('#659799')[1,0,0])
+                //console.log('replace!')
+                
+            }
             if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall"))
                 mm.castShadow = true;
             //Render.addModel(mm)
@@ -97,9 +110,32 @@ function init() {
                     let val = Helper.rgbFloatToHex(vr, vg, vb)
                     colors[val] = val
                 }
-
-                //console.log(colors)
+                /*if(mm.name.startsWith("Water"))
+                    console.log('water ',colors)*/
             }
+            /*
+            #1e4c0f: "#1e4c0f"
+#4c4824: "#4c4824"
+#164e0c: "#164e0c"
+#164e0d: "#164e0d"
+#164f0c: "#164f0c"
+#174e0d: "#174e0d"
+#184e0d: "#184e0d"
+#214f50: "#214f50"
+#214f51: "#214f51"
+#274e4a: "#274e4a"
+#18510a: "#18510a"
+#225052: "#225052"
+#266500: "#266500"
+#504722: "#504722"
+#514721: "#514721"*/
+/*
+#4a4827: "#4a4827"
+#174e0d: "#174e0d"
+#214f51: "#214f51"
+#266500: "#266500"
+#504722: "#504722"
+#514721: "#514721"*/
 
 
             //console.log(vr,vg,vb,va)
