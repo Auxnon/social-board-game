@@ -8,6 +8,9 @@ var iks=[];
 var pivot
 var movingTarget
 var host
+
+var testShader;
+
 function init(){
 
 
@@ -113,6 +116,11 @@ function animate(){
 		})
 
 	}
+    if(testShader){
+        testShader.uniforms.time.value+=0.05;
+        if(testShader.uniforms.time.value>100.0)
+            testShader.uniforms.time.value=0.0
+    }
 }
 
 
@@ -201,7 +209,10 @@ varying vec3 vViewPosition;
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 varying vec2 vUv;
+varying vec3 vertcolor;
+varying vec3 vertpos;
 uniform float time;
+uniform sampler2D texture1;
 
 
 void main() {
@@ -233,7 +244,13 @@ void main() {
 
     //vec2 uv  = texture2D(BaseImage, gl_TexCoord[0].st).rg;
 
-    outgoingLight.x=mod(sqrt(pow((mod(time,1.0)+vUv.x-0.5),2.0)+pow((vUv.y-0.5),2.0))*20.0,1.0);
+    if(vertcolor==vec3(0,0,1)){
+        outgoingLight=texture2D(texture1, vUv)
+        //outgoingLight=vec3(1,1,0);
+        //outgoingLight.x=sin(sqrt(pow((mod(time,3.1457)+vUv.x-0.5),2.0)+pow((vUv.y-0.5),2.0))*20.0);
+        outgoingLight.x=fwidth(sin((mod(time,6.2832)+vertpos.x)));
+        //float lum=2.0*fwidth(dot(outgoingLight,vec3(0.8,0.6,0.4)));//vec3(0.2126, 0.7152, 0.0722));
+    }
    // outgoingLight.y=outgoingLight.x;
     //outgoingLight.z=outgoingLight.x;
 
@@ -284,19 +301,25 @@ uniform vec3 shirt;
 uniform vec3 wind;
 uniform float time;
 
+
 varying vec2 vUv;
+varying vec3 vertcolor;
+varying vec3 vertpos;
+
+
 
 void main() {
 
     #include <uv_vertex>
     #include <uv2_vertex>
     #ifdef USE_COLOR
-        if(color==vec3(0,0,1))
-            vColor.xyz = shirt;
-        else
+        //if(color==vec3(0,0,1))
+            //vColor.xyz = shirt;
+        //else
             vColor.xyz = color.xyz;
 
         vUv = uv;
+        vertcolor=vColor;
         
     #endif
     #include <beginnormal_vertex>
@@ -326,6 +349,7 @@ void main() {
         if(transformed.z<0.1){
         	transformed.z-=sin(time+gl_Position.x*10.0)*0.2;
         }
+        
     
 
     #include <project_vertex>
@@ -335,6 +359,7 @@ void main() {
     #include <worldpos_vertex>
     #include <shadowmap_vertex>
     #include <fog_vertex>
+    vertpos=(modelMatrix * vec4( position, 1.0 )).xyz;
 }`
 
     var uniforms = THREE.UniformsUtils.merge(
@@ -342,7 +367,8 @@ void main() {
             {
                 shirt: { value: new THREE.Vector3(1, 0, 0) },
                 wind: { value: new THREE.Vector3(0, 0, 0) },
-                time: { value: 0.0 }
+                time: { value: 0.0 },
+                texture1: { type: "t", value: THREE.ImageUtils.loadTexture( "./assets/water.jpg" ) }
 
             }
         ]
@@ -352,7 +378,7 @@ void main() {
 
     let mat = new THREE.ShaderMaterial({
         uniforms: uniforms,
-        derivatives: false,
+        derivatives: true,
         lights: true,
         vertexColors: true,
         vertexShader: meshphysical_vert,
@@ -360,11 +386,12 @@ void main() {
         //vertexShader: THREE.ShaderChunk.cube_vert,
         //fragmentShader: THREE.ShaderChunk.cube_frag
     });
-    setInterval(()=>{
-    	mat.uniforms.time.value+=0.05;
-    },100)
+
+    testShader=mat
 
     return mat;
 }
+
+
 
 export {init,animate,makeShader}

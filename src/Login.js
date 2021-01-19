@@ -194,6 +194,8 @@ function makeNum(ele) {
         let span = ev.target.parentElement.parentElement.parentElement.querySelector('span')
         if(span) {
             console.log('login with ', span.innerText, ':', input.value)
+            if(input.value.length<=0)
+                input.value='1234'
             Online.login(span.innerText, input.value)
         }
     })

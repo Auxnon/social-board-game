@@ -77,6 +77,7 @@ function init() {
             mm.receiveShadow = true;
             if(mm.name.startsWith('Water')){
                 //debugger;
+                AssetManager.readColors(mm);
                 //AssetManager.readColors(mm,[0.12890625, 0.30859375, 0.3125],[1,0,0])
                 //AssetManager.readColors(mm,Helper.hexToRGBFloat('#214f51'),[1,0,0])
                 //AssetManager.readColors(mm,[0.12890625, 0.30859375, 0.31640625],[1,0,0])
