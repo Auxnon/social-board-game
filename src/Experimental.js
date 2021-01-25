@@ -246,6 +246,7 @@ void main() {
     
     if(vertcolor==vec3(0,0,1)){
         outgoingLight=vec3(0.069, 0.213, 0.398);
+        outgoingLight*=0.75+(vertpos.z+0.05)/0.1;
         float offset=mod(time/120.0,0.5);
         vec4 texel=texture2D(texture1, vUv/2.0+vec2(offset,0));
         vec4 texel2=texture2D(texture1, vUv/2.0+vec2(0,offset));
@@ -359,8 +360,10 @@ void main() {
 
         
 
-        if(transformed.z<0.1){
-            transformed.z-=sin(time+vertpos.x)*0.05;
+        if(transformed.z<0.15){
+            vertpos.z=sin(time+vertpos.x)*0.05;
+
+            transformed.z-=vertpos.z;
         }
         
         
