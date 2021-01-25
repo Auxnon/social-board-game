@@ -9,8 +9,8 @@ import * as Experimental from "./Experimental.js";
 import * as THREE from "./lib/three.module.js";
 
 //grass #6CA90B
-//grass2/tree leaf #A1C73A
-//grass3 #53963F
+//grass2/tree leaf #A1C73A. 
+//grass3 #53963F. 
 //path #BEB55D
 //mountain/dirt #907B67
 ///riverside #999065  river edged grass use grass3
@@ -51,6 +51,8 @@ var hexDebounce;
 var gridLineModel;
 var metaMode=false;
 
+var SYNC_LAND=true;
+
 function init() {
     window.updateTerrain=updateTerrain;
     window.compress=compress;
@@ -75,7 +77,7 @@ function init() {
 
             mm.material = testShader
             mm.receiveShadow = true;
-            if(mm.name.startsWith('Water')){
+            if(mm.name.startsWith('Tree')){
                 //debugger;
                 AssetManager.readColors(mm);
                 //AssetManager.readColors(mm,[0.12890625, 0.30859375, 0.3125],[1,0,0])
@@ -683,7 +685,8 @@ function hexPick(x, y) {
             hexDebounce = null
         }
         hexDebounce = setTimeout(function() {
-            //Online.terrain(0, compress(grid))
+            if(SYNC_LAND)
+            Online.terrain(0, compress(chunks['0,0'].grid))
         }, 2000)
 
     }
@@ -738,10 +741,12 @@ function getModel(st) {
     return hex[st].clone();
 }
 
-function updateTerrain(chunk, data) {
-    //grid = decompress(data)
+function updateTerrain(chunkId, data) {
+    let chunk =chunks['0,0']
 
-    //processLand();
+    chunk.grid = decompress(data)
+
+    processLand(chunk);
 }
 
 function toggleSelector(bool) {

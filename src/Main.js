@@ -121,6 +121,8 @@ function init() {
     PictureMaker.init();
 
     BarUI.init();
+    Character.init();
+    Equipment.init();
     Login.init();
     
     Chat.init();
@@ -133,8 +135,8 @@ function init() {
 
     let loop=setInterval(function(){
         if(AssetManager.getPending()<=0){
-            Equipment.init();
-            Character.init();
+            
+            
             Experimental.init();
 
             clearInterval(loop)

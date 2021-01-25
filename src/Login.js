@@ -13,6 +13,7 @@ import * as BarUI from "./BarUI.js";
 
 
 var input
+const SKIP=true;
 
 function init() {
     initSheet();
@@ -82,8 +83,12 @@ function init() {
                 span.innerText = user.username;
                 dom.appendChild(span)
                 list.appendChild(dom);
+                
             })
         }
+
+        if(SKIP)
+            setTimeout(function(){Online.login('Bingo', '1234')},1);
     }).catch(e => {
         console.error('ERROR' + e);
     });
@@ -194,15 +199,17 @@ function makeNum(ele) {
         let span = ev.target.parentElement.parentElement.parentElement.querySelector('span')
         if(span) {
             console.log('login with ', span.innerText, ':', input.value)
-            if(input.value.length<=0)
-                input.value='1234'
-            Online.login(span.innerText, input.value)
+            if(input.value.length>0)
+                Online.login(span.innerText, input.value)
+                //input.value='1234'
+           
         }
     })
     row.appendChild(go)
 
 
     ele.appendChild(row)
+
 }
 
 

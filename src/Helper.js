@@ -1,3 +1,6 @@
+//THREE.Color('#808080').convertSRGBToLinear()
+
+
 function hexToRGB(h) {
     if(!h)
         return [0,0,0]
@@ -73,5 +76,11 @@ function testBW(rgb) {
     let val = (rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114)
     return val > 186
 }
+function fp16ToRGBFloat(r,g,b){
+    return [r/65535,g/65535,b/65535];
+}
+function fp16ToHex(r,g,b){
+    return rgbFloatToHex(r/65535,g/65535,b/65535);
+}
 
-export { rgbToHex, rgbFloatToHex, hexToRGB, hexToRGBFloat, getRandomColor, testBW }
+export { rgbToHex, rgbFloatToHex, hexToRGB, hexToRGBFloat, getRandomColor, testBW,fp16ToRGBFloat,fp16ToHex }
