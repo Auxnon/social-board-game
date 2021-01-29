@@ -105,3 +105,6 @@ dist
 
 public/*
 !public/assets/
+.DS_Store
+sessions
+database.sqlite
