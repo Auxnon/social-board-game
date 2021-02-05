@@ -49,7 +49,7 @@ var hexSelector
 
 var hexDebounce;
 var gridLineModel;
-var metaMode=false;
+var altMode=0;
 
 var SYNC_LAND=true;
 
@@ -162,7 +162,7 @@ function init() {
                 void target.offsetWidth;
                 target.classList.add('jelloAnim')
                 setType(i)
-                metaMode=false;
+                altMode=0;
             })
         }
 
@@ -192,7 +192,7 @@ function init() {
                 target.classList.remove('jelloAnim')
                 void target.offsetWidth;
                 target.classList.add('jelloAnim')
-                metaMode=true;
+                altMode=2;
             })
 
         clearLand()
@@ -278,8 +278,12 @@ function place(chunk,x, y, t) {
     chunk.dirty=true;
     processLand(chunk);
 }
-function alter(chunk,x, y, t) {
+function adjustMeta(chunk,x, y, t) {
     chunk.meta[x][y] = t
+    processLand(chunk);
+}
+function adjustHeight(chunk,x,y,h){
+    chunk.height[x][y] = h
     processLand(chunk);
 }
 
@@ -290,6 +294,7 @@ function processLand(chunk) {
     modelClear(chunk)
     for(let i = 0; i < chunk.grid.length; i++) {
         for(let j = 0; j < chunk.grid.length; j++) {
+            let height = chunk.height[i][j];
             let n = chunk.grid[i][j];
             let rando = Math.floor(chunk.meta[i][j]/6)+1;
             let turner = chunk.meta[i][j]%6
@@ -491,9 +496,9 @@ function processLand(chunk) {
 
 
                     }
-                    land(chunk,n, letter + type, i+offsetX, j+offsetY, r)
+                    land(chunk,n, letter + type, i+offsetX, j+offsetY,height, r)
                 } else {
-                    land(chunk,n, 'N', i+offsetX, j+offsetY, turner)
+                    land(chunk,n, 'N', i+offsetX, j+offsetY,height, turner)
                 }
 
 
@@ -523,14 +528,14 @@ function processLand(chunk) {
 
             } else if(n == 1) {
                 //SEED=i*j
-                land(chunk,n, 'O' + rando, i+offsetX, j+offsetY, turner) //,Math.floor(Math.random()*6))
+                land(chunk,n, 'O' + rando, i+offsetX, j+offsetY,height, turner) //,Math.floor(Math.random()*6))
             }
         }
 
     }
 }
 
-function land(chunk,n, st, x, y, r) {
+function land(chunk,n, st, x, y,z, r) {
     //n==1 grass, n==2 path, n==3 mount
     let radius = 1;
     let skew = SCALE * radius * Math.sqrt(3) / 2;
@@ -561,7 +566,7 @@ function land(chunk,n, st, x, y, r) {
     if(picked) {
         let m = picked.clone();
 
-        m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, -SCALE * .2) //z -SCALE*.2
+        m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, SCALE * (z-0.2)) //z -SCALE*.2
         //console.log('pos ')
        /* if( m.position.x<leastx)
             leastx=m.position.x
@@ -656,11 +661,17 @@ function hexPick(x, y) {
 
         //if(hexChangeCount==0)
 
-        if(metaMode){
+        if(altMode==1){
             let v=chunk.meta[x2][y2]+1
             if(v>=18)
                 v=0;
-             alter(chunk,x2, y2, v)
+             adjustMeta(chunk,x2, y2, v)
+        }else if(altMode==2){
+            let v=chunk.height[x2][y2]+1
+            if(v>=18)
+                v=0;
+            adjustHeight(chunk,x2, y2, v)
+
         }else{
             if(hexChangeCount == 0 && chunk.grid[x2][y2] == hexType) {
                 place(chunk,x2, y2, 1)
@@ -784,13 +795,16 @@ function createChunk(x,y){
     let id=x+','+y
     let grid=[];
     let meta=[];
+    let height=[];
     let modelReferences=[];
     for(let i = 0; i < SIZE; i++) {
         grid[i] = [];
         meta[i]=[];
+        height[i]=[];
         for(let j = 0; j < SIZE; j++) {
             grid[i][j] = 1
             meta[i][j] = Math.floor(Math.random()*18)
+            height[i][j]=0;
         }
     }
     let visible=true;
@@ -798,7 +812,7 @@ function createChunk(x,y){
     let actualX=(((-HALF_GRID) + x * skew * 2) + (y * skew)  )*SIZE
     let actualY=(y * SCALE * 1.5 )*SIZE
 
-    let obj={id,x,y,actualX,actualY,grid,meta,modelReferences,visible};
+    let obj={id,x,y,actualX,actualY,grid,meta,height,modelReferences,visible};
     chunks[id]=obj
     visibleChunks.push(obj)
     return obj;
