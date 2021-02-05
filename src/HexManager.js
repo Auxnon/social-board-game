@@ -527,8 +527,193 @@ function processLand(chunk) {
                 //land('P1',i,j,n-2)
 
             } else if(n == 1) {
-                //SEED=i*j
-                land(chunk,n, 'O' + rando, i+offsetX, j+offsetY,height, turner) //,Math.floor(Math.random()*6))
+                let l, r, tl, tr;
+
+                l = (i > 0) ? chunk.height[i - 1][j] : 0
+                r = (i < chunk.height.length - 1) ? chunk.height[i + 1][j] : 0
+
+                if(j < chunk.height.length - 1) {
+                    tl = (i > 0) ? chunk.height[i - 1][j + 1] : 0
+                    tr = chunk.height[i][j + 1]
+                } else {
+                    tl = 0;
+                    tr = 0;
+                }
+
+                let bl, br;
+                if(j > 0) {
+                    bl = chunk.height[i][j - 1]
+                    br = (i < chunk.height.length - 1) ? chunk.height[i + 1][j - 1] : 0
+                } else {
+                    bl = 0;
+                    br = 0;
+                }
+                l = l >height && l<=(height+1);
+                r = r>height && r<=(height+1);
+                tr = tr>height && tr<=(height+1);
+                br =br>height && br<=(height+1);
+                bl = bl>height && bl<=(height+1);
+                tl = tl>height && tl<=(height+1);
+
+                let st = (tl ? '1' : '0') + (l ? '1' : '0') + (bl ? '1' : '0') + (br ? '1' : '0') + (r ? '1' : '0') + (tr ? '1' : '0');
+
+                let start = -1;
+                let index = 0;
+                let circle = [tl, tr, r, br, bl, l]
+                let branches = [];
+                let hole = 5;
+                circle.forEach((b, i) => {
+                    if(b) {
+                        branches.push(i)
+                        if(start == -1)
+                            start = i;
+
+                        index = i;
+                    } else
+                        hole = i
+                })
+                let letter = 'N'
+                let type = ''
+                if(branches.length == 6) {
+                    //land(chunk,n, 'H' + rando, i, j, turner);
+                    land(chunk,n, 'O' + rando, i+offsetX, j+offsetY,height, turner) //,Math.floor(Math.random()*6))
+
+                } else if(branches.length > 0) {
+                    let distances = [];
+
+                    var last = branches[0]
+                    for(let i = 1; i < branches.length; i++) {
+                        distances.push((branches[i] - last) - 1)
+                        last = branches[i]
+                    }
+                    //console.log(distances)
+
+                    let r = start == -1 ? 0 : start;
+
+                    switch (branches.length) {
+                        case 1:
+                            letter = 'E'
+                            r += 0;
+                            break;
+
+                        case 2:
+                            letter = 'P';
+                            if(distances[0] == 0) {
+                                type = '3';
+                                r += 0;
+                            } else if(distances[0] == 1) {
+                                type = '2';
+                                r += 0;
+                            } else if(distances[0] == 2) {
+                                type = '1';
+                                r += 0;
+                            } else if(distances[0] == 3) {
+                                type = '2';
+                                r += 4;
+                            } else {
+                                type = '3';
+                                r += 5;
+                            }
+                            break;
+
+                        case 3:
+                            letter = 'T'; //3 paths
+                            if(distances[0] == 0) {
+                                if(distances[1] == 0) {
+                                    type = 1;
+                                    r += 0;
+                                } else if(distances[1] == 3) {
+                                    type = 1;
+                                    r += 5;
+                                } else if(distances[1] == 1) {
+                                    type = 3;
+                                    r += 3;
+                                } else if(distances[1] == 2) {
+                                    type = 2;
+                                    r += 4;
+                                }
+                            } else if(distances[0] == 1) {
+                                if(distances[1] == 0) {
+                                    type = 2; //r+=0;
+                                } else if(distances[1] == 1) {
+                                    type = 4; //r+=0;
+                                } else if(distances[1] == 2) {
+                                    type = 3;
+                                    r += 2;
+                                }
+                            } else if(distances[0] == 2) {
+                                if(distances[1] == 0) {
+                                    type = 3;
+                                    r += 0;
+                                } else if(distances[1] == 1) {
+                                    type = 2;
+                                    r += 3;
+                                }
+                            } else {
+                                type = 1;
+                                r += 4;
+                            }
+                            r = r % 6;
+                            break;
+
+                        case 4:
+                            letter = 'Q'; //4 path
+                            if(distances[0] == 0) {
+                                if(distances[1] == 0) {
+                                    if(distances[2] == 0) {
+                                        type = 1;
+                                        r += 0
+                                    } else if(distances[2] == 1) {
+                                        type = 3;
+                                        r += 2;
+                                    } else if(distances[2] == 2) {
+                                        type = 1;
+                                        r += 5;
+                                    }
+                                } else if(distances[1] == 1) {
+                                    if(distances[2] == 0) {
+                                        type = 2;
+                                        r += 4;
+                                    } else if(distances[2] == 1) {
+                                        type = 3;
+                                        r += 1
+                                    }
+                                } else { //}( 2==2)
+                                    type = 1;
+                                    r += 4;
+                                }
+                            } else if(distances[0] == 1) {
+                                if(distances[1] == 0) {
+                                    if(distances[2] == 0) {
+                                        type = 3;
+                                        r += 4;
+
+                                    } else {
+                                        type = 2;
+                                    }
+                                } else { //1 1 0
+                                    type = 3
+                                }
+                            } else {
+                                type = 1;
+                                r += 3;
+                            }
+                            r = r % 6;
+                            break;
+
+                        case 5:
+                            letter = 'F';
+                            r = hole + 1;
+                            break;
+                    }
+                    land(chunk,n, letter + type+'V', i+offsetX, j+offsetY,height, r)
+                } else {
+                    land(chunk,n, 'NV', i+offsetX, j+offsetY,height, turner)
+                }
+
+
+
+
             }
         }
 
