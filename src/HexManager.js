@@ -574,7 +574,7 @@ function processLand(chunk) {
                 })
                 let letter = 'N'
                 let type = ''
-                if(branches.length == 6) {
+                if(branches.length == 6 || branches.length == 0) {
                     //land(chunk,n, 'H' + rando, i, j, turner);
                     land(chunk,n, 'O' + rando, i+offsetX, j+offsetY,height, turner) //,Math.floor(Math.random()*6))
 
