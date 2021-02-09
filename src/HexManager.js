@@ -45,7 +45,7 @@ const HALF_GRID = 12 * SCALE / 2
 
 var hexType = 2;
 
-var hexSelector
+var hexSelectorr
 
 var hexDebounce;
 var gridLineModel;
@@ -57,6 +57,8 @@ function init() {
     window.updateTerrain=updateTerrain;
     window.compress=compress;
     window.decompress=decompress;
+    window.chunks=chunks;
+    window.clearChunk =clearChunk
     //console.log('water',Helper.get)
     let testShader=Experimental.makeShader();
 
@@ -1001,6 +1003,23 @@ function createChunk(x,y){
     chunks[id]=obj
     visibleChunks.push(obj)
     return obj;
+}
+function clearChunk(id){
+    let chunk=chunks[id]
+    if(chunk){
+        for(let i = 0; i < SIZE; i++) {
+            chunk.grid[i] = [];
+            chunk.meta[i]=[];
+            chunk.height[i]=[];
+            for(let j = 0; j < SIZE; j++) {
+                chunk.grid[i][j] = 1
+                chunk.meta[i][j] = Math.floor(Math.random()*18)
+                chunk.height[i][j]=0;
+            }
+        }
+        modelClear(chunk)
+        processLand(chunk)
+    }
 }
 
 function setHexFocus(pos){

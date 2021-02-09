@@ -32,6 +32,8 @@ function makeSpline(target){
 	host=target
 		let ik = new IK.IK();
 		let chain = new IK.IKChain();
+        let chain2 = new IK.IKChain();
+
 	let constraints = [new IK.IKBallConstraint(90),new IK.IKBallConstraint(90)];
 	
 
@@ -55,9 +57,13 @@ Render.addModel(pivot)
 
 target.children.forEach(obj=>{
 	if(obj.type=='Bone'){
-		walkBone(obj,chain,constraints,0)
+		walkBone(obj,chain,constraints,0,false)
+        walkBone(obj,chain2,constraints,0,true)
+
 	}else if(obj.type=='Object3D'){
-		walkBone(obj.children[0],chain,constraints,0)
+		walkBone(obj.children[0],chain,constraints,0,false)
+        walkBone(obj.children[0],chain2,constraints,0,true)
+
 		
 	}
 })
@@ -76,31 +82,35 @@ for (let i = 0; i < 10; i++) {
 
 // Add the chain to the IK system
 ik.add(chain);
+ik.add(chain2);
 //target.add(ik.getRootBone());
 
 
 // Create a helper and add to the scene so we can visualize
 // the bones
-const helper = new IK.IKHelper(ik);
+/*const helper = new IK.IKHelper(ik);
 Render.addModel(helper);
-window.ikhelper=helper;
+window.ikhelper=helper;*/
 iks.push(ik)
 
 }
 
-function walkBone(bone,chain,constraints,iterator){
+function walkBone(bone,chain,constraints,iterator,alt){
 	if(bone && bone.type=='Bone'){
 		let nextBone;
-		let target
+		let target;
 		console.log('chickn bone '+bone.name)
 		if(bone.children && bone.children.length>0){
-            bone.position.y+=.05*iterator
-			if(bone.children.length>0 && bone.name=='spine004') //length >1 spine005 is neck
-				nextBone=bone.children[1]
-			else 
+            bone.position.y+=.01*iterator
+			if(bone.children.length>0 && bone.name=='spine004'){ //length >1 spine005 is neck
+                if(alt)
+                    nextBone=bone.children[4] //4
+                else
+				nextBone=bone.children[3] //4
+			}else 
 				nextBone=bone.children[0]
 		}else{
-			target=feet[0];//Render.getCursor()//movingTarget
+			target=alt?feet[1]:feet[0];//Render.getCursor()//movingTarget
 		}
 		if(iterator>0){
 			//if(iterator==2)
@@ -109,7 +119,7 @@ function walkBone(bone,chain,constraints,iterator){
 			chain.add(new IK.IKJoint(bone, { constraints }), { target });
 		}
 		if(nextBone)
-			walkBone(nextBone,chain,constraints,iterator+1)
+			walkBone(nextBone,chain,constraints,iterator+1,alt)
 	}
 }
 
@@ -476,8 +486,8 @@ let feet=[]
 let body;
 function navPoint(ev){
     if(feet.length==0){
-        let foot1=Render.cubic(.2,.2,.2, 0,0,3);
-        let foot2=Render.cubic(.2,.2,.2, 0,0,3);
+        let foot1=Render.cubic(.05,.05,.2, 0,0,1);
+        let foot2=Render.cubic(.05,.05,.2, 0,0,1);
         body=Render.cubic(.2,.2,4, 0,0,6);
         Render.addModel(foot1)
         Render.addModel(foot2)
@@ -506,7 +516,7 @@ function dot(x,y,s){
     if(!s)
         s=.2;
     let model=Render.plane(s,s)
-    model.position.set(x,y,2)
+    model.position.set(x,y,0.5)
     points.push(model)
     Render.addModel(model);
 }
@@ -532,7 +542,7 @@ function feetAnimate(){
 
         mover.position.x=feet[0].position.x-(sx)/2
         mover.position.y=feet[0].position.y-(sy)/2
-        mover.position.z=6;
+        mover.position.z=2;
         let tx=mover.position.x-points[points.length-1].position.x
         let ty=mover.position.y-points[points.length-1].position.y
         if(host){
