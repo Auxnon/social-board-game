@@ -3,11 +3,13 @@ import * as IK from './lib/three-ik.js';
 
 import * as Render from "./Render.js";
 import * as Control from "./Control.js";
+import { SkeletonUtils } from "./lib/SkeletonUtils.js";
 
 var iks=[];
 var pivot
 var movingTarget
 var host
+var chicken;
 
 var testShader;
 
@@ -18,10 +20,13 @@ function init(){
 		if(ev.which=='87'){
 			
 			if(window.lastMesh){
-				makeSpline(window.lastMesh)
+                chicken=SkeletonUtils.clone(window.lastMesh);
+                Render.addModel(chicken);
+				makeSpline(chicken)
 			}
 		}
 	})
+    window.addEventListener('click',navPoint)
 }
 function makeSpline(target){
 	host=target
@@ -89,14 +94,15 @@ function walkBone(bone,chain,constraints,iterator){
 		let target
 		console.log('chickn bone '+bone.name)
 		if(bone.children && bone.children.length>0){
-			if(bone.children.length>1 && bone.name=='spine005')
+            bone.position.y+=.05*iterator
+			if(bone.children.length>0 && bone.name=='spine004') //length >1 spine005 is neck
 				nextBone=bone.children[1]
 			else 
 				nextBone=bone.children[0]
 		}else{
-			target=Render.getCursor()//movingTarget
+			target=feet[0];//Render.getCursor()//movingTarget
 		}
-		if(iterator>2){
+		if(iterator>0){
 			//if(iterator==2)
 				//bone.position.z-=0.1
 				let constraint=iterator==5?constraints[0]:constraints[1]
@@ -120,6 +126,9 @@ function animate(){
         testShader.uniforms.time.value+=0.05;
         if(testShader.uniforms.time.value>100.0)
             testShader.uniforms.time.value=0.0
+    }
+    if(feet.length>0){
+        feetAnimate();
     }
 }
 
@@ -440,6 +449,102 @@ void main() {
     return mat;
 }
 
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+let last;
+let points=[];
+let feet=[]
+let body;
+function navPoint(ev){
+    if(feet.length==0){
+        let foot1=Render.cubic(.2,.2,.2, 0,0,3);
+        let foot2=Render.cubic(.2,.2,.2, 0,0,3);
+        body=Render.cubic(.2,.2,4, 0,0,6);
+        Render.addModel(foot1)
+        Render.addModel(foot2)
+         Render.addModel(body)
+        feet=[foot1,foot2];
+        window.feet=feet
+    }
+    let pos=Control.pos();
+    clear();
+    if(last){
+        let n={x:last.x-pos.x,y:last.y-pos.y}
+        let r=Math.sqrt(n.x*n.x +  n.y*n.y);
+        let d={x:n.x/r,y:n.y/r};
+        let count=Math.floor(r)
+        for(let i=0;i<count;i++){
+            let alt=i%2 ==0
+            dot(last.x-i*1*d.x +(alt?1:-1)*d.y*.2,last.y-i*1*d.y+(alt?-1:1)*d.x*.2);
+        }
+    }
+    dot(pos.x,pos.y,2)
+    last={x:pos.x,y:pos.y}
+
+}
+
+function dot(x,y,s){
+    if(!s)
+        s=.2;
+    let model=Render.plane(s,s)
+    model.position.set(x,y,2)
+    points.push(model)
+    Render.addModel(model);
+}
+
+function clear(){
+    points.forEach(model=>{
+        Render.removeModel(model)
+    })
+    points=[];
+}
+let footing=false;
+function feetAnimate(){
+    if(points.length>0){
+        let foot=feet[footing?1:0]
+         let n={x:foot.position.x-points[0].position.x,y:foot.position.y-points[0].position.y};
+        let r=Math.sqrt(n.x*n.x+n.y*n.y);
+        foot.position.x-=n.x/30;
+        foot.position.y-=n.y/30;
+        let mover=host?host:body;
+        let sx=feet[0].position.x-feet[1].position.x;
+        let sy=feet[0].position.y-feet[1].position.y;
+
+
+        mover.position.x=feet[0].position.x-(sx)/2
+        mover.position.y=feet[0].position.y-(sy)/2
+        mover.position.z=6;
+        let tx=mover.position.x-points[points.length-1].position.x
+        let ty=mover.position.y-points[points.length-1].position.y
+        if(host){
+            mover.rotation.z=Math.atan2(ty,tx)-Math.PI/2
+        }
+        if(r<=.1){
+            let m=points.shift()
+            Render.removeModel(m)
+            footing=!footing;
+        }
+    }
+}
 
 
 export {init,animate,makeShader}

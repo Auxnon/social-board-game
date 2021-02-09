@@ -132,6 +132,7 @@ function init() {
 
     Drawer.init();
     window.Helper=Helper
+    window.Render=Render;
 
     let loop=setInterval(function(){
         if(AssetManager.getPending()<=0){
