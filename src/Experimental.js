@@ -20,8 +20,40 @@ footL
 
 */
 
-function applyLegs(bones,left,right){
-    for()
+function applyLegs(bone,left,right){
+    //to reduce tree search
+    let searchLeft=[];
+    let searchRight=[];
+    left.forEach((item,i)=>{
+        searchLeft.push([item,i])
+    })
+    right.forEach((item,i)=>{
+        searchRight.push([item,i])
+    })
+    let leftOut;
+    let rightOut;
+    searchBones(bone,leftOut,searchLeft)
+    searchBones(bone,rightOut,searchRight)
+    leftOut.forEach(b=>{
+
+    });
+}
+
+function searchBones(bone,output,search){
+    if(bone && bone.type=='Bone'){
+        for(let i=0;i<search.length;i++){
+            if(search[i][0]==bone.name){
+                output[search[i][1]]=bone;
+                search.splice(i,1)
+                break;
+            }
+        }
+        if(bone.children && bone.children.length>0){
+            bone.children.forEach(b=>{
+                walkBone(b,output,search)
+            })
+        }
+        
 }
 
 
