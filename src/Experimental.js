@@ -5,7 +5,7 @@ import * as Render from "./Render.js";
 import * as Control from "./Control.js";
 import { SkeletonUtils } from "./lib/SkeletonUtils.js";
 
-var iks=[];
+var ik;
 var pivot
 var movingTarget
 var host
@@ -13,8 +13,20 @@ var chicken;
 
 var testShader;
 
-function init(){
+/*
+thighL
+shinL
+footL
 
+*/
+
+function applyLegs(bones,left,right){
+    for()
+}
+
+
+function init(){
+    ik = new IK.IK();
 
 	window.addEventListener('keyup',ev=>{
 		if(ev.which=='87'){
@@ -30,7 +42,8 @@ function init(){
 }
 function makeSpline(target){
 	host=target
-		let ik = new IK.IK();
+
+		
 		let chain = new IK.IKChain();
         let chain2 = new IK.IKChain();
 
@@ -91,7 +104,7 @@ ik.add(chain2);
 /*const helper = new IK.IKHelper(ik);
 Render.addModel(helper);
 window.ikhelper=helper;*/
-iks.push(ik)
+
 
 }
 
@@ -99,10 +112,10 @@ function walkBone(bone,chain,constraints,iterator,alt){
 	if(bone && bone.type=='Bone'){
 		let nextBone;
 		let target;
-		console.log('chickn bone '+bone.name)
+		
 		if(bone.children && bone.children.length>0){
             bone.position.y+=.01*iterator
-			if(bone.children.length>0 && bone.name=='spine004'){ //length >1 spine005 is neck
+			if(bone.children.length>1 && bone.name=='spine004'){ //length >1 spine005 is neck
                 if(alt)
                     nextBone=bone.children[4] //4
                 else
@@ -112,10 +125,11 @@ function walkBone(bone,chain,constraints,iterator,alt){
 		}else{
 			target=alt?feet[1]:feet[0];//Render.getCursor()//movingTarget
 		}
-		if(iterator>0){
+		if(iterator>1){
 			//if(iterator==2)
 				//bone.position.z-=0.1
 				let constraint=iterator==5?constraints[0]:constraints[1]
+                console.log('chickn chained '+bone.name)
 			chain.add(new IK.IKJoint(bone, { constraints }), { target });
 		}
 		if(nextBone)
@@ -124,12 +138,12 @@ function walkBone(bone,chain,constraints,iterator,alt){
 }
 
 function animate(){
-	if(iks && iks.length>0 && pivot){
+	if(ik && pivot){
 
 		//pivot.position.set(Control.x(),Control.y(),Control.z())
-		iks.forEach(ik=>{
-			ik.solve();
-		})
+		
+		ik.solve();
+	
 
 	}
     if(testShader){
@@ -486,8 +500,8 @@ let feet=[]
 let body;
 function navPoint(ev){
     if(feet.length==0){
-        let foot1=Render.cubic(.05,.05,.2, 0,0,1);
-        let foot2=Render.cubic(.05,.05,.2, 0,0,1);
+        let foot1=Render.cubic(.05,.05,.02, 0,0,.5);
+        let foot2=Render.cubic(.05,.05,.02, 0,0,.5);
         body=Render.cubic(.2,.2,4, 0,0,6);
         Render.addModel(foot1)
         Render.addModel(foot2)
@@ -497,17 +511,22 @@ function navPoint(ev){
     }
     let pos=Control.pos();
     clear();
+    footing=false;
     if(last){
-        let n={x:last.x-pos.x,y:last.y-pos.y}
+        let mover=host?host:body;
+        let n={x:mover.position.x-pos.x,y:mover.position.y-pos.y}
         let r=Math.sqrt(n.x*n.x +  n.y*n.y);
         let d={x:n.x/r,y:n.y/r};
         let count=Math.floor(r)
+        let alt=false
         for(let i=0;i<count;i++){
-            let alt=i%2 ==0
-            dot(last.x-i*1*d.x +(alt?1:-1)*d.y*.2,last.y-i*1*d.y+(alt?-1:1)*d.x*.2);
+            alt=i%2 ==0
+            dot(mover.position.x-i*1*d.x +(alt?1:-1)*d.y*.2,mover.position.y-i*1*d.y+(alt?-1:1)*d.x*.2);
         }
+        dot(pos.x +(alt?-1:1)*d.y*.2,pos.y+(alt?1:-1)*d.x*.2);
+        dot(pos.x +(alt?1:-1)*d.y*.2,pos.y+(alt?-1:1)*d.x*.2);
     }
-    dot(pos.x,pos.y,2)
+    dot(pos.x,pos.y,0.5)
     last={x:pos.x,y:pos.y}
 
 }
@@ -533,8 +552,8 @@ function feetAnimate(){
         let foot=feet[footing?1:0]
          let n={x:foot.position.x-points[0].position.x,y:foot.position.y-points[0].position.y};
         let r=Math.sqrt(n.x*n.x+n.y*n.y);
-        foot.position.x-=n.x/30;
-        foot.position.y-=n.y/30;
+        foot.position.x-=.2*n.x/r;
+        foot.position.y-=.2*n.y/r;
         let mover=host?host:body;
         let sx=feet[0].position.x-feet[1].position.x;
         let sy=feet[0].position.y-feet[1].position.y;
@@ -545,8 +564,10 @@ function feetAnimate(){
         mover.position.z=2;
         let tx=mover.position.x-points[points.length-1].position.x
         let ty=mover.position.y-points[points.length-1].position.y
+        let tr=Math.sqrt(tx*tx+ty*ty)
         if(host){
-            mover.rotation.z=Math.atan2(ty,tx)-Math.PI/2
+            if(tr>1)
+                mover.rotation.z=Math.atan2(ty,tx)-Math.PI/2
         }
         if(r<=.1){
             let m=points.shift()

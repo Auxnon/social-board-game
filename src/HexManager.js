@@ -45,7 +45,7 @@ const HALF_GRID = 12 * SCALE / 2
 
 var hexType = 2;
 
-var hexSelectorr
+var hexSelector;
 
 var hexDebounce;
 var gridLineModel;
@@ -202,10 +202,6 @@ function init() {
         let firstChunk=createChunk(0,0)
 
         processLand(firstChunk);
-
-
-
-
 
         //window.m=m;//.children[0]
     })

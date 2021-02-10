@@ -298,7 +298,7 @@ function resize() {
     camera.aspect = docWidth / docHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setPixelRatio(0.5); //window.devicePixelRatio / SIZE_DIVIDER);
+    renderer.setPixelRatio(1); //window.devicePixelRatio / SIZE_DIVIDER);
     renderer.setSize(docWidth, docHeight);
 }
 
