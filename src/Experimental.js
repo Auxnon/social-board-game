@@ -20,170 +20,190 @@ footL
 
 */
 
-function applyLegs(bone,left,right){
+function applyLegs(bone, left, right) {
     //to reduce tree search
-    let searchLeft=[];
-    let searchRight=[];
-    left.forEach((item,i)=>{
-        searchLeft.push([item,i])
+    let constraint = new IK.IKBallConstraint(90);
+    let searchLeft = [];
+    let searchRight = [];
+    left.forEach((item, i) => {
+        searchLeft.push([item, i])
     })
-    right.forEach((item,i)=>{
-        searchRight.push([item,i])
+    right.forEach((item, i) => {
+        searchRight.push([item, i])
     })
-    let leftOut;
-    let rightOut;
-    searchBones(bone,leftOut,searchLeft)
-    searchBones(bone,rightOut,searchRight)
-    leftOut.forEach(b=>{
-
+    let leftOut = [];
+    let rightOut = [];
+    searchBones(bone, leftOut, searchLeft)
+    searchBones(bone, rightOut, searchRight)
+    let chain1 = new IK.IKChain();
+    leftOut.forEach((b, i) => {
+        let target;
+        if (i == leftOut.length - 1)
+            target = feet[0]
+        console.log('chickn chained ' + b.name)
+        chain1.add(new IK.IKJoint(bone, { constraint }), { target });
     });
+    let chain2 = new IK.IKChain();
+    rightOut.forEach((b, i) => {
+        let target;
+        if (i == rightOut.length - 1)
+            target = feet[1]
+        console.log('chickn chained ' + b.name)
+        chain2.add(new IK.IKJoint(bone, { constraint }), { target });
+    });
+
+    ik.add(chain1);
+    ik.add(chain2);
 }
 
-function searchBones(bone,output,search){
-    if(bone && bone.type=='Bone'){
-        for(let i=0;i<search.length;i++){
-            if(search[i][0]==bone.name){
-                output[search[i][1]]=bone;
-                search.splice(i,1)
+function searchBones(bone, output, search) {
+    if (bone && bone.type == 'Bone') {
+        for (let i = 0; i < search.length; i++) {
+            if (search[i][0] == bone.name) {
+                output[search[i][1]] = bone;
+                search.splice(i, 1)
                 break;
             }
         }
-        if(bone.children && bone.children.length>0){
-            bone.children.forEach(b=>{
-                walkBone(b,output,search)
+        if (bone.children && bone.children.length > 0) {
+            bone.children.forEach(b => {
+                walkBone(b, output, search)
             })
         }
-        
+
+    }
 }
 
 
-function init(){
+function init() {
     ik = new IK.IK();
 
-	window.addEventListener('keyup',ev=>{
-		if(ev.which=='87'){
-			
-			if(window.lastMesh){
-                chicken=SkeletonUtils.clone(window.lastMesh);
+    window.addEventListener('keyup', ev => {
+        if (ev.which == '87') {
+
+            if (window.lastMesh) {
+                chicken = SkeletonUtils.clone(window.lastMesh);
                 Render.addModel(chicken);
-				makeSpline(chicken)
-			}
-		}
-	})
-    window.addEventListener('click',navPoint)
-}
-function makeSpline(target){
-	host=target
-
-		
-		let chain = new IK.IKChain();
-        let chain2 = new IK.IKChain();
-
-	let constraints = [new IK.IKBallConstraint(90),new IK.IKBallConstraint(90)];
-	
-
-// Create a target that the IK's effector will reach
-// for.
-
-//const movingTarget = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-//movingTarget.position.z = 2;
-
-
-// Create a chain of THREE.Bone's, each wrapped as an IKJoint
-// and added to the IKChain
-
-
-//lastMesh.children[0].children[0].children[0].children[0].children[1].children[0]
-movingTarget = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-movingTarget.position.z = 0.75;
-pivot = new THREE.Object3D();
-pivot.add(movingTarget);
-Render.addModel(pivot)
-
-target.children.forEach(obj=>{
-	if(obj.type=='Bone'){
-		walkBone(obj,chain,constraints,0,false)
-        walkBone(obj,chain2,constraints,0,true)
-
-	}else if(obj.type=='Object3D'){
-		walkBone(obj.children[0],chain,constraints,0,false)
-        walkBone(obj.children[0],chain2,constraints,0,true)
-
-		
-	}
-})
-/*
-for (let i = 0; i < 10; i++) {
-  const bone = new THREE.Bone();
-  bone.position.y = i === 0 ? 0 : 0.5;
-
-  if (bones[i - 1]) { bones[i - 1].add(bone); }
-  bones.push(bone);
-
-  // The last IKJoint must be added with a `target` as an end effector.
-  const target = i === 9 ? movingTarget : null;
-  chain.add(new IK.IKJoint(bone, { constraints }), { target });
-}*/
-
-// Add the chain to the IK system
-ik.add(chain);
-ik.add(chain2);
-//target.add(ik.getRootBone());
-
-
-// Create a helper and add to the scene so we can visualize
-// the bones
-/*const helper = new IK.IKHelper(ik);
-Render.addModel(helper);
-window.ikhelper=helper;*/
-
-
+                //makeSpline(chicken)
+                applyLegs(chicken, ['thighL', 'shinL', 'footL'], ['thighR', 'shinR', 'footR']);
+            }
+        }
+    })
+    window.addEventListener('click', navPoint)
 }
 
-function walkBone(bone,chain,constraints,iterator,alt){
-	if(bone && bone.type=='Bone'){
-		let nextBone;
-		let target;
-		
-		if(bone.children && bone.children.length>0){
-            bone.position.y+=.01*iterator
-			if(bone.children.length>1 && bone.name=='spine004'){ //length >1 spine005 is neck
-                if(alt)
-                    nextBone=bone.children[4] //4
+function makeSpline(target) {
+    host = target
+
+
+    let chain = new IK.IKChain();
+    let chain2 = new IK.IKChain();
+
+    let constraints = [new IK.IKBallConstraint(90), new IK.IKBallConstraint(90)];
+
+
+    // Create a target that the IK's effector will reach
+    // for.
+
+    //const movingTarget = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+    //movingTarget.position.z = 2;
+
+
+    // Create a chain of THREE.Bone's, each wrapped as an IKJoint
+    // and added to the IKChain
+
+
+    //lastMesh.children[0].children[0].children[0].children[0].children[1].children[0]
+    movingTarget = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+    movingTarget.position.z = 0.75;
+    pivot = new THREE.Object3D();
+    pivot.add(movingTarget);
+    Render.addModel(pivot)
+
+    target.children.forEach(obj => {
+        if (obj.type == 'Bone') {
+            walkBone(obj, chain, constraints, 0, false)
+            walkBone(obj, chain2, constraints, 0, true)
+
+        } else if (obj.type == 'Object3D') {
+            walkBone(obj.children[0], chain, constraints, 0, false)
+            walkBone(obj.children[0], chain2, constraints, 0, true)
+
+
+        }
+    })
+    /*
+    for (let i = 0; i < 10; i++) {
+      const bone = new THREE.Bone();
+      bone.position.y = i === 0 ? 0 : 0.5;
+
+      if (bones[i - 1]) { bones[i - 1].add(bone); }
+      bones.push(bone);
+
+      // The last IKJoint must be added with a `target` as an end effector.
+      const target = i === 9 ? movingTarget : null;
+      chain.add(new IK.IKJoint(bone, { constraints }), { target });
+    }*/
+
+    // Add the chain to the IK system
+    ik.add(chain);
+    ik.add(chain2);
+    //target.add(ik.getRootBone());
+
+
+    // Create a helper and add to the scene so we can visualize
+    // the bones
+    /*const helper = new IK.IKHelper(ik);
+    Render.addModel(helper);
+    window.ikhelper=helper;*/
+
+
+}
+
+function walkBone(bone, chain, constraints, iterator, alt) {
+    if (bone && bone.type == 'Bone') {
+        let nextBone;
+        let target;
+
+        if (bone.children && bone.children.length > 0) {
+            bone.position.y += .01 * iterator
+            if (bone.children.length > 1 && bone.name == 'spine004') { //length >1 spine005 is neck
+                if (alt)
+                    nextBone = bone.children[4] //4
                 else
-				nextBone=bone.children[3] //4
-			}else 
-				nextBone=bone.children[0]
-		}else{
-			target=alt?feet[1]:feet[0];//Render.getCursor()//movingTarget
-		}
-		if(iterator>1){
-			//if(iterator==2)
-				//bone.position.z-=0.1
-				let constraint=iterator==5?constraints[0]:constraints[1]
-                console.log('chickn chained '+bone.name)
-			chain.add(new IK.IKJoint(bone, { constraints }), { target });
-		}
-		if(nextBone)
-			walkBone(nextBone,chain,constraints,iterator+1,alt)
-	}
+                    nextBone = bone.children[3] //4
+            } else
+                nextBone = bone.children[0]
+        } else {
+            target = alt ? feet[1] : feet[0]; //Render.getCursor()//movingTarget
+        }
+        if (iterator > 1) {
+            //if(iterator==2)
+            //bone.position.z-=0.1
+            let constraint = iterator == 5 ? constraints[0] : constraints[1]
+            console.log('chickn chained ' + bone.name)
+            chain.add(new IK.IKJoint(bone, { constraints }), { target });
+        }
+        if (nextBone)
+            walkBone(nextBone, chain, constraints, iterator + 1, alt)
+    }
 }
 
-function animate(){
-	if(ik && pivot){
+function animate() {
+    if (ik && pivot) {
 
-		//pivot.position.set(Control.x(),Control.y(),Control.z())
-		
-		ik.solve();
-	
+        //pivot.position.set(Control.x(),Control.y(),Control.z())
 
-	}
-    if(testShader){
-        testShader.uniforms.time.value+=0.05;
-        if(testShader.uniforms.time.value>100.0)
-            testShader.uniforms.time.value=0.0
+        ik.solve();
+
+
     }
-    if(feet.length>0){
+    if (testShader) {
+        testShader.uniforms.time.value += 0.05;
+        if (testShader.uniforms.time.value > 100.0)
+            testShader.uniforms.time.value = 0.0
+    }
+    if (feet.length > 0) {
         feetAnimate();
     }
 }
@@ -462,16 +482,16 @@ void main() {
     
 }`
 
-    let texture=new THREE.TextureLoader().load( "./assets/caustics.jpg" )
-    window.texture=texture
+    let texture = new THREE.TextureLoader().load("./assets/caustics.jpg")
+    window.texture = texture
     var uniforms = THREE.UniformsUtils.merge(
-        [//THREE.ShaderLib.phong.uniforms,
-        THREE.ShaderLib[ 'standard' ].uniforms,
+        [ //THREE.ShaderLib.phong.uniforms,
+            THREE.ShaderLib['standard'].uniforms,
             {
                 shirt: { value: new THREE.Vector3(1, 0, 0) },
                 wind: { value: new THREE.Vector3(0, 0, 0) },
                 time: { value: 0.0 },
-                texture1: {type: "t",value: texture}
+                texture1: { type: "t", value: texture }
                 //texture1: { type: "t", value:  }
 
             }
@@ -480,7 +500,7 @@ void main() {
 
     uniforms.ambientLightColor.value = null;
 
-    
+
     //document.body.appendChild(texture.image)
 
 
@@ -493,14 +513,14 @@ void main() {
         vertexColors: true,
         vertexShader: meshphysical_vert,
         fragmentShader: meshphysical_frag,
-         // THREE.ImageUtils.loadTexture
+        // THREE.ImageUtils.loadTexture
         //vertexShader: THREE.ShaderChunk.cube_vert,
         //fragmentShader: THREE.ShaderChunk.cube_frag
     });
     mat.uniforms.texture1.value = texture;
     //mat= new THREE.MeshBasicMaterial({map:texture});
 
-    testShader=mat
+    testShader = mat
 
     return mat;
 }
@@ -527,87 +547,88 @@ void main() {
 ////////////////////////////////////////////////////////
 
 let last;
-let points=[];
-let feet=[]
+let points = [];
+let feet = []
 let body;
-function navPoint(ev){
-    if(feet.length==0){
-        let foot1=Render.cubic(.05,.05,.02, 0,0,.5);
-        let foot2=Render.cubic(.05,.05,.02, 0,0,.5);
-        body=Render.cubic(.2,.2,4, 0,0,6);
+
+function navPoint(ev) {
+    if (feet.length == 0) {
+        let foot1 = Render.cubic(.05, .05, .02, 0, 0, .5);
+        let foot2 = Render.cubic(.05, .05, .02, 0, 0, .5);
+        body = Render.cubic(.2, .2, 4, 0, 0, 6);
         Render.addModel(foot1)
         Render.addModel(foot2)
-         Render.addModel(body)
-        feet=[foot1,foot2];
-        window.feet=feet
+        Render.addModel(body)
+        feet = [foot1, foot2];
+        window.feet = feet
     }
-    let pos=Control.pos();
+    let pos = Control.pos();
     clear();
-    footing=false;
-    if(last){
-        let mover=host?host:body;
-        let n={x:mover.position.x-pos.x,y:mover.position.y-pos.y}
-        let r=Math.sqrt(n.x*n.x +  n.y*n.y);
-        let d={x:n.x/r,y:n.y/r};
-        let count=Math.floor(r)
-        let alt=false
-        for(let i=0;i<count;i++){
-            alt=i%2 ==0
-            dot(mover.position.x-i*1*d.x +(alt?1:-1)*d.y*.2,mover.position.y-i*1*d.y+(alt?-1:1)*d.x*.2);
+    footing = false;
+    if (last) {
+        let mover = host ? host : body;
+        let n = { x: mover.position.x - pos.x, y: mover.position.y - pos.y }
+        let r = Math.sqrt(n.x * n.x + n.y * n.y);
+        let d = { x: n.x / r, y: n.y / r };
+        let count = Math.floor(r)
+        let alt = false
+        for (let i = 0; i < count; i++) {
+            alt = i % 2 == 0
+            dot(mover.position.x - i * 1 * d.x + (alt ? 1 : -1) * d.y * .2, mover.position.y - i * 1 * d.y + (alt ? -1 : 1) * d.x * .2);
         }
-        dot(pos.x +(alt?-1:1)*d.y*.2,pos.y+(alt?1:-1)*d.x*.2);
-        dot(pos.x +(alt?1:-1)*d.y*.2,pos.y+(alt?-1:1)*d.x*.2);
+        dot(pos.x + (alt ? -1 : 1) * d.y * .2, pos.y + (alt ? 1 : -1) * d.x * .2);
+        dot(pos.x + (alt ? 1 : -1) * d.y * .2, pos.y + (alt ? -1 : 1) * d.x * .2);
     }
-    dot(pos.x,pos.y,0.5)
-    last={x:pos.x,y:pos.y}
+    dot(pos.x, pos.y, 0.5)
+    last = { x: pos.x, y: pos.y }
 
 }
 
-function dot(x,y,s){
-    if(!s)
-        s=.2;
-    let model=Render.plane(s,s)
-    model.position.set(x,y,0.5)
+function dot(x, y, s) {
+    if (!s)
+        s = .2;
+    let model = Render.plane(s, s)
+    model.position.set(x, y, 0.5)
     points.push(model)
     Render.addModel(model);
 }
 
-function clear(){
-    points.forEach(model=>{
+function clear() {
+    points.forEach(model => {
         Render.removeModel(model)
     })
-    points=[];
+    points = [];
 }
-let footing=false;
-function feetAnimate(){
-    if(points.length>0){
-        let foot=feet[footing?1:0]
-         let n={x:foot.position.x-points[0].position.x,y:foot.position.y-points[0].position.y};
-        let r=Math.sqrt(n.x*n.x+n.y*n.y);
-        foot.position.x-=.2*n.x/r;
-        foot.position.y-=.2*n.y/r;
-        let mover=host?host:body;
-        let sx=feet[0].position.x-feet[1].position.x;
-        let sy=feet[0].position.y-feet[1].position.y;
+let footing = false;
+
+function feetAnimate() {
+    if (points.length > 0) {
+        let foot = feet[footing ? 1 : 0]
+        let n = { x: foot.position.x - points[0].position.x, y: foot.position.y - points[0].position.y };
+        let r = Math.sqrt(n.x * n.x + n.y * n.y);
+        foot.position.x -= .2 * n.x / r;
+        foot.position.y -= .2 * n.y / r;
+        let mover = host ? host : body;
+        let sx = feet[0].position.x - feet[1].position.x;
+        let sy = feet[0].position.y - feet[1].position.y;
 
 
-        mover.position.x=feet[0].position.x-(sx)/2
-        mover.position.y=feet[0].position.y-(sy)/2
-        mover.position.z=2;
-        let tx=mover.position.x-points[points.length-1].position.x
-        let ty=mover.position.y-points[points.length-1].position.y
-        let tr=Math.sqrt(tx*tx+ty*ty)
-        if(host){
-            if(tr>1)
-                mover.rotation.z=Math.atan2(ty,tx)-Math.PI/2
+        mover.position.x = feet[0].position.x - (sx) / 2
+        mover.position.y = feet[0].position.y - (sy) / 2
+        mover.position.z = 2;
+        let tx = mover.position.x - points[points.length - 1].position.x
+        let ty = mover.position.y - points[points.length - 1].position.y
+        let tr = Math.sqrt(tx * tx + ty * ty)
+        if (host) {
+            if (tr > 1)
+                mover.rotation.z = Math.atan2(ty, tx) - Math.PI / 2
         }
-        if(r<=.1){
-            let m=points.shift()
+        if (r <= .1) {
+            let m = points.shift()
             Render.removeModel(m)
-            footing=!footing;
+            footing = !footing;
         }
     }
 }
 
-
-export {init,animate,makeShader}
+export { init, animate, makeShader }
