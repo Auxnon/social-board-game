@@ -38,6 +38,7 @@ function init() {
 
     makeNum(login)
     let loginMenu = document.querySelector('#login-menu')
+    loginMenu.style.display='block'
     loginMenu.appendChild(list)
     loginMenu.appendChild(login)
     BarUI.hide();

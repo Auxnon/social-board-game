@@ -17,6 +17,7 @@ import * as Drawer from "./Drawer.js";
 import * as Equipment from "./Equipment.js";
 import * as Character from "./Character.js";
 import * as Helper from "./Helper.js";
+import * as Mode from "./Mode.js";
 
 import * as Experimental from "./Experimental.js";
 
@@ -116,33 +117,51 @@ function init() {
 
 
     let canvas = Render.init();
-    HexManager.init();
-    //Control.init();
-    PictureMaker.init();
 
-    BarUI.init();
-    Character.init();
-    Equipment.init();
-    Login.init();
+    if(Mode.init()){
+        HexManager.init();
+        PictureMaker.init();
+
+        BarUI.init();
+        Character.init();
+        Equipment.init();
+        Login.init(); //Login calls Online class init after succesful auth, then Online calls init for Control class
+        
+        Chat.init();
+        Settings.init();
+        MakerMenu.init();
+        AssetManager.init();
+
+        Drawer.init();
+        window.Helper=Helper
+        window.Render=Render;
+
+        let loop=setInterval(function(){
+            if(AssetManager.getPending()<=0){
+                
+                
+                Experimental.init();
+
+
+                clearInterval(loop)
+            }
+        },1000)
+    }else{ //do something completly different
+        PictureMaker.init();
+        AssetManager.init();
+        let loop=setInterval(function(){
+            if(AssetManager.getPending()<=0){
+                
+                Experimental.init();
+                Control.init();
+                Mode.initFammies();
+
+                clearInterval(loop)
+            }
+        },100)
+
+    }
     
-    Chat.init();
-    Settings.init();
-    MakerMenu.init();
-    AssetManager.init();
-
-    Drawer.init();
-    window.Helper=Helper
-    window.Render=Render;
-
-    let loop=setInterval(function(){
-        if(AssetManager.getPending()<=0){
-            
-            
-            Experimental.init();
-
-            clearInterval(loop)
-        }
-    },1000)
 
     
 

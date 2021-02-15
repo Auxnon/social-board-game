@@ -805,7 +805,7 @@ function hexCheck(x, y,skipSelector) {
     //m.position.set(-120+x*skew*2 +y*skew,-120+y*30,40)
     let y2 = Math.floor((SCALE + y) / (SCALE * 1.5));
     let x2 = Math.floor(((x + HALF_GRID + SCALE) - y2 * skew) / (skew * 2))
-    if(!skipSelector)
+    if(!skipSelector && hexSelector)
     hexSelector.position.set(-HALF_GRID + x2 * skew * 2 + y2 * skew, y2 * SCALE * 1.5, .8)
 
     return [x2, y2]

@@ -5,13 +5,18 @@ import * as Render from "./Render.js";
 import * as Control from "./Control.js";
 import { SkeletonUtils } from "./lib/SkeletonUtils.js";
 
-var ik;
 var pivot
 var movingTarget
-var host
-var chicken;
+
+
 
 var testShader;
+var helper;
+var host
+var splined = [];
+var currentIterator = 0;
+
+var IKHELP = false;
 
 /*
 thighL
@@ -19,44 +24,155 @@ shinL
 footL
 
 */
+/*ik {chains, feet}
 
-function applyLegs(bone, left, right) {
-    //to reduce tree search
-    let constraint = new IK.IKBallConstraint(90);
-    let searchLeft = [];
-    let searchRight = [];
-    left.forEach((item, i) => {
-        searchLeft.push([item, i])
-    })
-    right.forEach((item, i) => {
-        searchRight.push([item, i])
-    })
-    let leftOut = [];
-    let rightOut = [];
-    searchBones(bone, leftOut, searchLeft)
-    searchBones(bone, rightOut, searchRight)
-    let chain1 = new IK.IKChain();
-    leftOut.forEach((b, i) => {
-        let target;
-        if (i == leftOut.length - 1)
-            target = feet[0]
-        console.log('chickn chained ' + b.name)
-        chain1.add(new IK.IKJoint(bone, { constraint }), { target });
-    });
-    let chain2 = new IK.IKChain();
-    rightOut.forEach((b, i) => {
-        let target;
-        if (i == rightOut.length - 1)
-            target = feet[1]
-        console.log('chickn chained ' + b.name)
-        chain2.add(new IK.IKJoint(bone, { constraint }), { target });
-    });
+*/
 
-    ik.add(chain1);
-    ik.add(chain2);
+function applyLegs(root, left, right) {
+    if (!root.ik) {
+        host = root;
+        let ik=new IK.IK();
+        let fourLegged=left.length && Array.isArray(left[0])
+
+        let xx=root.position.x?root.position.x:0;
+        let yy=root.position.y?root.position.y:0;
+        
+        let foot1 = Render.cubic(.05, .05, .02, xx-0.01, yy, .5);
+        let foot2 = Render.cubic(.05, .05, .02, xx+0.01, yy, .5);
+        Render.addModel(foot1)
+        Render.addModel(foot2)
+
+        let foot3,foot4;
+        if(fourLegged){
+            foot3 = Render.cubic(.05, .05, .02, xx-0.01, yy, .5);
+            foot4 = Render.cubic(.05, .05, .02, xx+0.01, yy, .5);
+            Render.addModel(foot3)
+            Render.addModel(foot4)
+        }
+
+
+       
+
+
+
+
+        //to reduce tree search
+        let constraints = [new IK.IKBallConstraint(90), new IK.IKBallConstraint(90)];
+        let searchLeft1 = [];
+        let searchRight1 = [];
+        let searchLeft2,searchRight2;
+
+        
+
+        if(fourLegged){
+            searchLeft2=[];
+            searchRight2=[]
+            left[0].forEach((item, i) => {
+                searchLeft1.push([item, i])
+            })
+            right[0].forEach((item, i) => {
+                searchRight1.push([item, i])
+            })
+            left[1].forEach((item, i) => {
+                searchLeft2.push([item, i])
+            })
+            right[1].forEach((item, i) => {
+                searchRight2.push([item, i])
+            })
+
+        }else{
+            left.forEach((item, i) => {
+            searchLeft1.push([item, i])
+            })
+            right.forEach((item, i) => {
+                searchRight1.push([item, i])
+            })
+        }
+
+
+        let leftOut1 = [];
+        let rightOut1 = [];
+        let leftOut2 = [];
+        let rightOut2 = [];
+        searchBones(root, leftOut1, searchLeft1)
+        searchBones(root, rightOut1, searchRight1)
+        if(fourLegged){
+            searchBones(root, leftOut2, searchLeft2)
+            searchBones(root, rightOut2, searchRight2)
+        }
+
+
+        let chain1 = new IK.IKChain();
+        leftOut1.forEach((b, i) => {
+            let target = null;
+            if (i == leftOut1.length - 1)
+                target = foot1
+            console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
+            chain1.add(new IK.IKJoint(b, { constraints }), { target });
+        });
+
+        let chain2 = new IK.IKChain();
+        rightOut1.forEach((b, i) => {
+            let target = null;
+            if (i == rightOut1.length - 1)
+                target = foot2
+            console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
+            chain2.add(new IK.IKJoint(b, { constraints }), { target });
+        });
+
+        ik.add(chain1);
+        ik.add(chain2);
+
+        if(fourLegged){
+            let chain3 = new IK.IKChain();
+            leftOut2.forEach((b, i) => {
+                let target = null;
+                if (i == leftOut2.length - 1)
+                    target = foot3
+                console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
+                chain3.add(new IK.IKJoint(b, { constraints }), { target });
+            });
+
+            let chain4 = new IK.IKChain();
+            rightOut2.forEach((b, i) => {
+                let target = null;
+                if (i == rightOut2.length - 1)
+                    target = foot4
+                console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
+                chain4.add(new IK.IKJoint(b, { constraints }), { target });
+            });
+
+            ik.add(chain3);
+            ik.add(chain4);
+        }
+
+        root.ik=ik;
+
+        if(fourLegged)
+            root.ik.feet= [foot1, foot2] 
+        else
+            root.ik.feet= [foot1, foot2,foot3,foot4]
+
+        root.ik.footing= false;
+
+        if (IKHELP) {
+            if (helper) {
+                Render.removeModel(helper);
+            }
+            helper = new IK.IKHelper(ik);
+            Render.addModel(helper);
+        }
+
+
+    }
+
+
 }
 
 function searchBones(bone, output, search) {
+    if (search.length == 0)
+        return;
+
     if (bone && bone.type == 'Bone') {
         for (let i = 0; i < search.length; i++) {
             if (search[i][0] == bone.name) {
@@ -65,28 +181,48 @@ function searchBones(bone, output, search) {
                 break;
             }
         }
-        if (bone.children && bone.children.length > 0) {
-            bone.children.forEach(b => {
-                walkBone(b, output, search)
-            })
-        }
-
     }
+    if (bone.children && bone.children.length > 0) {
+        bone.children.forEach(b => {
+            searchBones(b, output, search)
+        })
+    }
+
+
 }
 
 
 function init() {
-    ik = new IK.IK();
+
 
     window.addEventListener('keyup', ev => {
+
         if (ev.which == '87') {
 
+
             if (window.lastMesh) {
-                chicken = SkeletonUtils.clone(window.lastMesh);
+                
+                    
+
+                let chicken = SkeletonUtils.clone(window.lastMesh);
                 Render.addModel(chicken);
                 //makeSpline(chicken)
-                applyLegs(chicken, ['thighL', 'shinL', 'footL'], ['thighR', 'shinR', 'footR']);
+                if(chicken.name=='hedgehog')
+                    applyLegs(chicken, [[ 'upper_armL', 'forearmL', 'handL'],[ 'thighL', 'shinL', 'footL']], [[ 'upper_armR', 'forearmR', 'handR'],[ 'thighR', 'shinR', 'footR']]);
+                else
+                    applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
+
+
+                splined.push(chicken);
+                current = chicken;
+                //iks.push(ik)
             }
+        } else if (ev.which == '65') {
+            currentIterator++
+            if (currentIterator >= splined.length)
+                currentIterator = 0;
+            current = splined[currentIterator]
+
         }
     })
     window.addEventListener('click', navPoint)
@@ -153,9 +289,7 @@ function makeSpline(target) {
 
     // Create a helper and add to the scene so we can visualize
     // the bones
-    /*const helper = new IK.IKHelper(ik);
-    Render.addModel(helper);
-    window.ikhelper=helper;*/
+
 
 
 }
@@ -190,11 +324,16 @@ function walkBone(bone, chain, constraints, iterator, alt) {
 }
 
 function animate() {
-    if (ik && pivot) {
+    if (splined.length) {
 
         //pivot.position.set(Control.x(),Control.y(),Control.z())
-
-        ik.solve();
+        /*iks.forEach(ikk=>{
+            ikk.solve();
+        })*/
+        splined.forEach(entity=>{
+            entity.ik.solve();
+        })
+        
 
 
     }
@@ -203,9 +342,8 @@ function animate() {
         if (testShader.uniforms.time.value > 100.0)
             testShader.uniforms.time.value = 0.0
     }
-    if (feet.length > 0) {
-        feetAnimate();
-    }
+    feetAnimate();
+
 }
 
 
@@ -546,88 +684,133 @@ void main() {
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
-let last;
-let points = [];
-let feet = []
-let body;
+
+let current;
 
 function navPoint(ev) {
-    if (feet.length == 0) {
-        let foot1 = Render.cubic(.05, .05, .02, 0, 0, .5);
-        let foot2 = Render.cubic(.05, .05, .02, 0, 0, .5);
-        body = Render.cubic(.2, .2, 4, 0, 0, 6);
-        Render.addModel(foot1)
-        Render.addModel(foot2)
-        Render.addModel(body)
-        feet = [foot1, foot2];
-        window.feet = feet
-    }
-    let pos = Control.pos();
-    clear();
-    footing = false;
-    if (last) {
-        let mover = host ? host : body;
-        let n = { x: mover.position.x - pos.x, y: mover.position.y - pos.y }
+
+    let mainPos = Control.pos();
+
+    let count = splined.length;
+
+    
+    let c = count;
+    let pos = [];
+    let tau = Math.PI * 2;
+    let r = tau / c;
+    let size = c/8.0;
+    let rings;//=[5]
+    if(count<=5) //5
+        rings=[[count,0]]
+    else if(count>5 && count<=11) //12
+        rings=[[3,0],[count-3,7/8.0]]
+    else if(count>12 && count<=16) //17
+        rings=[[5,0],[count-5,9/8.0]] 
+    else
+        rings=[[3,0],[5,7/8.0],[count-8,11/8.0]]
+
+    rings.forEach(ring=>{
+        let size=ring[0]/8.0
+        size=Math.max(size,ring[1])
+        let r = tau / ring[0];
+         for (let i = 0; i < ring[0]; i++) {
+            pos.push({ x: mainPos.x + size * 2 * Math.cos(i * r), y: mainPos.y + size * 2 * Math.sin(i * r) })
+        }
+    })
+   
+
+    splined.forEach((entity, i) => {
+        if (entity.path && entity.path.points)
+            clear(entity);
+        entity.ik.footing = false;
+        let mover = entity
+        if (!mover.path)
+            mover.path = { points: [] };
+
+
+        let n = { x: mover.position.x - pos[i].x, y: mover.position.y - pos[i].y }
         let r = Math.sqrt(n.x * n.x + n.y * n.y);
         let d = { x: n.x / r, y: n.y / r };
         let count = Math.floor(r)
         let alt = false
-        for (let i = 0; i < count; i++) {
-            alt = i % 2 == 0
-            dot(mover.position.x - i * 1 * d.x + (alt ? 1 : -1) * d.y * .2, mover.position.y - i * 1 * d.y + (alt ? -1 : 1) * d.x * .2);
+
+        for (let j = 0; j < count; j++) {
+            alt = j % 2 == 0
+            dot(mover, mover.position.x - j * 1 * d.x + (alt ? 1 : -1) * d.y * .2, mover.position.y - j * 1 * d.y + (alt ? -1 : 1) * d.x * .2);
+            if(mover.ik.feet.length==4)
+                dot(mover, mover.position.x - j * 1 * d.x + (alt ? 1 : -1) * d.y * .2, mover.position.y - j * 1 * d.y + (alt ? -1 : 1) * d.x * .2);
         }
-        dot(pos.x + (alt ? -1 : 1) * d.y * .2, pos.y + (alt ? 1 : -1) * d.x * .2);
-        dot(pos.x + (alt ? 1 : -1) * d.y * .2, pos.y + (alt ? -1 : 1) * d.x * .2);
-    }
-    dot(pos.x, pos.y, 0.5)
-    last = { x: pos.x, y: pos.y }
+        dot(mover, pos[i].x + (alt ? -1 : 1) * d.y * .2, pos[i].y + (alt ? 1 : -1) * d.x * .2);
+        dot(mover, pos[i].x + (alt ? 1 : -1) * d.y * .2, pos[i].y + (alt ? -1 : 1) * d.x * .2);
+        if(mover.ik.feet.length==4){
+            dot(mover, pos[i].x + (alt ? -1 : 1) * d.y * .2, pos[i].y + (alt ? 1 : -1) * d.x * .2);
+            dot(mover, pos[i].x + (alt ? 1 : -1) * d.y * .2, pos[i].y + (alt ? -1 : 1) * d.x * .2);
+
+        }
+
+        dot(mover, pos[i].x, pos[i].y, 0.5)
+    })
+
 
 }
 
-function dot(x, y, s) {
+function dot(host, x, y, s) {
     if (!s)
         s = .2;
-    let model = Render.plane(s, s)
+    /*let model = Render.plane(s, s)
     model.position.set(x, y, 0.5)
-    points.push(model)
+   
     Render.addModel(model);
+    host.path.points.push(model)*/
+    host.path.points.push({position:{x:x,y:y}})
 }
 
-function clear() {
-    points.forEach(model => {
+function clear(host) {
+    if(host.path){
+         host.path.points.forEach(model => {
         Render.removeModel(model)
-    })
-    points = [];
+        })
+        host.path.points = [];
+    }
 }
+
 let footing = false;
 
 function feetAnimate() {
-    if (points.length > 0) {
-        let foot = feet[footing ? 1 : 0]
-        let n = { x: foot.position.x - points[0].position.x, y: foot.position.y - points[0].position.y };
-        let r = Math.sqrt(n.x * n.x + n.y * n.y);
-        foot.position.x -= .2 * n.x / r;
-        foot.position.y -= .2 * n.y / r;
-        let mover = host ? host : body;
-        let sx = feet[0].position.x - feet[1].position.x;
-        let sy = feet[0].position.y - feet[1].position.y;
+    if (splined.length > 0) {
+        splined.forEach(host => {
+            if (host.path && host.path.points.length > 0) {
 
 
-        mover.position.x = feet[0].position.x - (sx) / 2
-        mover.position.y = feet[0].position.y - (sy) / 2
-        mover.position.z = 2;
-        let tx = mover.position.x - points[points.length - 1].position.x
-        let ty = mover.position.y - points[points.length - 1].position.y
-        let tr = Math.sqrt(tx * tx + ty * ty)
-        if (host) {
-            if (tr > 1)
-                mover.rotation.z = Math.atan2(ty, tx) - Math.PI / 2
-        }
-        if (r <= .1) {
-            let m = points.shift()
-            Render.removeModel(m)
-            footing = !footing;
-        }
+
+                let mover = host;
+                let foot = host.ik.feet[host.ik.footing ? 1 : 0]
+                let n = { x: foot.position.x - host.path.points[0].position.x, y: foot.position.y - host.path.points[0].position.y };
+                let r = Math.sqrt(n.x * n.x + n.y * n.y);
+                foot.position.x -= .2 * n.x / r;
+                foot.position.y -= .2 * n.y / r;
+
+                let sx = host.ik.feet[0].position.x - host.ik.feet[1].position.x;
+                let sy = host.ik.feet[0].position.y - host.ik.feet[1].position.y;
+
+
+                mover.position.x = host.ik.feet[0].position.x - (sx) / 2
+                mover.position.y = host.ik.feet[0].position.y - (sy) / 2
+                mover.position.z = 2.5;
+                let tx = mover.position.x - host.path.points[host.path.points.length - 1].position.x
+                let ty = mover.position.y - host.path.points[host.path.points.length - 1].position.y
+                let tr = Math.sqrt(tx * tx + ty * ty)
+
+                if (tr > 1)
+                    mover.rotation.z = Math.atan2(ty, tx) - Math.PI / 2
+
+                if (r <= .1) {
+                    let m = host.path.points.shift()
+                    Render.removeModel(m)
+                    host.ik.footing = !host.ik.footing;
+                }
+            }
+        })
     }
 }
 

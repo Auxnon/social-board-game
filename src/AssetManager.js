@@ -36,19 +36,18 @@ function init() {
     defaultLoad('pot');
     defaultLoad('rock');
     defaultLoad('goblin', 'glb');
-    defaultLoad('hedgehog', 'glb');
     defaultLoad('werewolf', 'glb');
     defaultLoad('vampire', 'glb');
     defaultLoad('zombie', 'glb');
 
     //defaultLoad('chicken', 'glb');
-    defaultLoad('die4',undefined,[1, 1, 1]);
-    defaultLoad('die6',undefined,[1, 1, 1]);
-    defaultLoad('die8',undefined,[1, 1, 1]);
-    defaultLoad('die10',undefined,[1, 1, 1]);
-    defaultLoad('die20',undefined,[1, 1, 1]);
+    defaultLoad('die4', undefined, [1, 1, 1]);
+    defaultLoad('die6', undefined, [1, 1, 1]);
+    defaultLoad('die8', undefined, [1, 1, 1]);
+    defaultLoad('die10', undefined, [1, 1, 1]);
+    defaultLoad('die20', undefined, [1, 1, 1]);
 
-    
+
 
     /*
         load('assets/person.gltf',m=>{
@@ -111,9 +110,9 @@ function init() {
         manModel.receiveShadow = true;
         m.scale.set(2, 2, 2);
 
-        if(animations) {
+        if (animations) {
             animations.forEach(anim => {
-                if(anim.name)
+                if (anim.name)
                     personAnimations[anim.name] = anim;
             });
         }
@@ -123,8 +122,8 @@ function init() {
 
         let val = { value: new THREE.Vector3(0, 0, 1) };
 
-        
-        
+
+
 
         MODELS['man'] = manModel;
 
@@ -199,25 +198,39 @@ function init() {
         MODELS['gran'] = m;
     });
 
-    load('assets/models/chicken.glb',m=>{
-            m=m.children[0]
-           m.scale.set(2, 2, 2);
-            
-            m.children.forEach(o=>{
-                 console.log('hit chicken'+o.type)
-                if(o.type=='SkinnedMesh'){
-                    o.material = personShader.clone();
-                    //o.material.skinning = true;
-                    //o.material.needsUpdate = true;
-                    //o.castShadow = true;
-                    //o.receiveShadow = true;
-                }
-            })
-           
-            //m.material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0, roughness: 1.0}); // 
-            MODELS['chicken'] = m;
+    load('assets/models/chicken.glb', m => {
+        m = m.children[0]
+        m.name='chicken'
+        m.scale.set(2, 2, 2);
 
-        });
+        m.children.forEach(o => {
+            console.log('hit chicken' + o.type)
+            if (o.type == 'SkinnedMesh') {
+                o.material = personShader.clone();
+                //o.material.skinning = true;
+                //o.material.needsUpdate = true;
+                //o.castShadow = true;
+                //o.receiveShadow = true;
+            }
+        })
+
+        //m.material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0, roughness: 1.0}); // 
+        MODELS['chicken'] = m;
+
+    });
+
+    load('assets/models/hedgehog.glb', m => {
+        m = m.children[0];//.children
+        m.name='hedgehog'
+        m.scale.set(2, 2, 2);
+        m.children.forEach(o => {
+            if (o.type == 'SkinnedMesh') {
+                o.material = personShader.clone();
+            }
+        })
+        MODELS['hedgehog'] = m;
+    });
+
 }
 
 function load(model, callback) {
@@ -228,14 +241,14 @@ function load(model, callback) {
     });
 }
 
-function defaultLoad(s, type,override) {
-    if(!type)
+function defaultLoad(s, type, override) {
+    if (!type)
         type = 'gltf'
     load('assets/models/' + s + '.' + type, m => {
-        if(m.type=='Scene'){
-            m.children.every(obj=>{
-                if(obj.type=='Mesh'){
-                    m=obj;
+        if (m.type == 'Scene') {
+            m.children.every(obj => {
+                if (obj.type == 'Mesh') {
+                    m = obj;
                     return false;
                 }
                 return true;
@@ -247,9 +260,9 @@ function defaultLoad(s, type,override) {
         //m.material.shadowSide=THREE.FrontSide;
         //m.material.side= THREE.DoubleSide;
         //if(override)
-            //readColors(m,override, [0, 0, 1])
+        //readColors(m,override, [0, 0, 1])
         //else
-            //readColors(m)
+        //readColors(m)
 
 
         _documentModel(s, m);
@@ -262,9 +275,9 @@ function defaultLoad(s, type,override) {
 function _documentModel(s, m) {
     //strip out numbers so we can combine numbered models into a single array for random picking
     let s2 = s.replace(/[0-9]/g, '');
-    if(s2 != s) {
-        if(MODELS[s2]) {
-            if(!Array.isArray(MODELS[s2])) {
+    if (s2 != s) {
+        if (MODELS[s2]) {
+            if (!Array.isArray(MODELS[s2])) {
                 let temp = MODELS[s2];
                 MODELS[s2] = [temp];
             }
@@ -281,19 +294,19 @@ function getPending() {
 }
 
 function findBone(model, name) {
-    if(name && model.children && model.children.length > 0) {
+    if (name && model.children && model.children.length > 0) {
         return walkBone(model, name);
     }
 }
 
 function walkBone(root, name) {
-    for(let i = 0; i < root.children.length; i++) {
+    for (let i = 0; i < root.children.length; i++) {
         //console.log(root.children[i].name)
-        if(root.children[i].name == name) {
+        if (root.children[i].name == name) {
             return root.children[i];
-        } else if(root.children[i].type = "Bone" && root.children[i].children && root.children[i].children.length > 0) {
+        } else if (root.children[i].type = "Bone" && root.children[i].children && root.children[i].children.length > 0) {
             let result = walkBone(root.children[i], name);
-            if(result)
+            if (result)
                 return result;
         }
     }
@@ -301,11 +314,11 @@ function walkBone(root, name) {
 
 function readColors(model, swapIn, swapOut) {
 
-    if(model.geometry) {
+    if (model.geometry) {
         _subReadColors(model, model.geometry, swapIn, swapOut);
-    } else if(model.children && model.children.length > 0) {
-        for(let n = 0; n < model.children.length; n++) {
-            if(model.children[n].geometry) {
+    } else if (model.children && model.children.length > 0) {
+        for (let n = 0; n < model.children.length; n++) {
+            if (model.children[n].geometry) {
                 _subReadColors(model, model.children[n].geometry, swapIn, swapOut);
             }
         }
@@ -313,7 +326,7 @@ function readColors(model, swapIn, swapOut) {
 }
 
 function _subReadColors(parent, geom, swapIn, swapOut) {
-    if(!geom)
+    if (!geom)
         return;
 
     let swapping = swapIn && swapOut;
@@ -321,16 +334,16 @@ function _subReadColors(parent, geom, swapIn, swapOut) {
     let array = geom.attributes.color.array
     let colorArray = [];
     let j;
-    for(let i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         j = i % 4;
-        if(j >= 3) {
-            if(swapping) {
-                if(array[i - 3] == swapIn[0] && array[i - 2] == swapIn[1] && array[i - 1] == swapIn[2]) {
+        if (j >= 3) {
+            if (swapping) {
+                if (array[i - 3] == swapIn[0] && array[i - 2] == swapIn[1] && array[i - 1] == swapIn[2]) {
                     array[i - 3] = swapOut[0];
                     array[i - 2] = swapOut[1];
                     array[i - 1] = swapOut[2];
                 }
-                    //console.log('match?',Helper.rgbFloatToHex(swapIn[0],swapIn[1],swapIn[2]),Helper.rgbFloatToHex(array[i-3],array[i-2],array[i-1]))
+                //console.log('match?',Helper.rgbFloatToHex(swapIn[0],swapIn[1],swapIn[2]),Helper.rgbFloatToHex(array[i-3],array[i-2],array[i-1]))
 
             } else {
                 let hex = Helper.rgbFloatToHex(array[i - 3], array[i - 2], array[i - 1]);
@@ -339,7 +352,7 @@ function _subReadColors(parent, geom, swapIn, swapOut) {
 
         }
     }
-    if(!swapping) {
+    if (!swapping) {
         let content = Object.keys(colorArray);
         content.forEach(color => {
             console.log('%s %s %c %s %c %s', parent.name, geom.name, 'background: ' + color + '; color: #000', color, 'background: white;', colorArray[color]);
@@ -352,7 +365,7 @@ var windV;
 
 function animate(delta) {
 
-    if(animators.length > 0) {
+    if (animators.length > 0) {
         animators.forEach(anim => {
             anim.update(5); //DEV set constant for XR     
         });
@@ -393,7 +406,7 @@ function rnd() {
 
 function getModel(model, x, y, z, color, sword, helm, anim) {
 
-    if(!model)
+    if (!model)
         model = SkeletonUtils.clone(manModel);
     else
         model = SkeletonUtils.clone(model);
@@ -409,15 +422,15 @@ function getModel(model, x, y, z, color, sword, helm, anim) {
     model.userData.wind = { value: new THREE.Vector3(0, 1, 0) };
 
     model.children.forEach(obj => {
-        if(obj && obj.type == "SkinnedMesh") {
+        if (obj && obj.type == "SkinnedMesh") {
             obj.castShadow = true;
             obj.receiveShadow = true;
-            if(obj.name == "Woman" || obj.name == "Man") { //|| obj.name=="Scarf"){ //DEV
+            if (obj.name == "Woman" || obj.name == "Man") { //|| obj.name=="Scarf"){ //DEV
                 obj.material = personShader.clone();
                 obj.material.uniforms.shirt = model.userData.shirt;
                 //obj.material.uniforms.wind= model.userData.wind;
             }
-            if(obj.name == "Scarf") { //DEV
+            if (obj.name == "Scarf") { //DEV
                 //windies.push(obj);
             }
         }
@@ -444,22 +457,22 @@ function getModel(model, x, y, z, color, sword, helm, anim) {
 
 
 
-    if(sword) {
+    if (sword) {
         let bone = findBone(model, "attachHoldR");
-        if(bone) {
+        if (bone) {
             bone.add(swordModel.clone());
         }
     }
 
-    if(helm) {
+    if (helm) {
         let bone2 = findBone(model, "attachHat");
-        if(bone2) {
+        if (bone2) {
             // let mm=Render.cubit(.1,.8,.1, 0,.4,0,0xff0000,-1)
             bone2.add(helmModel.clone());
         }
     }
 
-    if(!anim)
+    if (!anim)
         anim = "Walk"
 
     let mixer = new THREE.AnimationMixer(model);
@@ -476,7 +489,7 @@ function getModel(model, x, y, z, color, sword, helm, anim) {
 function attach(root, hookString, itemString) {
     let item = make(itemString);
     let bone = findBone(root, hookString);
-    if(bone && item) {
+    if (bone && item) {
         item.scale.set(1, 1, 1);
         item.position.set(0, 0, 0);
         item.castShadow = true;
@@ -488,14 +501,14 @@ function attach(root, hookString, itemString) {
 /**important model asset fetch and clone function, used often**/
 function make(s, player) {
     let m = MODELS[s];
-    if(m) {
-        if(Array.isArray(m)) {
+    if (m) {
+        if (Array.isArray(m)) {
             m = m[Math.floor(Math.random() * m.length)]
-        } else if(player && player.color) {
-            if((s == 'man' || s == 'gran' || s=='chicken')) {
-                if(player && player.id) {
+        } else if (player && player.color) {
+            if ((s == 'man' || s == 'gran' || s == 'chicken' ||  s == 'hedgehog')) {
+                if (player && player.id) {
                     let user = PlayerManager.getUser(player.id)
-                    if(!user.shader) {
+                    if (!user.shader) {
                         user.shader = personShader.clone();
                         user.shader.needsUpdate = true;
                         let colors = Helper.hexToRGBFloat(player.color);
@@ -503,9 +516,9 @@ function make(s, player) {
                     }
 
                     let out = SkeletonUtils.clone(m);
-                    
+
                     out.children.forEach(obj => {
-                        if(obj && obj.type == "SkinnedMesh") {
+                        if (obj && obj.type == "SkinnedMesh") {
                             obj.castShadow = true;
                             obj.receiveShadow = true;
                             obj.material = user.shader
@@ -513,36 +526,36 @@ function make(s, player) {
                         }
                     })
                     return out;
-                }else{
+                } else {
 
 
 
-                m = SkeletonUtils.clone(m);
-                let colors = Helper.hexToRGBFloat(player.color);
+                    m = SkeletonUtils.clone(m);
+                    let colors = Helper.hexToRGBFloat(player.color);
 
-                m.userData.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
-                m.userData.wind = { value: new THREE.Vector3(0, 1, 0) };
+                    m.userData.shirt = { value: new THREE.Vector3(colors[0], colors[1], colors[2]) };
+                    m.userData.wind = { value: new THREE.Vector3(0, 1, 0) };
 
-                m.children.forEach(obj => {
-                    if(obj && obj.type == "SkinnedMesh") {
-                        obj.castShadow = true;
-                        obj.receiveShadow = true;
-                        if(obj.name == "Gran" || obj.name == "Man" || obj.name == "GranHead") { //|| obj.name=="Scarf"){ //DEV
-                            console.log('skinned ', obj.name)
-                            obj.material = personShader.clone();
-                            obj.material.skinning = true;
-                            obj.material.needsUpdate = true;
-                            obj.material.uniforms.shirt = m.userData.shirt;
-                            //obj.material.uniforms.wind= model.userData.wind;
+                    m.children.forEach(obj => {
+                        if (obj && obj.type == "SkinnedMesh") {
+                            obj.castShadow = true;
+                            obj.receiveShadow = true;
+                            if (obj.name == "Gran" || obj.name == "Man" || obj.name == "GranHead") { //|| obj.name=="Scarf"){ //DEV
+                                console.log('skinned ', obj.name)
+                                obj.material = personShader.clone();
+                                obj.material.skinning = true;
+                                obj.material.needsUpdate = true;
+                                obj.material.uniforms.shirt = m.userData.shirt;
+                                //obj.material.uniforms.wind= model.userData.wind;
+                            }
+                            if (obj.name == "Scarf") { //DEV
+                                //windies.push(obj);
+                            }
                         }
-                        if(obj.name == "Scarf") { //DEV
-                            //windies.push(obj);
-                        }
-                    }
-                })
-                return m;
+                    })
+                    return m;
+                }
             }
-            } 
 
         }
         return m.clone();

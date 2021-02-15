@@ -33,7 +33,9 @@ function init(){
     chunkCanvas.width=''+32*1.73*3
     chunkCanvas.height=''+32*3
     chunkCanvas.style.zIndex=99
-    chunkCanvas.style.border='red solid 3px'
+    //chunkCanvas.style.border='red solid 3px'
+    chunkCanvas.style.pointerEvents='none'
+
     chunkCanvas.style.position='absolute'
     chunkCanvas.style.top='0px'
     document.querySelector('#main').appendChild(chunkCanvas)

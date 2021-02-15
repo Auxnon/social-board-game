@@ -48,11 +48,12 @@ function init() {
     world.addContactMaterial(contactMaterial);
 
 
-
-    // Create boxes
+/*
     let mass = 4,
         radius = 1.3;
     let boxShape = new CANNON.Box(new CANNON.Vec3(1, 1, 2));
+
+
     for(let i = 0; i < N; i++) {
         let boxBody = new CANNON.Body({ mass: mass });
         boxBody.addShape(boxShape);
@@ -63,7 +64,7 @@ function init() {
         window.playerBody = playerBody
         //playerBody.angularDamping=1
         //bodies.push(boxBody);
-    }
+    }*/
 
 
     /*
@@ -318,7 +319,7 @@ function updatePhysics() {
         }*/
 
     }
-
+/*
     let r = Control.getAngle();
     let vd = playerBody.velocity.length()
     if(Main.controls.left) {
@@ -361,7 +362,7 @@ function updatePhysics() {
     }
     Render.player.position.copy(playerBody.position);
     Render.player.quaternion.copy(playerBody.quaternion);
-    //console.log(Render.player.position)
+*/
 }
 
 

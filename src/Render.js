@@ -149,7 +149,7 @@ function init() {
         group.add(cubic(100,10,50,0,50,50,wood));
         group.add(cubic(100,100,10,0,0,20,ground));*/
 
-    player = new THREE.Group();
+    /*player = new THREE.Group();
     let whiteMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.FrontSide });
 
     let blackMat = new THREE.MeshBasicMaterial({ color: 0x321818, side: THREE.FrontSide });
@@ -162,10 +162,10 @@ function init() {
     player.add(p1)
     player.add(p2)
     player.add(p3)
-    group.add(player)
+    group.add(player)*/
 
-    let referenceCube = cubic(.5, .5, 1.5, 0.75, 0, 20, new THREE.MeshBasicMaterial({ color: 0xD62B5F }))
-    group.add(referenceCube)
+    /*let referenceCube = cubic(.5, .5, 1.5, 0.75, 0, 20, new THREE.MeshBasicMaterial({ color: 0xD62B5F }))
+    group.add(referenceCube)*/
 
     scene.add(group)
     pointerInit();
@@ -476,9 +476,9 @@ function cylinder(i, j, k, x, y, z, c) {
     return cyl;
 }
 
-function plane(i, j, k) {
+function plane(i, j, c) {
     const geometry = new THREE.PlaneBufferGeometry(i, j);
-    const material = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({ color: c?c:0xffff00, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
     return plane
 }

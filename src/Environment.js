@@ -20,6 +20,8 @@ let tempHeight = 1;
 let tempD = -0.001; //-0.004
 let shadowMaxHeight;
 
+let lightMode=0;
+
 function init() {
 
     wind = new THREE.Vector3(1, 0, 0);
@@ -61,7 +63,7 @@ function init() {
 
 
     window.sunLight = sunLight;
-    setLightHelper(true)
+    //setLightHelper(true)
 
 }
 
@@ -159,12 +161,14 @@ function animate() {
         tempHeight = 1;
         tempD = -tempD;
     }
-    if(tempHeight) {
-        sunLight.color.setHex(0xffffff);
-        ambientLight.color.setHex(0x606060);
-        Render.setClearColor(0xb0e9fd, 1);
-    }
-    /*else if(tempHeight>50){
+
+    if(lightMode==0){
+         if(tempHeight) {
+            sunLight.color.setHex(0xffffff);
+            ambientLight.color.setHex(0x606060);
+            Render.setClearColor(0xb0e9fd, 1);
+        }
+        /*else if(tempHeight>50){
             sunLight.color.setHex(0xFAD227);
             ambientLight.color.setHex(0x5E5371);
             Render.setClearColor(0xF0FDB0,1);
@@ -173,6 +177,8 @@ function animate() {
             ambientLight.color.setHex(0x3F2A62);
             Render.setClearColor(0xF86722,1);
         }*/
+    }
+   
 
     //sunLight.position.z=200+tempHeight*4;
 
@@ -217,5 +223,16 @@ function setLightHelper(bool) {
 
     }
 }
+function setLight(i){
+    lightMode=i;
+    if(lightMode==1){
+        sunLight.color.setHex(0xFFD3FF);
+        ambientLight.color.setHex(0xD8A2FF);
+        Render.setClearColor(0xB20075, 1);
+    }
+}
+function getLight(){
 
-export { init, getWind, animate, changeShadowScale, setShadows, setShadowPos, setLightHelper }
+}
+
+export { init, getWind, animate, changeShadowScale, setShadows, setShadowPos, setLightHelper,setLight,getLight }

@@ -192,6 +192,7 @@ function rand() {
 
 function barInit() {
     bar = document.querySelector('#bar')
+    bar.style.display='block'
     let barHandle = document.querySelector('#barHandle')
     barHandle.addEventListener('pointerdown', ev => {
         //let xx = barBox.left //-(barBox.right-barBox.left)/2
