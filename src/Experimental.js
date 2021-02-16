@@ -16,7 +16,7 @@ var host
 var splined = [];
 var currentIterator = 0;
 
-var IKHELP = false;
+var IKHELP = true;
 
 /*
 thighL
@@ -44,14 +44,11 @@ function applyLegs(root, left, right) {
 
         let foot3,foot4;
         if(fourLegged){
-            foot3 = Render.cubic(.05, .05, .02, xx-0.01, yy, .5);
-            foot4 = Render.cubic(.05, .05, .02, xx+0.01, yy, .5);
+            foot3 = Render.cubic(.05, .05, .02, xx-0.01, yy+0.01, .5);
+            foot4 = Render.cubic(.05, .05, .02, xx+0.01, yy+0.01, .5);
             Render.addModel(foot3)
             Render.addModel(foot4)
         }
-
-
-       
 
 
 
@@ -105,6 +102,7 @@ function applyLegs(root, left, right) {
         let chain1 = new IK.IKChain();
         leftOut1.forEach((b, i) => {
             let target = null;
+            b.position.z+=0.2*i
             if (i == leftOut1.length - 1)
                 target = foot1
             console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
@@ -114,6 +112,7 @@ function applyLegs(root, left, right) {
         let chain2 = new IK.IKChain();
         rightOut1.forEach((b, i) => {
             let target = null;
+            b.position.z+=0.2*i
             if (i == rightOut1.length - 1)
                 target = foot2
             console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
@@ -127,6 +126,8 @@ function applyLegs(root, left, right) {
             let chain3 = new IK.IKChain();
             leftOut2.forEach((b, i) => {
                 let target = null;
+                b.position.z+=0.2*i
+
                 if (i == leftOut2.length - 1)
                     target = foot3
                 console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
@@ -136,6 +137,7 @@ function applyLegs(root, left, right) {
             let chain4 = new IK.IKChain();
             rightOut2.forEach((b, i) => {
                 let target = null;
+               b.position.z+=0.2*i
                 if (i == rightOut2.length - 1)
                     target = foot4
                 console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
@@ -149,11 +151,11 @@ function applyLegs(root, left, right) {
         root.ik=ik;
 
         if(fourLegged)
-            root.ik.feet= [foot1, foot2] 
-        else
             root.ik.feet= [foot1, foot2,foot3,foot4]
+        else
+            root.ik.feet= [foot1, foot2] 
 
-        root.ik.footing= false;
+        root.ik.footing= 0;
 
         if (IKHELP) {
             if (helper) {
@@ -203,18 +205,26 @@ function init() {
             if (window.lastMesh) {
                 
                     
+                let check
+                if(window.lastMesh.type=='Group')
+                    check=window.lastMesh.children[0];
+                else
+                    check=window.lastMesh
+                
 
-                let chicken = SkeletonUtils.clone(window.lastMesh);
+                let chicken= SkeletonUtils.clone(window.lastMesh);
+
                 Render.addModel(chicken);
                 //makeSpline(chicken)
-                if(chicken.name=='hedgehog')
-                    applyLegs(chicken, [[ 'upper_armL', 'forearmL', 'handL'],[ 'thighL', 'shinL', 'footL']], [[ 'upper_armR', 'forearmR', 'handR'],[ 'thighR', 'shinR', 'footR']]);
+                if(check.name=='hedgehog')
+                    applyLegs(chicken, [[ 'upper_armL', 'forearmL'],[ 'thighL', 'shinL']], [[ 'upper_armR', 'forearmR'],[ 'thighR', 'shinR']]);
                 else
                     applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
 
 
                 splined.push(chicken);
                 current = chicken;
+                window.current=current
                 //iks.push(ik)
             }
         } else if (ev.which == '65') {
@@ -222,6 +232,7 @@ function init() {
             if (currentIterator >= splined.length)
                 currentIterator = 0;
             current = splined[currentIterator]
+            window.current=current
 
         }
     })
@@ -722,7 +733,7 @@ function navPoint(ev) {
     splined.forEach((entity, i) => {
         if (entity.path && entity.path.points)
             clear(entity);
-        entity.ik.footing = false;
+        entity.ik.footing = 0;
         let mover = entity
         if (!mover.path)
             mover.path = { points: [] };
@@ -774,28 +785,39 @@ function clear(host) {
     }
 }
 
-let footing = false;
+
 
 function feetAnimate() {
     if (splined.length > 0) {
         splined.forEach(host => {
             if (host.path && host.path.points.length > 0) {
 
-
+                let fourLegged=host.ik.feet.length==4
 
                 let mover = host;
-                let foot = host.ik.feet[host.ik.footing ? 1 : 0]
+
+
+                let foot= host.ik.feet[host.ik.footing]
+
+
                 let n = { x: foot.position.x - host.path.points[0].position.x, y: foot.position.y - host.path.points[0].position.y };
                 let r = Math.sqrt(n.x * n.x + n.y * n.y);
                 foot.position.x -= .2 * n.x / r;
                 foot.position.y -= .2 * n.y / r;
 
-                let sx = host.ik.feet[0].position.x - host.ik.feet[1].position.x;
-                let sy = host.ik.feet[0].position.y - host.ik.feet[1].position.y;
+                let sx,sy;
+                if(fourLegged){
+                    sx = (host.ik.feet[0].position.x + host.ik.feet[1].position.x +host.ik.feet[2].position.x + host.ik.feet[3].position.x)/4;
+                    sy = (host.ik.feet[0].position.y + host.ik.feet[1].position.y +host.ik.feet[2].position.y + host.ik.feet[3].position.y)/4;
+                }else{
+                    sx = (host.ik.feet[0].position.x + host.ik.feet[1].position.x)/2;
+                    sy = (host.ik.feet[0].position.y + host.ik.feet[1].position.y)/2;
+                }
+                 
 
 
-                mover.position.x = host.ik.feet[0].position.x - (sx) / 2
-                mover.position.y = host.ik.feet[0].position.y - (sy) / 2
+                mover.position.x = (sx)
+                mover.position.y = (sy)
                 mover.position.z = 2.5;
                 let tx = mover.position.x - host.path.points[host.path.points.length - 1].position.x
                 let ty = mover.position.y - host.path.points[host.path.points.length - 1].position.y
@@ -807,7 +829,9 @@ function feetAnimate() {
                 if (r <= .1) {
                     let m = host.path.points.shift()
                     Render.removeModel(m)
-                    host.ik.footing = !host.ik.footing;
+                    host.ik.footing++
+                    if(host.ik.footing> (fourLegged?3:1))
+                         host.ik.footing=0
                 }
             }
         })
