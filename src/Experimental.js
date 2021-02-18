@@ -102,7 +102,7 @@ function applyLegs(root, left, right) {
         let chain1 = new IK.IKChain();
         leftOut1.forEach((b, i) => {
             let target = null;
-            b.position.z+=0.2*i
+            //b.position.z+=0.2*i
             if (i == leftOut1.length - 1)
                 target = foot1
             console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
@@ -112,7 +112,7 @@ function applyLegs(root, left, right) {
         let chain2 = new IK.IKChain();
         rightOut1.forEach((b, i) => {
             let target = null;
-            b.position.z+=0.2*i
+            //b.position.z+=0.2*i
             if (i == rightOut1.length - 1)
                 target = foot2
             console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
@@ -126,7 +126,7 @@ function applyLegs(root, left, right) {
             let chain3 = new IK.IKChain();
             leftOut2.forEach((b, i) => {
                 let target = null;
-                b.position.z+=0.2*i
+                //b.position.z+=0.2*i
 
                 if (i == leftOut2.length - 1)
                     target = foot3
@@ -137,15 +137,15 @@ function applyLegs(root, left, right) {
             let chain4 = new IK.IKChain();
             rightOut2.forEach((b, i) => {
                 let target = null;
-               b.position.z+=0.2*i
+               //b.position.z+=0.2*i
                 if (i == rightOut2.length - 1)
                     target = foot4
                 console.log('chickn chained ' + b.name + ' target ' + (target ? true : false))
                 chain4.add(new IK.IKJoint(b, { constraints }), { target });
             });
 
-            ik.add(chain3);
-            ik.add(chain4);
+            //ik.add(chain3);
+            //ik.add(chain4);
         }
 
         root.ik=ik;
@@ -163,6 +163,9 @@ function applyLegs(root, left, right) {
             }
             helper = new IK.IKHelper(ik);
             Render.addModel(helper);
+
+            const helper2 = new THREE.SkeletonHelper( root );
+            Render.addModel( helper2 );
         }
 
 
@@ -212,12 +215,14 @@ function init() {
                     check=window.lastMesh
                 
 
-                let chicken= SkeletonUtils.clone(window.lastMesh);
+                let chicken= SkeletonUtils.clone(check);//window.lastMesh);
 
                 Render.addModel(chicken);
                 //makeSpline(chicken)
                 if(check.name=='hedgehog')
-                    applyLegs(chicken, [[ 'upper_armL', 'forearmL'],[ 'thighL', 'shinL']], [[ 'upper_armR', 'forearmR'],[ 'thighR', 'shinR']]);
+                    applyLegs(chicken, [[ 'shoulderL','upper_armL', 'forearmL'],[ 'pelvisL','thighL', 'shinL']], [[ 'shoulderR','upper_armR', 'forearmR'],[ 'pelvisR','thighR', 'shinR']]);
+                else if(check.name=='testman')
+                    applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
                 else
                     applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
 
@@ -818,7 +823,7 @@ function feetAnimate() {
 
                 mover.position.x = (sx)
                 mover.position.y = (sy)
-                mover.position.z = 2.5;
+                mover.position.z = 5//2.5;
                 let tx = mover.position.x - host.path.points[host.path.points.length - 1].position.x
                 let ty = mover.position.y - host.path.points[host.path.points.length - 1].position.y
                 let tr = Math.sqrt(tx * tx + ty * ty)

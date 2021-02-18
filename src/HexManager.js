@@ -60,7 +60,10 @@ function init() {
     window.chunks=chunks;
     window.clearChunk =clearChunk
     //console.log('water',Helper.get)
-    let testShader=Experimental.makeShader();
+
+    let testShader=new THREE.MeshToonMaterial({vertexColors: THREE.VertexColors,wireframe: true,})
+    //Experimental.makeShader(); //DEV
+
 
 
     Render.loadModel('./assets/models/Hex.glb', m => {

@@ -4,6 +4,7 @@ import * as PictureMaker from "./PictureMaker.js";
 var menu;
 var selected;
 var stuff = [
+    'testman',
     'man',
     'chicken',
     'pot',

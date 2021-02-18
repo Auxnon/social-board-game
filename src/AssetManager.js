@@ -230,6 +230,17 @@ function init() {
         })
         MODELS['hedgehog'] = m;
     });
+    load('assets/models/testMan.glb', m => {
+        m = m.children[0];//.children
+        m.name='testman'
+        m.scale.set(2, 2, 2);
+        m.children.forEach(o => {
+            if (o.type == 'SkinnedMesh') {
+                o.material = personShader.clone();
+            }
+        })
+        MODELS['testman'] = m;
+    });
 
 }
 
@@ -505,7 +516,7 @@ function make(s, player) {
         if (Array.isArray(m)) {
             m = m[Math.floor(Math.random() * m.length)]
         } else if (player && player.color) {
-            if ((s == 'man' || s == 'gran' || s == 'chicken' ||  s == 'hedgehog')) {
+            if ((s == 'man' || s == 'gran' || s == 'chicken' ||  s == 'hedgehog' ||  s == 'testman')) {
                 if (player && player.id) {
                     let user = PlayerManager.getUser(player.id)
                     if (!user.shader) {
