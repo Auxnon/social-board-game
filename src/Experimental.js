@@ -1,5 +1,6 @@
 import * as THREE from "./lib/three.module.js";
 import * as IK from './lib/three-ik.js';
+import * as CCDIKSolver from "./lib/CCDIKSolver.js";
 
 import * as Render from "./Render.js";
 import * as Control from "./Control.js";
@@ -30,7 +31,12 @@ footL
 
 function applyLegs(root, left, right) {
     if (!root.ik) {
+        /*let mesh=root.children[0].children[1]
+        mesh.skeleton={bones:root.children[0].children[0]}
+       let ikSolver = new CCDIKSolver.CCDIKSolver( mesh);//, mesh.geometry.iks );
+    */
         host = root;
+        
         let ik=new IK.IK();
         let fourLegged=left.length && Array.isArray(left[0])
 
@@ -54,7 +60,7 @@ function applyLegs(root, left, right) {
 
 
         //to reduce tree search
-        let constraints = [new IK.IKBallConstraint(90), new IK.IKBallConstraint(90)];
+        let constraints = null;//[new IK.IKBallConstraint(90)]//, new IK.IKBallConstraint(90)];
         let searchLeft1 = [];
         let searchRight1 = [];
         let searchLeft2,searchRight2;
@@ -167,11 +173,7 @@ function applyLegs(root, left, right) {
             const helper2 = new THREE.SkeletonHelper( root );
             Render.addModel( helper2 );
         }
-
-
     }
-
-
 }
 
 function searchBones(bone, output, search) {
@@ -222,7 +224,7 @@ function init() {
                 if(check.name=='hedgehog')
                     applyLegs(chicken, [[ 'shoulderL','upper_armL', 'forearmL'],[ 'pelvisL','thighL', 'shinL']], [[ 'shoulderR','upper_armR', 'forearmR'],[ 'pelvisR','thighR', 'shinR']]);
                 else if(check.name=='testman')
-                    applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
+                    applyLegs(chicken, [ 'thighL', 'shinL','footL'], [ 'thighR', 'shinR','footR']);
                 else
                     applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
 
@@ -346,9 +348,9 @@ function animate() {
         /*iks.forEach(ikk=>{
             ikk.solve();
         })*/
-        splined.forEach(entity=>{
+        /*splined.forEach(entity=>{
             entity.ik.solve();
-        })
+        })*/
         
 
 
@@ -807,8 +809,9 @@ function feetAnimate() {
 
                 let n = { x: foot.position.x - host.path.points[0].position.x, y: foot.position.y - host.path.points[0].position.y };
                 let r = Math.sqrt(n.x * n.x + n.y * n.y);
-                foot.position.x -= .2 * n.x / r;
-                foot.position.y -= .2 * n.y / r;
+                let speed=.1
+                foot.position.x -= speed * n.x / r;
+                foot.position.y -= speed * n.y / r;
 
                 let sx,sy;
                 if(fourLegged){
@@ -823,13 +826,13 @@ function feetAnimate() {
 
                 mover.position.x = (sx)
                 mover.position.y = (sy)
-                mover.position.z = 5//2.5;
+                mover.position.z = 1//2.5;
                 let tx = mover.position.x - host.path.points[host.path.points.length - 1].position.x
                 let ty = mover.position.y - host.path.points[host.path.points.length - 1].position.y
                 let tr = Math.sqrt(tx * tx + ty * ty)
 
-                if (tr > 1)
-                    mover.rotation.z = Math.atan2(ty, tx) - Math.PI / 2
+                /*if (tr > 1)
+                    mover.rotation.z = Math.atan2(ty, tx) - Math.PI / 2*/
 
                 if (r <= .1) {
                     let m = host.path.points.shift()
@@ -838,6 +841,8 @@ function feetAnimate() {
                     if(host.ik.footing> (fourLegged?3:1))
                          host.ik.footing=0
                 }
+
+                 mover.ik.solve();
             }
         })
     }
