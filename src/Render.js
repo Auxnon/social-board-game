@@ -210,9 +210,9 @@ function togglePhysicsDebugger(bool) {
         physDebugger = new CannonDebugRenderer(scene, Physics.world); //Physics.createPhysicsDebugger(scene)
 }
 
-function loadModel(model, callback, texture, color) {
+function loadModel(modelIn, callback, texture, color) {
     loader.load(
-        ('./' + model), //villager22.gltf',
+        ('./' + modelIn), //villager22.gltf',
         (gltf) => {
             // called when the resource is loaded
             //gltf.scene.scale.set(10,10,10);
@@ -221,6 +221,7 @@ function loadModel(model, callback, texture, color) {
             gltf.scene.traverse(function(child) {
                 if(child instanceof THREE.Mesh) {
                     //if(child.name=="Cube"){
+                        
                     model = child;
                     if(!texture) {
                         if(color)
@@ -230,6 +231,8 @@ function loadModel(model, callback, texture, color) {
 
                         child.material.needsUpdate = true;
                         //child.material.skinning=true;
+                    }else{
+                        child.material.transparent=true;
                     }
                     //child.material.morphTargets=true;
 

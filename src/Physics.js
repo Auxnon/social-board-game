@@ -512,6 +512,7 @@ function physClear() {
     })
 
     physArray = [];
+    window.physArray=physArray
 }
 var adjustDelay = 0;
 

@@ -242,14 +242,21 @@ function init() {
         MODELS['testman'] = m;
     });
 
+    load('assets/models/testhead.glb', m => {
+        m = m.children[0];//.children
+        m.name='testhead'
+        m.scale.set(2, 2, 2);
+        MODELS['testhead'] = m;
+    },true);
+
 }
 
-function load(model, callback) {
+function load(model, callback,texture) {
     modelCounter++;
     Render.loadModel(model, (m, anim) => {
         modelCounter--;
         callback(m, anim);
-    });
+    },texture);
 }
 
 function defaultLoad(s, type, override) {

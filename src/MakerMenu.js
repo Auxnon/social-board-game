@@ -5,6 +5,7 @@ var menu;
 var selected;
 var stuff = [
     'testman',
+    'testhead',
     'man',
     'chicken',
     'pot',

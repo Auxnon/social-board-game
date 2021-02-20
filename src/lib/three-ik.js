@@ -65,7 +65,7 @@ function transformPoint(vector, matrix, target) {
   var y = vector.x * e[1] + vector.y * e[5] + vector.z * e[9] + e[13];
   var z = vector.x * e[2] + vector.y * e[6] + vector.z * e[10] + e[14];
   var w = vector.x * e[3] + vector.y * e[7] + vector.z * e[11] + e[15];
-  target.set(x / w, y / w, z / w); ///FIX swap z and y
+  target.set(x / w, y / w, z / w);
 }
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -487,18 +487,17 @@ var IKJoint = function () {
     value: function _applyWorldPosition() {
       var direction = new Vector3().copy(this._direction);
       var position = new Vector3().copy(this._getWorldPosition());
-      //position.set(position.x,position.z,position.y) //FIX
       var parent = this.bone.parent;
       if (parent) {
         this._updateMatrixWorld();
         var inverseParent = new Matrix4().getInverse(this.bone.parent.matrixWorld);
         transformPoint(position, inverseParent, position);
-        //this.bone.position.copy(position);//FIX {x:position.x,y:position.z,z:position.y});
+        this.bone.position.copy(position);
         this._updateMatrixWorld();
         this._worldToLocalDirection(direction);
-        setQuaternionFromDirection(direction, Z_AXIS, this.bone.quaternion);
+        setQuaternionFromDirection(direction, Y_AXIS, this.bone.quaternion);
       } else {
-        //this.bone.position.copy(position);//FIX {x:position.x,y:position.z,z:position.y});
+        this.bone.position.copy(position);
       }
       this.bone.updateMatrix();
       this._updateMatrixWorld();
