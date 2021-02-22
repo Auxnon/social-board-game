@@ -412,7 +412,7 @@ function physMake(id, size, mass, pos,quat, type, meta) {
         mesh=Render.makeGroup();
         if(!meta.label)
             inner.position.z=-size.z/2;
-        inner.rotation.x=Math.PI/2;
+        //inner.rotation.x=Math.PI/2;
         mesh.add(inner)
 
         if(meta.label){

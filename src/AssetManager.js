@@ -233,7 +233,7 @@ function init() {
     load('assets/models/testMan.glb', m => {
         m = m.children[0];//.children
         m.name='testman'
-        m.scale.set(2, 2, 2);
+        m.scale.set(1,1,1);
         m.children.forEach(o => {
             if (o.type == 'SkinnedMesh') {
                 o.material = personShader.clone();
@@ -243,11 +243,23 @@ function init() {
     });
 
     load('assets/models/testhead.glb', m => {
-        m = m.children[0];//.children
+        //m = m.children[0];//.children
+        m.children.forEach(c=>{
+            if(c.material && c.material.map)
+                c.material.map.magFilter=THREE.NearestFilter;
+
+        })
         m.name='testhead'
         m.scale.set(2, 2, 2);
         MODELS['testhead'] = m;
     },true);
+
+    load('assets/models/testbone.glb', m => {
+        m = m.children[0];//.children
+        m.name='testbone'
+        m.scale.set(2, 2, 2);
+        MODELS['testbone'] = m;
+    });
 
 }
 
@@ -523,7 +535,7 @@ function make(s, player) {
         if (Array.isArray(m)) {
             m = m[Math.floor(Math.random() * m.length)]
         } else if (player && player.color) {
-            if ((s == 'man' || s == 'gran' || s == 'chicken' ||  s == 'hedgehog' ||  s == 'testman')) {
+            if ((s == 'man' || s == 'gran' || s == 'chicken' ||  s == 'hedgehog' ||  s == 'testman' || s=='testbone')) {
                 if (player && player.id) {
                     let user = PlayerManager.getUser(player.id)
                     if (!user.shader) {

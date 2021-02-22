@@ -5,7 +5,13 @@ var t2 = new Vector3();
 var t3 = new Vector3();
 var m1 = new Matrix4();
 function getWorldPosition(object, target) {
-  return target.setFromMatrixPosition(object.matrixWorld);
+  let tempy=new Matrix4();
+      tempy.set(1,0,0,0,
+0,0,-1,0,
+0,1,0,0,
+0,0,0,1);
+      let m=object.matrixWorld;//.multiply(tempy)
+  return target.setFromMatrixPosition(m); //object.matrixWorld FIX
 }
 
 function getCentroid(positions, target) {
@@ -57,6 +63,7 @@ function setQuaternionFromDirection(direction, up, target) {
   el[0] = x.x;el[4] = y.x;el[8] = z.x;
   el[1] = x.y;el[5] = y.y;el[9] = z.y;
   el[2] = x.z;el[6] = y.z;el[10] = z.z;
+  
   target.setFromRotationMatrix(m);
 }
 function transformPoint(vector, matrix, target) {
@@ -327,6 +334,7 @@ var slicedToArray = function () {
 }();
 
 var Z_AXIS = new Vector3(0, 0, 1);
+var X_AXIS = new Vector3(1, 0, 0);
 var DEG2RAD = Math$1.DEG2RAD;
 var RAD2DEG = Math$1.RAD2DEG;
 var IKBallConstraint = function () {
@@ -469,6 +477,12 @@ var IKJoint = function () {
     value: function _localToWorldDirection(direction) {
       if (this.bone.parent) {
         var parent = this.bone.parent.matrixWorld;
+        /*let tempy=new Matrix4();
+      tempy.set(1,0,0,0,
+0,0,-1,0,
+0,1,0,0,
+0,0,0,1);
+      parent.multiply(tempy)*/
         direction.transformDirection(parent);
       }
       return direction;
@@ -486,15 +500,41 @@ var IKJoint = function () {
     key: '_applyWorldPosition',
     value: function _applyWorldPosition() {
       var direction = new Vector3().copy(this._direction);
+      let tempy=new Matrix4();
+      tempy.set(1,0,0,0,
+0,0,1,0,
+0,-1,0,0,
+0,0,0,1); //tempy is a x axis transfrom rot 270 degere
+/*tempy.set(0,0,-1,0,
+0,1,0,0,
+1,0,0,0,
+0,0,0,1);*/
+      //direction.applyMatrix4(tempy)
+      //direction.set(direction.x,direction.z,direction.y)
+
       var position = new Vector3().copy(this._getWorldPosition());
+      //position.set(position.x,position.z,position.y)
+      
       var parent = this.bone.parent;
+      //position.set(0,0,1)
       if (parent) {
         this._updateMatrixWorld();
         var inverseParent = new Matrix4().getInverse(this.bone.parent.matrixWorld);
+        
         transformPoint(position, inverseParent, position);
+        //position.set(0,1,0);//position.x,position.z,position.y)
+        //direction.set(0,1,0)
+        
+
         this.bone.position.copy(position);
         this._updateMatrixWorld();
         this._worldToLocalDirection(direction);
+        var direction2 = new Vector3().copy(direction);
+        direction2.set(direction2.x,direction2.z,direction2.y)
+
+        //var parentDirection = joint._localToWorldDirection(new Vector3().copy(Z_AXIS)).normalize();
+        //direction.transformDirection(tempy)
+        
         setQuaternionFromDirection(direction, Y_AXIS, this.bone.quaternion);
       } else {
         this.bone.position.copy(position);

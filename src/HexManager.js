@@ -92,7 +92,7 @@ function init() {
                 //console.log('replace!')
                 
             }
-            if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall"))
+            if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall") || mm.name.startsWith("Edge"))
                 mm.castShadow = true;
             //Render.addModel(mm)
             if(mm.name.endsWith('H')){
@@ -527,7 +527,7 @@ function processLand(chunk) {
                 //no neighbors! 
                 //land('P1',i,j,n-2)
 
-            } else if(n == 1) {
+            }
                 let l, r, tl, tr;
 
                 l = (i > 0) ? chunk.height[i - 1][j] : 0
@@ -549,6 +549,14 @@ function processLand(chunk) {
                     bl = 0;
                     br = 0;
                 }
+                let mx=Math.max;
+                let higher=mx(mx(mx(mx(mx(height-l, height-r), height-tr), height-br), height-bl),height-tl);
+                if(higher>0){
+                    edge(chunk, higher, i+offsetX, j+offsetY,height)
+                }
+
+                if(n==1){
+
                 l = l >height && l<=(height+1);
                 r = r>height && r<=(height+1);
                 tr = tr>height && tr<=(height+1);
@@ -776,6 +784,27 @@ function land(chunk,n, st, x, y,z, r) {
         Render.addModel(m)
     } else {
         console.log('invalid model ' + prefix + st)
+    }
+
+}
+function edge(chunk,h, x, y,z) {
+    //n==1 grass, n==2 path, n==3 mount
+    let radius = 1;
+    let skew = SCALE * radius * Math.sqrt(3) / 2;
+    
+
+    //dummy.position.set(offsetx+i*9,0,offsetz+j*skew*2 +i*skew);
+    let picked = hex['Edge'];
+    if(picked) {
+        let m = picked.clone();
+
+        m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, SCALE * (z-0.2)) //z -SCALE*.2
+        m.scale.set(1,1,h>1?h:1)
+       
+        chunk.modelReferences.push(m)
+        Render.addModel(m)
+    } else {
+        console.warning('No edge model?')
     }
 
 }

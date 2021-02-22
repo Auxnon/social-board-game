@@ -28,6 +28,70 @@ footL
 /*ik {chains, feet}
 
 */
+function applyBox(root){
+if (!root.ik) {
+        /*let mesh=root.children[0].children[1]
+        mesh.skeleton={bones:root.children[0].children[0]}
+       let ikSolver = new CCDIKSolver.CCDIKSolver( mesh);//, mesh.geometry.iks );
+    */
+        host = root;
+        
+        let ik=new IK.IK();
+
+        let xx=root.position.x?root.position.x:0;
+        let yy=root.position.y?root.position.y:0;
+        
+        let foot1 = Render.cubic(.05, .05, .02, xx-0.01, yy, .5);
+        Render.addModel(foot1)
+
+        //to reduce tree search
+        let constraints = null;//[new IK.IKBallConstraint(90)]//, new IK.IKBallConstraint(90)];
+        let searchLeft1 = [];
+        let left=['Bone1','Bone2','Bone3']
+
+        
+
+       
+            left.forEach((item, i) => {
+            searchLeft1.push([item, i])
+            })
+            
+
+
+        let leftOut1 = [];
+        searchBones(root, leftOut1, searchLeft1)
+
+
+        let chain1 = new IK.IKChain();
+        leftOut1.forEach((b, i) => {
+            let target = null;
+            //b.position.z+=0.2*i
+            if (i == leftOut1.length - 1)
+                target = Render.getCursor();
+            chain1.add(new IK.IKJoint(b, { constraints }), { target });
+        });
+
+        ik.add(chain1);
+
+
+        root.ik=ik;
+
+
+        root.ik.feet=[]
+
+        if (IKHELP) {
+            if (helper) {
+                Render.removeModel(helper);
+            }
+            helper = new IK.IKHelper(ik);
+            Render.addModel(helper);
+
+            const helper2 = new THREE.SkeletonHelper( root );
+            Render.addModel( helper2 );
+        }
+    }
+
+}
 
 function applyLegs(root, left, right) {
     if (!root.ik) {
@@ -218,6 +282,7 @@ function init() {
                 
 
                 let chicken= SkeletonUtils.clone(check);//window.lastMesh);
+                //chicken.scale.set(1,1,1)
 
                 Render.addModel(chicken);
                 //makeSpline(chicken)
@@ -225,6 +290,8 @@ function init() {
                     applyLegs(chicken, [[ 'shoulderL','upper_armL', 'forearmL'],[ 'pelvisL','thighL', 'shinL']], [[ 'shoulderR','upper_armR', 'forearmR'],[ 'pelvisR','thighR', 'shinR']]);
                 else if(check.name=='testman')
                     applyLegs(chicken, [ 'thighL', 'shinL','footL'], [ 'thighR', 'shinR','footR']);
+                else if(check.name=='testbone')
+                    applyBox(chicken);
                 else
                     applyLegs(chicken, [ 'thighL', 'shinL', 'footL'], [ 'thighR', 'shinR', 'footR']);
 
@@ -843,6 +910,8 @@ function feetAnimate() {
                 }
 
                  mover.ik.solve();
+            }else if(host.ik.feet.length==0){
+                host.ik.solve();
             }
         })
     }

@@ -134,6 +134,7 @@ function init() {
 
         Drawer.init();
         window.Helper=Helper
+        window.TAU=Math.PI*2
         window.Render=Render;
 
         let loop=setInterval(function(){

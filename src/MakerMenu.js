@@ -22,6 +22,7 @@ var stuff = [
     'die8',
     'die10',
     'die20',
+    'testbone'
 ]
 
 function init() {

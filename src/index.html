@@ -63,8 +63,8 @@
             width: 56px;
             height: 56px;
             display: block;
-            top: 24px;
-            left: 16.16px;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%,-50%);
         }
         body{
@@ -230,20 +230,24 @@
     }
 
     .hex{
-        width: 32.3px;
+        width: 56px;
         height: 56px;
         position: relative;
         margin: 0 35px 0 35px;
-        background-color: white;
         display: inline-block;
+        background-repeat: no-repeat;
+        background-size:56px;
+        background-position: center center;
 
         pointer-events: auto;
+         background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 140 120" width="140"><path d="M44 120c-6 0-12-3-15-8L3 70c-4-6-4-14 0-20L30 6c2-4 7-6 11-6h54c6 0 12 3 15 9l26 43c3 5 3 11 0 16l-27 44c-3 5-9 8-15 8H44z"/></svg>'); /*d="M44 120c-6 0-12-3-15-8L3 70c-4-6-4-14 0-20L30 6c2-4 7-6 11-6h54c6 0 12 3 15 9l26 43c3 5 3 11 0 16l-27 44c-3 5-9 8-15 8H44z"*/
+         /*background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>')*/
     }
-    .hex::after{
+    /*.hex::after{
         content: '';
         width: 0px;
         display: block;
-        left: 31.8px;/*32.3px;*/
+        left: 31.8px;
         position: absolute;
         border-bottom: transparent 28px solid;
         border-top: transparent 28px solid;
@@ -254,12 +258,12 @@
         content: '';
         width: 0px;
         display: block;
-        left: -15.66px;/*-16.16px;*/
+        left: -15.66px;
         position: absolute;
         border-bottom: transparent 28px solid;
         border-top: transparent 28px solid;
         border-right: white 16.16px solid;
-    }
+    }*/
     .hexRow{
         pointer-events: none;
         display: block;

@@ -77,7 +77,7 @@ function init() {
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
     camera.position.z = 200; //400
     camera.position.y = -200; //-800
-    camera.up = new THREE.Vector3(0, 0, 1)
+    camera.up = new THREE.Vector3(0,0,1)
 
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -126,7 +126,7 @@ function init() {
 
 
     let material = new THREE.MeshBasicMaterial({ color: 0x75D5CE });
-    new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
+    //new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
 
     wood = new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
     ground = new THREE.MeshStandardMaterial({ color: 0x5471A5, metalness: 0, roughness: 1.0 });
@@ -142,6 +142,7 @@ function init() {
     cube.position.z=50;
     scene.add( cube );*/
     group = new THREE.Group();
+
 
     /*
         group.add(cubic(10,100,50,-50,0,50,wood));
@@ -217,7 +218,7 @@ function loadModel(modelIn, callback, texture, color) {
             // called when the resource is loaded
             //gltf.scene.scale.set(10,10,10);
             let model; //=gltf.scene.children[0];
-            gltf.scene.rotation.x = Math.PI / 2;
+            //gltf.scene.rotation.x = Math.PI / 2;
             gltf.scene.traverse(function(child) {
                 if(child instanceof THREE.Mesh) {
                     //if(child.name=="Cube"){

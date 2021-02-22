@@ -1,4 +1,5 @@
 //THREE.Color('#808080').convertSRGBToLinear()
+import * as Render from "./Render.js";
 
 
 function hexToRGB(h) {
@@ -82,5 +83,26 @@ function fp16ToRGBFloat(r,g,b){
 function fp16ToHex(r,g,b){
     return rgbFloatToHex(r/65535,g/65535,b/65535);
 }
+let marks=[];
+function mark(obj){
+    let group=Render.makeGroup()
+    let head=Render.cubic(.05,.05,.05,0,0,0)
+    let tail=Render.cubicColored(.049,.049,.4,0,0,.2,0x0f6fff)
+    group.add(head)
+    group.add(tail)
+    group.position.x=obj.x?obj.x:0
+    group.position.y=obj.y?obj.y:0
+    group.position.z=obj.z?obj.z:0
+    group.rotation.x=obj.rx?obj.rx:0
+    group.rotation.y=obj.ry?obj.ry:0
+    group.rotation.z=obj.rz?obj.rz:0
+    Render.addModel(group)
+    marks.push(group)
+}
+function clearMarks(){
+    marks.forEach(m=>{
+        Render.removeModel(m)
+    })
+}
 
-export { rgbToHex, rgbFloatToHex, hexToRGB, hexToRGBFloat, getRandomColor, testBW,fp16ToRGBFloat,fp16ToHex }
+export { rgbToHex, rgbFloatToHex, hexToRGB, hexToRGBFloat, getRandomColor, testBW,fp16ToRGBFloat,fp16ToHex,mark,clearMarks }
