@@ -63,7 +63,7 @@ function init() {
 
     let testShader=Experimental.makeShader();//new THREE.MeshToonMaterial({vertexColors: THREE.VertexColors,wireframe: true,})
     
-
+    testShader.transparent=true
 
 
     Render.loadModel('./assets/models/Hex.glb', m => {
@@ -1060,8 +1060,13 @@ function createChunk(x,y){
     }
     let visible=true;
     let skew = SCALE  * Math.sqrt(3) / 2;
-    let actualX=(((-HALF_GRID) + x * skew * 2) + (y * skew)  )*SIZE
-    let actualY=(y * SCALE * 1.5 )*SIZE
+
+    //ofset=x*SIZE
+
+    //m.position.set((-HALF_GRID) + (xx+offset) * skew * 2 + y * skew, y * SCALE * 1.5, SCALE * (z-0.2)) //z -SCALE*.2
+
+    let actualX=((-HALF_GRID) + (x*SIZE) * skew * 2 + y * skew  )
+    let actualY=((y*SIZE) * SCALE * 1.5 )
 
     let obj={id,x,y,actualX,actualY,grid,meta,height,modelReferences,visible};
     chunks[id]=obj

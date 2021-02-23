@@ -120,7 +120,8 @@ function processHexChunk(chunk){
     let size=8*32*skew
     let plane = new THREE.Mesh(new THREE.PlaneGeometry(644.3229004156224, 372), material);
     console.log('actual ',chunk.actualX,chunk.actualY) //
-    plane.position.set(chunk.actualX+644.3229004156224*2.5 +48,chunk.actualY+372/2,chunk.x%2==1?0.1:0) //644.3229004156224/2
+    plane.position.set(chunk.actualX,chunk.actualY+372/2,chunk.x%2==1?0.1:0) //644.3229004156224/2
+    //+644.3229004156224*2.5 + 48
     return plane
     //Render.addModel(plane)
 }

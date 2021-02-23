@@ -559,7 +559,7 @@ void main() {
         vec4 texel=texture2D(texture1, vUv/2.0+vec2(offset,0));
         vec4 texel2=texture2D(texture1, vUv/2.0+vec2(0,offset));
         outgoingLight.rgb+=(texel.r*texel2.r);
-        diffuseColor.a-=(texel.r*texel2.r);
+        diffuseColor.a-=0.2;//(texel.r*texel2.r);
         //outgoingLight.x=sin(sqrt(pow((mod(time,3.1457)+vUv.x-0.5),2.0)+pow((vUv.y-0.5),2.0))*20.0);
         //outgoingLight.x=fwidth(sin((mod(time,6.2832)+vertpos.x)));
         float vv=fwidth(vertpos.z);
