@@ -61,8 +61,8 @@ function init() {
     window.clearChunk =clearChunk
     //console.log('water',Helper.get)
 
-    let testShader=new THREE.MeshToonMaterial({vertexColors: THREE.VertexColors,wireframe: true,})
-    //Experimental.makeShader(); //DEV
+    let testShader=Experimental.makeShader();//new THREE.MeshToonMaterial({vertexColors: THREE.VertexColors,wireframe: true,})
+    
 
 
 
@@ -93,6 +93,9 @@ function init() {
                 
             }
             if(mm.name.startsWith("Mount") || mm.name.startsWith("Tree") || mm.name.startsWith("House") || mm.name.startsWith("Wall") || mm.name.startsWith("Edge"))
+                mm.castShadow = true;
+
+            if(mm.name.startsWith("Grass") && mm.name.endsWith('V'))
                 mm.castShadow = true;
             //Render.addModel(mm)
             if(mm.name.endsWith('H')){
@@ -188,6 +191,7 @@ function init() {
         clik(doms[6], 6);
 
        doms[7].style.backgroundColor='red'
+       doms[8].style.backgroundColor='green'
 
        doms[7].addEventListener('click', ev => {
                 let target = ev.target;
@@ -198,6 +202,16 @@ function init() {
                 void target.offsetWidth;
                 target.classList.add('jelloAnim')
                 altMode=2;
+            })
+       doms[8].addEventListener('click', ev => {
+                let target = ev.target;
+                if(!target.classList.contains('hex')) {
+                    target = target.parentElement
+                }
+                target.classList.remove('jelloAnim')
+                void target.offsetWidth;
+                target.classList.add('jelloAnim')
+                altMode=3;
             })
 
         clearLand()
@@ -287,6 +301,24 @@ function adjustHeight(chunk,x,y,h){
     chunk.height[x][y] = h
     processLand(chunk);
 }
+function smoothHeight(chunk,x,y,s){
+    let height=chunk.height[x][y];
+
+    let l=Math.floor((chunk.height[x - 1][y]+height)/2)
+    let r = Math.floor((chunk.height[x + 1][y]+height)/2)
+    let tl=Math.floor((chunk.height[x - 1][y + 1]+height)/2)
+    let tr=Math.floor((chunk.height[x][y + 1]+height)/2)
+    let bl = Math.floor((chunk.height[x][y - 1]+height)/2)
+    let br = Math.floor((chunk.height[x + 1][y - 1]+height)/2)
+    chunk.height[x - 1][y]=l
+    chunk.height[x + 1][y]=r
+    chunk.height[x - 1][y + 1]=tl
+    chunk.height[x][y + 1]=tr
+    chunk.height[x][y - 1]=bl
+    chunk.height[x + 1][y - 1]=br
+    processLand(chunk);
+
+}
 
 function processLand(chunk) {
     SEED = 6;
@@ -299,6 +331,36 @@ function processLand(chunk) {
             let n = chunk.grid[i][j];
             let rando = Math.floor(chunk.meta[i][j]/6)+1;
             let turner = chunk.meta[i][j]%6
+
+
+            let hl, hr, htl, htr;
+
+                hl = (i > 0) ? chunk.height[i - 1][j] : 0
+                hr = (i < chunk.height.length - 1) ? chunk.height[i + 1][j] : 0
+
+                if(j < chunk.height.length - 1) {
+                    htl = (i > 0) ? chunk.height[i - 1][j + 1] : 0
+                    htr = chunk.height[i][j + 1]
+                } else {
+                    htl = 0;
+                    htr = 0;
+                }
+
+                let hbl, hbr;
+                if(j > 0) {
+                    hbl = chunk.height[i][j - 1]
+                    hbr = (i < chunk.height.length - 1) ? chunk.height[i + 1][j - 1] : 0
+                } else {
+                    hbl = 0;
+                    hbr = 0;
+                }
+                let mx=Math.max;
+                let higher=mx(mx(mx(mx(mx(height-hl, height-hr), height-htr), height-hbr), height-hbl),height-htl);
+                if(higher>0){
+                    edge(chunk, higher, i+offsetX, j+offsetY,height)
+                }
+
+
             if(n != 1) { //hex coordinate system follows, hang tight it's a bumpy ride!
                 //if(i==2 && j==2)
                 //debugger
@@ -334,12 +396,12 @@ function processLand(chunk) {
                     bl = 0;
                     br = 0;
                 }
-                l = l == n;
-                r = r == n;
-                tr = tr == n;
-                br = br == n;
-                bl = bl == n;
-                tl = tl == n;
+                l = l == n && height==hl;
+                r = r == n && height==hr;
+                tr = tr == n && height==htr;
+                br = br == n && height==hbr;
+                bl = bl == n && height==hbl;
+                tl = tl == n && height==htl;
 
                 let st = (tl ? '1' : '0') + (l ? '1' : '0') + (bl ? '1' : '0') + (br ? '1' : '0') + (r ? '1' : '0') + (tr ? '1' : '0');
 
@@ -365,7 +427,7 @@ function processLand(chunk) {
                 let letter = 'N'
                 let type = ''
                 if(branches.length == 6) {
-                    land(chunk,n, 'H' + rando, i, j, turner);
+                    land(chunk,n, 'H' + rando, i, j,height, turner);
                 } else if(branches.length > 0) {
                     let distances = [];
 
@@ -528,47 +590,22 @@ function processLand(chunk) {
                 //land('P1',i,j,n-2)
 
             }
-                let l, r, tl, tr;
-
-                l = (i > 0) ? chunk.height[i - 1][j] : 0
-                r = (i < chunk.height.length - 1) ? chunk.height[i + 1][j] : 0
-
-                if(j < chunk.height.length - 1) {
-                    tl = (i > 0) ? chunk.height[i - 1][j + 1] : 0
-                    tr = chunk.height[i][j + 1]
-                } else {
-                    tl = 0;
-                    tr = 0;
-                }
-
-                let bl, br;
-                if(j > 0) {
-                    bl = chunk.height[i][j - 1]
-                    br = (i < chunk.height.length - 1) ? chunk.height[i + 1][j - 1] : 0
-                } else {
-                    bl = 0;
-                    br = 0;
-                }
-                let mx=Math.max;
-                let higher=mx(mx(mx(mx(mx(height-l, height-r), height-tr), height-br), height-bl),height-tl);
-                if(higher>0){
-                    edge(chunk, higher, i+offsetX, j+offsetY,height)
-                }
+                
 
                 if(n==1){
 
-                l = l >height && l<=(height+1);
-                r = r>height && r<=(height+1);
-                tr = tr>height && tr<=(height+1);
-                br =br>height && br<=(height+1);
-                bl = bl>height && bl<=(height+1);
-                tl = tl>height && tl<=(height+1);
+                hl = hl >height && hl<=(height+1);
+                hr = hr>height && hr<=(height+1);
+                htr = htr>height && htr<=(height+1);
+                hbr =hbr>height && hbr<=(height+1);
+                hbl = hbl>height && hbl<=(height+1);
+                htl = htl>height && htl<=(height+1);
 
-                let st = (tl ? '1' : '0') + (l ? '1' : '0') + (bl ? '1' : '0') + (br ? '1' : '0') + (r ? '1' : '0') + (tr ? '1' : '0');
+                let st = (htl ? '1' : '0') + (hl ? '1' : '0') + (hbl ? '1' : '0') + (hbr ? '1' : '0') + (hr ? '1' : '0') + (htr ? '1' : '0');
 
                 let start = -1;
                 let index = 0;
-                let circle = [tl, tr, r, br, bl, l]
+                let circle = [htl, htr, hr, hbr, hbl, hl]
                 let branches = [];
                 let hole = 5;
                 circle.forEach((b, i) => {
@@ -785,7 +822,6 @@ function land(chunk,n, st, x, y,z, r) {
     } else {
         console.log('invalid model ' + prefix + st)
     }
-
 }
 function edge(chunk,h, x, y,z) {
     //n==1 grass, n==2 path, n==3 mount
@@ -798,8 +834,8 @@ function edge(chunk,h, x, y,z) {
     if(picked) {
         let m = picked.clone();
 
-        m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, SCALE * (z-0.2)) //z -SCALE*.2
-        m.scale.set(1,1,h>1?h:1)
+        m.position.set((-HALF_GRID) + x * skew * 2 + y * skew, y * SCALE * 1.5, SCALE * (z+0.05)) //z -SCALE*.2
+        m.scale.set(SCALE,SCALE,SCALE*(h>1?h:1))
        
         chunk.modelReferences.push(m)
         Render.addModel(m)
@@ -841,9 +877,8 @@ function hexCheck(x, y,skipSelector) {
     hexSelector.position.set(-HALF_GRID + x2 * skew * 2 + y2 * skew, y2 * SCALE * 1.5, .8)
 
     return [x2, y2]
-
-
 }
+
 let lastPick = { x: 0, y: 0 }
 let hexChangeCount = 0;
 
@@ -886,7 +921,8 @@ function hexPick(x, y) {
             if(v>=18)
                 v=0;
             adjustHeight(chunk,x2, y2, v)
-
+        }else if(altMode==3){
+            smoothHeight(chunk,x2,y2,1)
         }else{
             if(hexChangeCount == 0 && chunk.grid[x2][y2] == hexType) {
                 place(chunk,x2, y2, 1)

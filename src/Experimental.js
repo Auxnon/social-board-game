@@ -664,15 +664,17 @@ void main() {
 
             transformed.y*=1.0+sin((wind.z+transformed.z)*4.0)/2.0;
 
-        } 
-
-        
-
-        if(transformed.z<0.15){
+        }else if(color==vec3(0,0,1)){
             vertpos.z=sin(time+vertpos.x)*0.05;
 
             transformed.z-=vertpos.z;
         }
+
+        
+
+        //if(transformed.z<0.15){
+           
+        //}
         
         
     
