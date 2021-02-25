@@ -18,12 +18,14 @@ import * as Equipment from "./Equipment.js";
 import * as Character from "./Character.js";
 import * as Helper from "./Helper.js";
 import * as Mode from "./Mode.js";
+import * as Flock from "./Flock.js";
 
 import * as Experimental from "./Experimental.js";
 
 var mainDom;
 
 function init() {
+    window.TAU=Math.PI*2
     mainDom=document.querySelector('#main');
     UI.init(mainDom)
     try{
@@ -142,6 +144,7 @@ function init() {
                 
                 
                 Experimental.init();
+                Flock.init();
 
 
                 clearInterval(loop)
@@ -157,6 +160,8 @@ function init() {
                 Control.init();
                 Mode.initFammies();
 
+
+
                 clearInterval(loop)
             }
         },100)
@@ -171,6 +176,7 @@ function init() {
      //Render.addModel(Render.plane(100,100,0))
 }catch(err){
     UI.systemMessage(err,'error')
+    console.error('!!',err)
 }
 
 

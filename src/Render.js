@@ -6,7 +6,7 @@ import * as Control from "./Control.js";
 import * as Environment from "./Environment";
 import { GLTFLoader } from "./lib/GLTFLoader.js";
 import * as Experimental from "./Experimental.js";
-
+import * as Flock from "./Flock.js";
 
 
 import { EffectComposer } from './lib/EffectComposer.js';
@@ -69,6 +69,9 @@ var pointerMatOn;
 var physDebugger;
 var defaultModel;
 
+var skyScene;
+var skyCamera;
+
 
 function init() {
 
@@ -86,6 +89,12 @@ function init() {
 
     alphaCanvas = document.querySelector('.canvasHolder');
 
+    let skyGeo=new THREE.PlaneBufferGeometry(2,2,1,1);
+    var sky = new THREE.Mesh(skyGeo,Environment.skyMatGenerate(docWidth,docHeight));
+    skyScene=new THREE.Scene();
+    skyScene.add(sky);
+    skyCamera=new THREE.Camera();
+
 
 
 
@@ -96,6 +105,7 @@ function init() {
     renderer.outputEncoding = THREE.sRGBEncoding
 
     renderer.setClearColor(0xFF7F32, 1); //0xb0e9fd,1);//0xb0e9fd,1)
+    renderer.autoClear=false;
 
     alphaCanvas.appendChild(renderer.domElement);
 
@@ -321,6 +331,8 @@ function animate(time) {
 
     if(physDebugger)
         physDebugger.update();
+    renderer.clear();
+    renderer.render( skyScene, skyCamera );
     renderer.render(activeScene, activeCamera);
     //composer.render();
     if(anchors.length>0){
@@ -329,6 +341,7 @@ function animate(time) {
         })
     }
     Experimental.animate();
+    Flock.think();
     requestAnimationFrame(animate);
 }
 

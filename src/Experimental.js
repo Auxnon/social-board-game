@@ -552,7 +552,7 @@ void main() {
 
     //vec2 uv  = texture2D(BaseImage, gl_TexCoord[0].st).rg;
     
-    if(vertcolor==vec3(0,0,1)){
+    if(vertcolor==vec3(0,0,1)){ //water frag shader
         outgoingLight=vec3(0.069, 0.213, 0.398);
         outgoingLight*=0.75+(vertpos.z+0.05)/0.1;
         float offset=mod(time/120.0,0.5);
@@ -670,6 +670,14 @@ void main() {
             transformed.z-=vertpos.z;
         }
 
+        if(color.g==0.5711299305714503){//0.35640497444113833, 0.5711299305714503, 0.0042267490653849086)){ ////tree shader
+            //color=vec3(1,0,0);
+            float val=transformed.x+time;
+            //if(mod(val,6.28)>2.0){
+                transformed.x*=1.0+sin(val)/10.0;
+            //}
+        }
+
         
 
         //if(transformed.z<0.15){
@@ -685,16 +693,13 @@ void main() {
         mvPosition = instanceMatrix * mvPosition;
     #endif
     mvPosition = modelViewMatrix * mvPosition;
+
+     
+
     gl_Position = projectionMatrix * mvPosition;
 
 
-    if(color.g==0.5711299305714503){//0.35640497444113833, 0.5711299305714503, 0.0042267490653849086)){
-            //color=vec3(1,0,0);
-            float val=gl_Position.x+time;
-            //if(mod(val,6.28)>2.0){
-                gl_Position.x*=1.0+sin(val)/20.0;
-            //}
-        }
+    
 
     #include <logdepthbuf_vertex>
     #include <clipping_planes_vertex>

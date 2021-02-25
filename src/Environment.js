@@ -22,6 +22,8 @@ let shadowMaxHeight;
 
 let lightMode=0;
 
+let skyMat;
+
 function init() {
 
     wind = new THREE.Vector3(1, 0, 0);
@@ -185,6 +187,9 @@ function animate() {
     let v = shadowMaxHeight * tempHeight
     sunTarget.position.y = sunCenter.y - v;
     sunLight.position.y = sunCenter.y + v;
+    skyMat.uniforms.resolution.value.x+=0.1
+    if(skyMat.uniforms.resolution.value.x>1)
+        skyMat.uniforms.resolution.value.x=0
 }
 
 
@@ -235,4 +240,47 @@ function getLight(){
 
 }
 
-export { init, getWind, animate, changeShadowScale, setShadows, setShadowPos, setLightHelper,setLight,getLight }
+function skyMatGenerate(w,h){
+    let elevation = 0.2;//Rotation around Y axis in range [0, 2*PI]
+    let azimuth = 0.4;
+    let fogFade = 0.005;
+    
+    skyMat = new THREE.ShaderMaterial({
+    uniforms: {
+        sunDirection: {type: 'vec3', value: new THREE.Vector3(Math.sin(azimuth), Math.sin(elevation), -Math.cos(azimuth))},
+        resolution: {type: 'vec2', value: new THREE.Vector2(0.2, h)},
+        fogFade: {type: 'float', value: fogFade},
+        fov: {type: 'float', value: 45}
+    },
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = vec4(position.xy, 1., 1.);  
+        }
+    `,
+    fragmentShader: `
+
+        varying vec2 vUv;
+        uniform vec2 resolution;
+        uniform vec3 sunDirection;
+        uniform float fogFade;
+        uniform float fov;
+
+        const float HalfPI = 1.5707963267948966, // 1.570796326794896619231,
+            PI = 3.141592653589793, // 3.141592653589793238463,
+            TAU = 6.283185307179586; // 6.283185307179586476925     
+
+        void main() {
+            vec3 uColorA = vec3(sin(vUv.x*4.0)*cos(vUv.y*4.0),1,1);
+            vec3 uColorB = vec3(0.803, 0.945, 0.976);
+            gl_FragColor = vec4(
+                mix( uColorA, uColorB, vec3(vUv.y)),
+                1.
+              );
+        }`
+    });
+    return skyMat
+}
+
+export { init, getWind, animate, changeShadowScale, setShadows, setShadowPos, setLightHelper,setLight,getLight,skyMatGenerate }
