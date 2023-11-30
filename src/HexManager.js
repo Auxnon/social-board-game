@@ -193,8 +193,8 @@ function init() {
     doms[6].appendChild(PictureMaker.generate(getModel("Wall_N"), 65, -90));
     clik(doms[6], 6);
 
-    doms[7].style.backgroundColor = "red";
-    doms[8].style.backgroundColor = "green";
+    doms[7].classList.add("hex-red");
+    doms[8].classList.add("hex-blue");
 
     doms[7].addEventListener("click", (ev) => {
       let target = ev.target;
