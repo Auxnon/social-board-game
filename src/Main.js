@@ -25,23 +25,18 @@ import * as Experimental from "./Experimental.js";
 var mainDom;
 
 function init() {
-    window.TAU=Math.PI*2
-    mainDom=document.querySelector('#main');
-    UI.init(mainDom)
-    try{
-
-
-    
+  window.TAU = Math.PI * 2;
+  mainDom = document.querySelector("#main");
+  UI.init(mainDom);
+  try {
     controls = {};
-    
 
-    window.onError = function(message, source, lineno, colno, error) {
-        UI.systemMessage(message,'error')
-    }
+    window.onError = function (message, source, lineno, colno, error) {
+      UI.systemMessage(message, "error");
+    };
     Physics.init();
 
-   
-/*
+    /*
     window.addEventListener('keydown', ev => {
         console.log(ev.keyCode)
         switch (ev.keyCode) {
@@ -113,119 +108,95 @@ function init() {
         }
     })*/
 
-
-
-
-
-
     let canvas = Render.init();
 
-    if(Mode.init()){
-        HexManager.init();
-        PictureMaker.init();
+    if (Mode.init()) {
+      HexManager.init();
+      PictureMaker.init();
 
-        BarUI.init();
-        Character.init();
-        Equipment.init();
-        Login.init(); //Login calls Online class init after succesful auth, then Online calls init for Control class
-        
-        Chat.init();
-        Settings.init();
-        MakerMenu.init();
-        AssetManager.init();
+      BarUI.init();
+      Character.init();
+      Equipment.init();
+      Login.init(); //Login calls Online class init after succesful auth, then Online calls init for Control class
 
-        Drawer.init();
-        window.Helper=Helper
-        window.TAU=Math.PI*2
-        window.Render=Render;
+      Chat.init();
+      Settings.init();
+      MakerMenu.init();
+      AssetManager.init();
 
-        let loop=setInterval(function(){
-            if(AssetManager.getPending()<=0){
-                
-                
-                Experimental.init();
-                Flock.init();
+      Drawer.init();
+      window.Helper = Helper;
+      window.TAU = Math.PI * 2;
+      window.Render = Render;
 
+      let loop = setInterval(function () {
+        if (AssetManager.getPending() <= 0) {
+          // Experimental.init();
+          Flock.init();
 
-                clearInterval(loop)
-            }
-        },1000)
-    }else{ //do something completly different
-        PictureMaker.init();
-        AssetManager.init();
-        let loop=setInterval(function(){
-            if(AssetManager.getPending()<=0){
-                
-                Experimental.init();
-                Control.init();
-                Mode.initFammies();
+          clearInterval(loop);
+        }
+      }, 1000);
+    } else {
+      //do something completly different
+      PictureMaker.init();
+      AssetManager.init();
+      let loop = setInterval(function () {
+        if (AssetManager.getPending() <= 0) {
+          // Experimental.init();
+          Control.init();
+          Mode.initFammies();
 
-
-
-                clearInterval(loop)
-            }
-        },100)
-
+          clearInterval(loop);
+        }
+      }, 100);
     }
-    
 
-    
+    //makeRoom(200,220,80,10)
 
-     //makeRoom(200,220,80,10)
-
-     //Render.addModel(Render.plane(100,100,0))
-}catch(err){
-    UI.systemMessage(err,'error')
-    console.error('!!',err)
-}
-
-
+    //Render.addModel(Render.plane(100,100,0))
+  } catch (err) {
+    UI.systemMessage(err, "error");
+    console.error("!!", err);
+  }
 }
 init();
 
-
-
-var controls
-
+var controls;
 
 function makeRoom(w, d, h, t) {
-    let body = new CANNON.Body({ mass: 0, material: wallProperty });
+  let body = new CANNON.Body({ mass: 0, material: wallProperty });
 
-    let xWall = new CANNON.Box(new CANNON.Vec3(t / 2, d, h));
-    let yWall = new CANNON.Box(new CANNON.Vec3(w, t / 2, h));
-    let zWall = new CANNON.Box(new CANNON.Vec3(w, d, t / 2));
+  let xWall = new CANNON.Box(new CANNON.Vec3(t / 2, d, h));
+  let yWall = new CANNON.Box(new CANNON.Vec3(w, t / 2, h));
+  let zWall = new CANNON.Box(new CANNON.Vec3(w, d, t / 2));
 
+  body.addShape(xWall, new CANNON.Vec3(-w, 0, h / 2));
+  body.addShape(xWall, new CANNON.Vec3(w, 0, h / 2));
 
+  body.addShape(yWall, new CANNON.Vec3(0, -d, h / 2));
+  body.addShape(yWall, new CANNON.Vec3(0, d, h / 2));
 
-    body.addShape(xWall, new CANNON.Vec3(-w, 0, h / 2));
-    body.addShape(xWall, new CANNON.Vec3(w, 0, h / 2));
+  body.addShape(zWall, new CANNON.Vec3(0, 0, h));
+  body.addShape(zWall, new CANNON.Vec3(0, 0, 0));
+  world.addBody(body);
 
-    body.addShape(yWall, new CANNON.Vec3(0, -d, h / 2));
-    body.addShape(yWall, new CANNON.Vec3(0, d, h / 2));
+  let xm = Render.cubic(t, d * 2, h, -w, 0, h / 2, Render.wood);
+  let xm2 = xm.clone();
+  xm2.position.x = w;
 
-    body.addShape(zWall, new CANNON.Vec3(0, 0, h));
-    body.addShape(zWall, new CANNON.Vec3(0, 0, 0));
-    world.addBody(body);
+  Render.addModel(xm);
+  Render.addModel(xm2);
 
-    let xm = Render.cubic(t, d * 2, h, -w, 0, h / 2, Render.wood);
-    let xm2 = xm.clone()
-    xm2.position.x = w;
+  let ym = Render.cubic(w * 2, t, h, 0, d, h / 2, Render.wood);
+  Render.addModel(ym);
 
-    Render.addModel(xm)
-    Render.addModel(xm2)
-
-    let ym = Render.cubic(w * 2, t, h, 0, d, h / 2, Render.wood);
-    Render.addModel(ym)
-
-    let zm = Render.cubic(w * 2, d * 2, t, 0, 0, 0, Render.ground);
-    Render.addModel(zm)
-
+  let zm = Render.cubic(w * 2, d * 2, t, 0, 0, 0, Render.ground);
+  Render.addModel(zm);
 }
-
-
 
 function rand(x) {
-    return (Math.random() * 2 - 1) * x
+  return (Math.random() * 2 - 1) * x;
 }
 
-export {controls}
+export { controls };

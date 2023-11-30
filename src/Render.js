@@ -8,15 +8,15 @@ import { GLTFLoader } from "./lib/GLTFLoader.js";
 import * as Experimental from "./Experimental.js";
 import * as Flock from "./Flock.js";
 
+import { EffectComposer } from "./lib/EffectComposer.js";
+import { ShaderPass } from "./lib/ShaderPass.js";
+import { SSAOPass } from "./lib/SSAOPass.js";
+import { CannonDebugRenderer } from "./lib/CannonDebugRenderer.js";
+// import type { Mesh } from "@types/three";
 
-import { EffectComposer } from './lib/EffectComposer.js';
-import { ShaderPass } from './lib/ShaderPass.js';
-import { SSAOPass } from './lib/SSAOPass.js';
-import { CannonDebugRenderer } from './lib/CannonDebugRenderer.js';
+/** @typedef {import("@types/three").Mesh} Mesh */
 
 //import CannonDebugRenderer
-
-
 
 //import * as Control from "./Control.js?v=16";
 //import * as World from "./World.js?v=16";
@@ -26,16 +26,14 @@ import { CannonDebugRenderer } from './lib/CannonDebugRenderer.js';
 //import * as AssetManager from "./AssetManager.js?v=16";
 //import * as Experiment from "./Experiment.js?v=16";
 
-
 var camera, renderer;
-var scene
-var group
+var scene;
+var group;
 
 var activeCamera, activeScene;
 
-
 var docWidth, docHeight;
-var anchors=[];
+var anchors = [];
 
 var loader;
 var mixer;
@@ -45,14 +43,12 @@ var SIZE_DIVIDER = 8;
 
 var alphaCanvas;
 
-
 var activeCanvas;
 
 var composer;
 
 var specterMaterial;
-var defaultMat
-
+var defaultMat;
 
 var player;
 var wood;
@@ -60,7 +56,7 @@ var ground;
 var blood;
 var yellow;
 
-var raycaster
+var raycaster;
 var pointer;
 var hexSelector;
 var pointerMat;
@@ -72,95 +68,113 @@ var defaultModel;
 var skyScene;
 var skyCamera;
 
-
 function init() {
+  camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    1,
+    5000
+  );
+  camera.position.z = 200; //400
+  camera.position.y = -200; //-800
+  camera.up = new THREE.Vector3(0, 0, 1);
 
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+  scene = new THREE.Scene();
+  activeScene = scene;
 
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-    camera.position.z = 200; //400
-    camera.position.y = -200; //-800
-    camera.up = new THREE.Vector3(0,0,1)
+  alphaCanvas = document.querySelector(".canvasHolder");
 
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+  let skyGeo = new THREE.PlaneBufferGeometry(2, 2, 1, 1);
+  var sky = new THREE.Mesh(
+    skyGeo,
+    Environment.skyMatGenerate(docWidth, docHeight)
+  );
+  skyScene = new THREE.Scene();
+  skyScene.add(sky);
+  skyCamera = new THREE.Camera();
 
-    scene = new THREE.Scene();
-    activeScene = scene;
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); //
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; //THREE.LinearToneMapping;
+  renderer.outputEncoding = THREE.sRGBEncoding;
 
-    alphaCanvas = document.querySelector('.canvasHolder');
+  renderer.setClearColor(0xff7f32, 1); //0xb0e9fd,1);//0xb0e9fd,1)
+  renderer.autoClear = false;
 
-    let skyGeo=new THREE.PlaneBufferGeometry(2,2,1,1);
-    var sky = new THREE.Mesh(skyGeo,Environment.skyMatGenerate(docWidth,docHeight));
-    skyScene=new THREE.Scene();
-    skyScene.add(sky);
-    skyCamera=new THREE.Camera();
+  alphaCanvas.appendChild(renderer.domElement);
 
+  loader = new GLTFLoader();
 
+  initCustomMaterial();
 
+  activeCanvas = alphaCanvas;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, }); //
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping //THREE.LinearToneMapping;
-    renderer.outputEncoding = THREE.sRGBEncoding
+  activeScene = scene;
+  activeCamera = camera;
 
-    renderer.setClearColor(0xFF7F32, 1); //0xb0e9fd,1);//0xb0e9fd,1)
-    renderer.autoClear=false;
+  resize();
 
-    alphaCanvas.appendChild(renderer.domElement);
+  composer = new EffectComposer(renderer);
+  //var luminosityPass = new ShaderPass(LuminosityShader);
+  //composer.addPass(luminosityPass);
+  let ssaoPass = new SSAOPass(scene, camera, 300, 200);
+  ssaoPass.kernelRadius = 6;
+  ssaoPass.minDistance = 0.00015;
+  ssaoPass.maxDistance = 0.001;
+  composer.addPass(ssaoPass);
+  window.ssao = ssaoPass;
 
-    loader = new GLTFLoader();
+  let material = new THREE.MeshBasicMaterial({ color: 0x75d5ce });
+  //new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
 
-    initCustomMaterial();
+  wood = new THREE.MeshStandardMaterial({
+    color: 0x20e89f,
+    metalness: 0,
+    roughness: 1.0,
+  });
+  ground = new THREE.MeshStandardMaterial({
+    color: 0x5471a5,
+    metalness: 0,
+    roughness: 1.0,
+  });
+  let guyMat = new THREE.MeshStandardMaterial({
+    color: 0xeaf722,
+    metalness: 0,
+    roughness: 1.0,
+  });
+  defaultMat = new THREE.MeshStandardMaterial({
+    color: 0xcf2ade,
+    metalness: 0,
+    roughness: 1.0,
+  });
+  blood = new THREE.MeshStandardMaterial({
+    color: 0xb60b0b,
+    metalness: 0,
+    roughness: 1.0,
+  });
+  yellow = new THREE.MeshStandardMaterial({
+    color: 0xeaf722,
+    metalness: 0,
+    roughness: 1.0,
+  });
 
-    activeCanvas = alphaCanvas;
-
-    activeScene = scene;
-    activeCamera = camera;
-
-
-
-    resize();
-
-
-    composer = new EffectComposer(renderer);
-    //var luminosityPass = new ShaderPass(LuminosityShader);
-    //composer.addPass(luminosityPass);
-    let ssaoPass = new SSAOPass(scene, camera, 300, 200);
-    ssaoPass.kernelRadius = 6;
-    ssaoPass.minDistance = 0.00015;
-    ssaoPass.maxDistance = 0.001;
-    composer.addPass(ssaoPass);
-    window.ssao = ssaoPass
-
-
-
-    let material = new THREE.MeshBasicMaterial({ color: 0x75D5CE });
-    //new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
-
-    wood = new THREE.MeshStandardMaterial({ color: 0x20E89F, metalness: 0, roughness: 1.0 });
-    ground = new THREE.MeshStandardMaterial({ color: 0x5471A5, metalness: 0, roughness: 1.0 });
-    let guyMat = new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 });
-    defaultMat = new THREE.MeshStandardMaterial({ color: 0xCF2ADE, metalness: 0, roughness: 1.0 });
-    blood = new THREE.MeshStandardMaterial({ color: 0xB60B0B, metalness: 0, roughness: 1.0 });
-    yellow = new THREE.MeshStandardMaterial({ color: 0xEAF722, metalness: 0, roughness: 1.0 });
-
-
-    //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("white")} );
-    /*geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
+  //material = new THREE.MeshBasicMaterial( {color: new THREE.Color("white")} );
+  /*geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
     cube = new THREE.Mesh( geometry, material );
     cube.position.z=50;
     scene.add( cube );*/
-    group = new THREE.Group();
+  group = new THREE.Group();
 
-
-    /*
+  /*
         group.add(cubic(10,100,50,-50,0,50,wood));
         group.add(cubic(10,100,50,50,0,50,wood));
         group.add(cubic(100,10,50,0,50,50,wood));
         group.add(cubic(100,100,10,0,0,20,ground));*/
 
-    /*player = new THREE.Group();
+  /*player = new THREE.Group();
     let whiteMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.FrontSide });
 
     let blackMat = new THREE.MeshBasicMaterial({ color: 0x321818, side: THREE.FrontSide });
@@ -175,351 +189,363 @@ function init() {
     player.add(p3)
     group.add(player)*/
 
-    /*let referenceCube = cubic(.5, .5, 1.5, 0.75, 0, 20, new THREE.MeshBasicMaterial({ color: 0xD62B5F }))
+  /*let referenceCube = cubic(.5, .5, 1.5, 0.75, 0, 20, new THREE.MeshBasicMaterial({ color: 0xD62B5F }))
     group.add(referenceCube)*/
 
-    scene.add(group)
-    pointerInit();
-    Environment.init();
-    Control.setRenderer(renderer, alphaCanvas, camera, false)
+  scene.add(group);
+  pointerInit();
+  Environment.init();
+  Control.setRenderer(renderer, alphaCanvas, camera, false);
 
-    let l = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    let r = new THREE.MeshBasicMaterial({ color: 0xff8800 });
-    let f = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    let b = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    let u = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    let d = new THREE.MeshBasicMaterial({ color: 0x8800ff });
-    let cub = new THREE.BoxBufferGeometry(1, 1, 1);
-    defaultModel = new THREE.Mesh(cub, [l, r, f, b, u, d]);
+  let l = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  let r = new THREE.MeshBasicMaterial({ color: 0xff8800 });
+  let f = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+  let b = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  let u = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+  let d = new THREE.MeshBasicMaterial({ color: 0x8800ff });
+  let cub = new THREE.BoxBufferGeometry(1, 1, 1);
+  defaultModel = new THREE.Mesh(cub, [l, r, f, b, u, d]);
 
+  setTimeout(function () {
+    animate();
+  }, 1);
 
-    setTimeout(function() {
-        animate();
-    }, 1)
-
-    return alphaCanvas
+  return alphaCanvas;
 }
 
+export function pick() {}
+
 function pointerInit() {
-    let pointerGeom = new THREE.CircleGeometry(1, 8);
-    //pointerGeom.rotateX(-Math.PI/2.0);
-    pointerMat = new THREE.MeshBasicMaterial({ color: 0x4AE13A });
-    pointerMatOn = new THREE.MeshBasicMaterial({ color: 0xEBEE00 });
-    pointer = new THREE.Mesh(pointerGeom, pointerMat);
-    pointer.position.z = 0.05;
-    scene.add(pointer);
-     raycaster= new THREE.Raycaster();
+  let pointerGeom = new THREE.CircleGeometry(1, 8);
+  //pointerGeom.rotateX(-Math.PI/2.0);
+  pointerMat = new THREE.MeshBasicMaterial({ color: 0x4ae13a });
+  pointerMatOn = new THREE.MeshBasicMaterial({ color: 0xebee00 });
+  pointer = new THREE.Mesh(pointerGeom, pointerMat);
+  pointer.position.z = 0.05;
+  scene.add(pointer);
+  raycaster = new THREE.Raycaster();
 }
 
 function getAlphaCanvas() {
-    return alphaCanvas;
+  return alphaCanvas;
 }
 
 function togglePhysicsDebugger(bool) {
-
-    if(bool && !physDebugger)
-        physDebugger = new CannonDebugRenderer(scene, Physics.world); //Physics.createPhysicsDebugger(scene)
+  if (bool && !physDebugger)
+    physDebugger = new CannonDebugRenderer(scene, Physics.world); //Physics.createPhysicsDebugger(scene)
 }
 
-function loadModel(modelIn, callback, texture, color) {
-    loader.load(
-        ('./' + modelIn), //villager22.gltf',
-        (gltf) => {
-            // called when the resource is loaded
-            //gltf.scene.scale.set(10,10,10);
-            let model; //=gltf.scene.children[0];
-            //gltf.scene.rotation.x = Math.PI / 2;
-            gltf.scene.traverse(function(child) {
-                if(child instanceof THREE.Mesh) {
-                    //if(child.name=="Cube"){
-                        
-                    model = child;
-                    if(!texture) {
-                        if(color)
-                            child.material = new THREE.MeshStandardMaterial({ color: color, metalness: 0, roughness: 1.0 }); // 
-                        else
-                            child.material = new THREE.MeshStandardMaterial({ vertexColors: THREE.VertexColors, metalness: 0, roughness: 1.0 }); // 
+/**
+ *
+ * @param {*} modelIn
+ * @param {*} callback
+ * @param {{
+ * texture:boolean,
+ * color:number,
+ * zup:boolean
+ * }} options
+ */
+function loadModel(modelIn, callback, options = {}) {
+  loader.load(
+    "./" + modelIn, //villager22.gltf',
+    (gltf) => {
+      // called when the resource is loaded
+      //gltf.scene.scale.set(10,10,10);
+      /** @type {Mesh} */
+      let model; //=gltf.scene.children[0];
+      gltf.scene.traverse(function (child) {
+        if (child instanceof THREE.Mesh) {
+          //if(child.name=="Cube"){
 
-                        child.material.needsUpdate = true;
-                        //child.material.skinning=true;
-                    }else{
-                        child.material.transparent=true;
-                    }
-                    //child.material.morphTargets=true;
+          model = child;
+          if (options.zup) model.geometry.rotateX(Math.PI / 2);
 
-                    //child.material.map.needsUpdate = true;
-                    // }else{
+          if (!options.texture) {
+            if (options.color)
+              child.material = new THREE.MeshStandardMaterial({
+                color: color,
+                metalness: 0,
+                roughness: 1.0,
+              });
+            //
+            else
+              child.material = new THREE.MeshStandardMaterial({
+                vertexColors: THREE.VertexColors,
+                metalness: 0,
+                roughness: 1.0,
+              }); //
 
-                    //}
-                }
-            });
-            //gltf.scene.children[0].children[1].scale.set(20,20,20);
-            //gltf.scene.children.pop();
-            //let mixer = new THREE.AnimationMixer( gltf.scene );
-            //model=gltf.scene.children[0]
-            let m2 = gltf.scene.children[0];
-            if(model) {
-                var animations = gltf.animations;
-                if(animations && animations.length) {
+            child.material.needsUpdate = true;
+            //child.material.skinning=true;
+          } else {
+            child.material.transparent = true;
+          }
+          //child.material.morphTargets=true;
 
-                    mixer = new THREE.AnimationMixer(model);
-                    for(var i = 0; i < animations.length; i++) {
-                        var animation = animations[i];
-                        // There's .3333 seconds junk at the tail of the Monster animation that
-                        // keeps it from looping cleanly. Clip it at 3 seconds
+          //child.material.map.needsUpdate = true;
+          // }else{
 
-                        //if ( sceneInfo.animationTime ) {
-                        //    animation.duration = sceneInfo.animationTime;
+          //}
+        }
+      });
+      //gltf.scene.children[0].children[1].scale.set(20,20,20);
+      //gltf.scene.children.pop();
+      //let mixer = new THREE.AnimationMixer( gltf.scene );
+      //model=gltf.scene.children[0]
+      let m2 = gltf.scene.children[0];
+      if (model) {
+        var animations = gltf.animations;
+        if (animations && animations.length) {
+          mixer = new THREE.AnimationMixer(model);
+          for (var i = 0; i < animations.length; i++) {
+            var animation = animations[i];
+            // There's .3333 seconds junk at the tail of the Monster animation that
+            // keeps it from looping cleanly. Clip it at 3 seconds
 
+            //if ( sceneInfo.animationTime ) {
+            //    animation.duration = sceneInfo.animationTime;
 
-                        // }
-                        let action = mixer.clipAction(animation);
-                        //action.setEffectiveTimeScale(200);
-                        //action.timeScale=0.002;
-                        action.timeScale = 0.002;
-                        //if ( state.playAnimation ) 
-                        action.play();
-                    }
-                }
-                //mainScene.add( gltf.scene.children[0] );
-            }
-            callback(gltf.scene);
-        },
-        (xhr) => {
-            // called while loading is progressing
-            console.log(`${( xhr.loaded / xhr.total * 100 )}% loaded`);
-        },
-        (error) => {
-            // called when loading has errors
-            console.error('An error happened', error);
-        },
-    );
+            // }
+            let action = mixer.clipAction(animation);
+            //action.setEffectiveTimeScale(200);
+            //action.timeScale=0.002;
+            action.timeScale = 0.002;
+            //if ( state.playAnimation )
+            action.play();
+          }
+        }
+        //mainScene.add( gltf.scene.children[0] );
+      }
+      callback(gltf.scene);
+    },
+    (xhr) => {
+      // called while loading is progressing
+      console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`);
+    },
+    (error) => {
+      // called when loading has errors
+      console.error("An error happened", error);
+    }
+  );
 }
 
 function resize() {
-    //Math.max(window.screen.width, window.innerWidth)
-    //Math.max(window.screen.height, window.innerHeight)
-    if(window.screen.width > window.innerWidth) {
-        docWidth = window.innerWidth
-        docHeight = window.innerHeight
-    } else {
-        docWidth = window.screen.width
-        docHeight = window.screen.height
-    }
+  //Math.max(window.screen.width, window.innerWidth)
+  //Math.max(window.screen.height, window.innerHeight)
+  if (window.screen.width > window.innerWidth) {
+    docWidth = window.innerWidth;
+    docHeight = window.innerHeight;
+  } else {
+    docWidth = window.screen.width;
+    docHeight = window.screen.height;
+  }
 
-    //docWidth =  window.innerWidth //Math.max(window.screen.width, window.innerWidth)
-    //docHeight = window.innerHeight //Math.max(window.screen.height, window.innerHeight)//window.innerHeight;
-    camera.aspect = docWidth / docHeight;
-    camera.updateProjectionMatrix();
+  //docWidth =  window.innerWidth //Math.max(window.screen.width, window.innerWidth)
+  //docHeight = window.innerHeight //Math.max(window.screen.height, window.innerHeight)//window.innerHeight;
+  camera.aspect = docWidth / docHeight;
+  camera.updateProjectionMatrix();
 
-    renderer.setPixelRatio(1); //window.devicePixelRatio / SIZE_DIVIDER);
-    renderer.setSize(docWidth, docHeight);
+  renderer.setPixelRatio(1); //window.devicePixelRatio / SIZE_DIVIDER);
+  renderer.setSize(docWidth, docHeight);
 }
 
 var dir = 1;
 
 function animate(time) {
-    Physics.updatePhysics();
-    //group.rotation.z+=0.002*dir;
-    if(group.rotation.z > Math.PI / 16)
-        dir = -1;
-    else if(group.rotation.z < -Math.PI / 16)
-        dir = 1;
+  Physics.updatePhysics();
+  //group.rotation.z+=0.002*dir;
+  if (group.rotation.z > Math.PI / 16) dir = -1;
+  else if (group.rotation.z < -Math.PI / 16) dir = 1;
 
-    applyCursor()
-    Environment.animate();
+  applyCursor();
+  Environment.animate();
 
-    if(physDebugger)
-        physDebugger.update();
-    renderer.clear();
-    renderer.render( skyScene, skyCamera );
-    renderer.render(activeScene, activeCamera);
-    //composer.render();
-    if(anchors.length>0){
-        anchors.forEach((a,i)=>{
-            updateAnchor(a,i);
-        })
-    }
-    Experimental.animate();
-    Flock.think();
-    requestAnimationFrame(animate);
+  if (physDebugger) physDebugger.update();
+  renderer.clear();
+  renderer.render(skyScene, skyCamera);
+  renderer.render(activeScene, activeCamera);
+  //composer.render();
+  if (anchors.length > 0) {
+    anchors.forEach((a, i) => {
+      updateAnchor(a, i);
+    });
+  }
+  // Experimental.animate();
+  //   Flock.think();
+  requestAnimationFrame(animate);
 }
 
 function dumpImage(img) {
-    let dom = document.querySelector('#afterImage');
-    if(dom)
-        dom.setAttribute('src', img);
+  let dom = document.querySelector("#afterImage");
+  if (dom) dom.setAttribute("src", img);
 }
 
 function bufferPrint(sc, cam) {
-    //renderer.setPixelRatio(0.2)
-    //_grabImage=true;
+  //renderer.setPixelRatio(0.2)
+  //_grabImage=true;
 
-    //renderer.setPixelRatio(0.5)
+  //renderer.setPixelRatio(0.5)
 
-    renderer.setSize(128, 128);
-    renderer.setClearColor(0xffffff, 0)
+  renderer.setSize(128, 128);
+  renderer.setClearColor(0xffffff, 0);
 
-    if(sc && cam) {
-        renderer.render(sc, cam);
-    } else
-        renderer.render(getScene(), camera);
-    //dumpImage(renderer.domElement.toDataURL());
-    //renderer.setPixelRatio(0.5)
-    let m = renderer.domElement.toDataURL()
-    renderer.setSize(docWidth, docHeight);
-    return m;
+  if (sc && cam) {
+    renderer.render(sc, cam);
+  } else renderer.render(getScene(), camera);
+  //dumpImage(renderer.domElement.toDataURL());
+  //renderer.setPixelRatio(0.5)
+  let m = renderer.domElement.toDataURL();
+  renderer.setSize(docWidth, docHeight);
+  return m;
 }
 
-
 function addAnchor(host, bubble) {
-    let anchor = {
-        host: host,
-        bubble: bubble,
-        x: 0,
-        y: 0,
-        offset: 0,
+  let anchor = {
+    host: host,
+    bubble: bubble,
+    x: 0,
+    y: 0,
+    offset: 0,
+  };
+  anchors.forEach((a) => {
+    if (a.host == host) {
+      a.offset -= 40;
     }
-    anchors.forEach(a => {
-        if(a.host == host) {
-            a.offset -= 40;
-        }
-    })
-    anchors.push(anchor);
-    console.log(anchors.length + ' anchors');
-    updateAnchor(anchor, anchors.length - 1);
-    return anchor;
+  });
+  anchors.push(anchor);
+  console.log(anchors.length + " anchors");
+  updateAnchor(anchor, anchors.length - 1);
+  return anchor;
 }
 
 function updateAnchor(anchor, index) {
-    if(!anchor.bubble) {
-        anchors.splice(index, 1);
-        return false;
-    }
-    if(anchor.host) {
-        let vector = projectVector(anchor.host);
-        anchor.bubble.style.left = -16 + vector.x + 'px';
-        anchor.bubble.style.top = (40 + anchor.offset + vector.y) + 'px';
-        anchor.x = vector.x;
-        anchor.y = vector.y;
-    }
-
+  if (!anchor.bubble) {
+    anchors.splice(index, 1);
+    return false;
+  }
+  if (anchor.host) {
+    let vector = projectVector(anchor.host);
+    anchor.bubble.style.left = -16 + vector.x + "px";
+    anchor.bubble.style.top = 40 + anchor.offset + vector.y + "px";
+    anchor.x = vector.x;
+    anchor.y = vector.y;
+  }
 }
 
 function roundEdge(x) {
-    x = x % (Math.PI)
-    if(x < 0)
-        x += Math.PI * 2;
+  x = x % Math.PI;
+  if (x < 0) x += Math.PI * 2;
 
-    if(x > Math.PI / 4) {
-        if(x > 5 * Math.PI / 4) {
-            if(x < 7 * Math.PI / 4) {
-                return Math.PI * 3 / 2;
-            }
-        } else {
-            if(x > 3 * Math.PI / 4) {
-                return Math.PI;
-            } else {
-                return Math.PI / 2;
-            }
-        }
+  if (x > Math.PI / 4) {
+    if (x > (5 * Math.PI) / 4) {
+      if (x < (7 * Math.PI) / 4) {
+        return (Math.PI * 3) / 2;
+      }
+    } else {
+      if (x > (3 * Math.PI) / 4) {
+        return Math.PI;
+      } else {
+        return Math.PI / 2;
+      }
     }
-    return 0;
+  }
+  return 0;
 }
 
 function syncModel(index, obj) {
-    let m = modelsIndexed[index];
-    m.position.x = obj.x;
-    m.position.y = obj.y;
-    m.position.z = obj.z;
+  let m = modelsIndexed[index];
+  m.position.x = obj.x;
+  m.position.y = obj.y;
+  m.position.z = obj.z;
 }
 
 function createModel(index) {
-    let model = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    modelsIndexed[index] = model;
-    return model;
+  let model = new THREE.Mesh(cubeGeometry, cubeMaterial);
+  modelsIndexed[index] = model;
+  return model;
 }
 
 function addModel(model) {
-    group.add(model)
+  group.add(model);
 }
 
 function addModel2(model) {
-    scene.add(model)
+  scene.add(model);
 }
 
 function removeModel(model) {
-    group.remove(model)
+  group.remove(model);
 }
 
 function cubic(i, j, k, x, y, z, c) {
-    let geometry = new THREE.BoxBufferGeometry(i, j, k);
-    if(!c)
-        c = defaultMat
+  let geometry = new THREE.BoxBufferGeometry(i, j, k);
+  if (!c) c = defaultMat;
 
-    let cube = new THREE.Mesh(geometry, c);
-    cube.castShadow = true;
+  let cube = new THREE.Mesh(geometry, c);
+  cube.castShadow = true;
 
-    cube.position.x = x ? x : 0;
-    cube.position.y = y ? y : 0;
-    cube.position.z = z ? z : 0;
-    return cube;
+  cube.position.x = x ? x : 0;
+  cube.position.y = y ? y : 0;
+  cube.position.z = z ? z : 0;
+  return cube;
 }
 
 function cubicColored(i, j, k, x, y, z, c) {
-    if(!c)
-        c = defaultMat
-    else
-        c = new THREE.MeshBasicMaterial({ color: c });
+  if (!c) c = defaultMat;
+  else c = new THREE.MeshBasicMaterial({ color: c });
 
-    return cubic(i, j, k, x, y, z, c)
+  return cubic(i, j, k, x, y, z, c);
 }
 
 function cylinder(i, j, k, x, y, z, c) {
-    let geometry = new THREE.CylinderGeometry(i, j, k, 6);
-    if(!c)
-        c = defaultMat
-    else
-        c = new THREE.MeshBasicMaterial({ color: c });
+  let geometry = new THREE.CylinderGeometry(i, j, k, 6);
+  if (!c) c = defaultMat;
+  else c = new THREE.MeshBasicMaterial({ color: c });
 
-    geometry.rotateX(Math.PI / 2)
-    geometry.rotateZ(Math.PI / 2)
+  geometry.rotateX(Math.PI / 2);
+  geometry.rotateZ(Math.PI / 2);
 
-    let cyl = new THREE.Mesh(geometry, c);
-    cyl.castShadow = true;
-    cyl.position.x = x ? x : 0;
-    cyl.position.y = y ? y : 0;
-    cyl.position.z = z ? z : 0;
-    return cyl;
+  let cyl = new THREE.Mesh(geometry, c);
+  cyl.castShadow = true;
+  cyl.position.x = x ? x : 0;
+  cyl.position.y = y ? y : 0;
+  cyl.position.z = z ? z : 0;
+  return cyl;
 }
 
 function plane(i, j, c) {
-    const geometry = new THREE.PlaneBufferGeometry(i, j);
-    const material = new THREE.MeshBasicMaterial({ color: c?c:0xffff00, side: THREE.DoubleSide });
-    const plane = new THREE.Mesh(geometry, material);
-    return plane
+  const geometry = new THREE.PlaneBufferGeometry(i, j);
+  const material = new THREE.MeshBasicMaterial({
+    color: c ? c : 0xffff00,
+    side: THREE.DoubleSide,
+  });
+  const plane = new THREE.Mesh(geometry, material);
+  return plane;
 }
 
-
 function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = Math.random() > 0.5 ? 0x66B136 : 0x76610E;
-    return parseInt(color);
+  var letters = "0123456789ABCDEF";
+  var color = Math.random() > 0.5 ? 0x66b136 : 0x76610e;
+  return parseInt(color);
 }
 
 function applyCursor() {
-    /*if(Control.down()) {
+  /*if(Control.down()) {
         pointer.material = pointerMatOn;
     } else
         pointer.material = pointerMat;*/
 
-    var vector = new THREE.Vector3();
-    vector.set((Control.screenX() / window.innerWidth) * 2 - 1, -(Control.screenY() / window.innerHeight) * 2 + 1, 0.5);
-    vector.unproject(camera)
-    var dir = vector.sub(camera.position).normalize();
-    var distance = -camera.position.z / dir.z;
-    var pos = camera.position.clone().add(dir.multiplyScalar(distance));
-/*
+  var vector = new THREE.Vector3();
+  vector.set(
+    (Control.screenX() / window.innerWidth) * 2 - 1,
+    -(Control.screenY() / window.innerHeight) * 2 + 1,
+    0.5
+  );
+  vector.unproject(camera);
+  var dir = vector.sub(camera.position).normalize();
+  var distance = -camera.position.z / dir.z;
+  var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+  /*
     let intersects = raycaster.intersectObjects( scene.children,true );
 
 
@@ -532,40 +558,36 @@ function applyCursor() {
     }
 */
 
-    pointer.position.x = pos.x;
-    pointer.position.y = pos.y
-    pointer.position.z = pos.z+0.5;
-    // console.log(pointer.position)
-    Control.setVector(pointer.position);
+  pointer.position.x = pos.x;
+  pointer.position.y = pos.y;
+  pointer.position.z = pos.z + 0.5;
+  // console.log(pointer.position)
+  Control.setVector(pointer.position);
 }
 
 function projectVector(object) {
+  var width = docWidth,
+    height = docHeight;
+  var widthHalf = width / 2,
+    heightHalf = height / 2;
 
-    var width = docWidth,
-        height = docHeight;
-    var widthHalf = width / 2,
-        heightHalf = height / 2;
+  let vector = object.position.clone();
+  vector.z += 4;
+  //vector.applyMatrix4(object.matrixWorld);
+  vector.project(camera);
 
-    let vector = object.position.clone();
-    vector.z += 4
-    //vector.applyMatrix4(object.matrixWorld);
-    vector.project(camera)
+  //var projector = new THREE.Projector();
+  //projector.projectVector( vector.setFromMatrixPosition( object.matrixWorld ), camera );
 
-    //var projector = new THREE.Projector();
-    //projector.projectVector( vector.setFromMatrixPosition( object.matrixWorld ), camera );
-
-    vector.x = (vector.x * widthHalf) + widthHalf;
-    vector.y = -(vector.y * heightHalf) + heightHalf;
-    return vector;
-
+  vector.x = vector.x * widthHalf + widthHalf;
+  vector.y = -(vector.y * heightHalf) + heightHalf;
+  return vector;
 }
 
-
-var specterMaterial
+var specterMaterial;
 
 function initCustomMaterial() {
-
-    var meshphysical_frag = `
+  var meshphysical_frag = `
     #define STANDARD
 #ifdef PHYSICAL
     #define REFLECTIVITY
@@ -656,12 +678,11 @@ void main() {
     #include <fog_fragment>
     #include <premultiplied_alpha_fragment>
     #include <dithering_fragment>
-}`
+}`;
 
-    //gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+  //gl_FragColor = vec4( outgoingLight, diffuseColor.a );
 
-
-    /*
+  /*
     #ifdef USE_COLOR
                 if(vColor==vec3(0,0,1))
                     diffuseColor.rgb *= vec3(1,0,0);
@@ -669,9 +690,9 @@ void main() {
                     diffuseColor.rgb *= vColor;
         #endif*/
 
-    //    #include <color_vertex>
+  //    #include <color_vertex>
 
-    var meshphysical_vert = `#define STANDARD
+  var meshphysical_vert = `#define STANDARD
 varying vec3 vViewPosition;
 #ifndef FLAT_SHADED
     varying vec3 vNormal;
@@ -738,69 +759,61 @@ void main() {
     #include <worldpos_vertex>
     #include <shadowmap_vertex>
     #include <fog_vertex>
-}`
+}`;
 
-    var uniforms = THREE.UniformsUtils.merge(
-        [THREE.ShaderLib.standard.uniforms,
-            //{shirt: {value:new THREE.Vector3(0,1,0)},
-            //wind: {value:new THREE.Vector3(0,0,0)}}
-        ]
-    );
+  var uniforms = THREE.UniformsUtils.merge([
+    THREE.ShaderLib.standard.uniforms,
+    //{shirt: {value:new THREE.Vector3(0,1,0)},
+    //wind: {value:new THREE.Vector3(0,0,0)}}
+  ]);
 
-    /*specterMaterial =  new THREE.ShaderMaterial({
+  /*specterMaterial =  new THREE.ShaderMaterial({
     uniforms: uniforms,
     fragmentShader: fragmentShader(),
     vertexShader: vertexShader(),
   })**/
 
-
-    specterMaterial = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        derivatives: false,
-        lights: true,
-        vertexColors: true,
-        vertexShader: meshphysical_vert,
-        fragmentShader: meshphysical_frag,
-        roughness: 0.0,
-        metalness: 1.0,
-        //vertexShader: THREE.ShaderChunk.cube_vert,
-        //fragmentShader: THREE.ShaderChunk.cube_frag
-    });
-
-
+  specterMaterial = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    derivatives: false,
+    lights: true,
+    vertexColors: true,
+    vertexShader: meshphysical_vert,
+    fragmentShader: meshphysical_frag,
+    roughness: 0.0,
+    metalness: 1.0,
+    //vertexShader: THREE.ShaderChunk.cube_vert,
+    //fragmentShader: THREE.ShaderChunk.cube_frag
+  });
 }
 
 function toggleScene(sc, cam) {
-    if(cam && sc) {
-        activeCamera = cam;
-        activeScene = sc;
-    } else {
-        activeScene = scene;
-        activeCamera = camera;
-    }
+  if (cam && sc) {
+    activeCamera = cam;
+    activeScene = sc;
+  } else {
+    activeScene = scene;
+    activeCamera = camera;
+  }
 }
 
-function getCursor(){
-    return pointer;
+function getCursor() {
+  return pointer;
 }
-
-
 
 /////SCENE///////
 
 var emptyScene;
 var scenes;
 
-
-
 function sceneInit() {
-    emptyScene = new THREE.Scene();
-    scenes = [];
+  emptyScene = new THREE.Scene();
+  scenes = [];
 
-    let cubeGeometry = new THREE.BoxBufferGeometry(20, 20, 20);
-    let cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff8833 }); //map: texture
+  let cubeGeometry = new THREE.BoxBufferGeometry(20, 20, 20);
+  let cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff8833 }); //map: texture
 
-    /*
+  /*
       var geometry = new THREE.SphereGeometry( 5, 32, 32 );
       var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
       var sphere = new THREE.Mesh( geometry, material );
@@ -816,10 +829,8 @@ function sceneInit() {
       scenes[3].add(octa);*/
 }
 
-
-
-function flipScene(i) {
-    activeScene = i;
+export function flipScene(i) {
+  activeScene = i;
 }
 var activeScene = 0;
 var activeModule;
@@ -857,39 +868,36 @@ function getScene() {
 ///////////////
 
 function setClearColor(a, b) {
-    renderer.setClearColor(a, b);
+  renderer.setClearColor(a, b);
 }
 
 function makeGroup() {
-    return new THREE.Group();
+  return new THREE.Group();
 }
-
-
-
 
 export {
-    init,
-    addModel,
-    removeModel,
-    setClearColor,
-    toggleScene,
-    defaultModel,
-    makeGroup,
-    addModel2,
-    cubic,
-    cubicColored,
-    cylinder,
-    plane,
-    wood,
-    ground,
-    blood,
-    yellow,
-    getAlphaCanvas,
-    bufferPrint,
-    loadModel,
-    addAnchor,
-    resize,
-    player,
-    togglePhysicsDebugger,
-    getCursor
-}
+  init,
+  addModel,
+  removeModel,
+  setClearColor,
+  toggleScene,
+  defaultModel,
+  makeGroup,
+  addModel2,
+  cubic,
+  cubicColored,
+  cylinder,
+  plane,
+  wood,
+  ground,
+  blood,
+  yellow,
+  getAlphaCanvas,
+  bufferPrint,
+  loadModel,
+  addAnchor,
+  resize,
+  player,
+  togglePhysicsDebugger,
+  getCursor,
+};
